@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
+import { BottomNav } from "@/components/bottom-nav";
 import type { StudentProfile, TimetableCourse, TimetableResponse } from "@/types/timetable";
 
 interface ApiError {
@@ -173,6 +174,7 @@ function DayPanel({ day, label, dayCourses, sectionTimeMap, onCourseClick }: Day
 export function TimetableClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [term, setTerm] = useState("");
   const [profile, setProfile] = useState<StudentProfile | null>(null);
@@ -185,42 +187,42 @@ export function TimetableClient() {
   const [openDay, setOpenDay] = useState<number | null>(null);
   const [selectedDesktopDay, setSelectedDesktopDay] = useState<number>(todayWeekday() === 7 ? 1 : todayWeekday() + 1);
 
-  useEffect(() => {
-    let active = true;
+  async function loadTimetable(options: { resetWeek?: boolean; silent?: boolean } = {}) {
+    const { resetWeek = false, silent = false } = options;
 
-    async function load() {
-      setLoading(true);
-      setError("");
-      try {
-        const response = await fetch("/api/timetable", { cache: "no-store" });
-        const result = (await response.json()) as ApiResult;
+    if (silent) setRefreshing(true);
+    else setLoading(true);
 
-        if (!result.ok) {
-          if (result.code === "UNAUTHORIZED") {
-            router.replace("/login");
-            return;
-          }
-          setError(result.message || "课表加载失败");
+    setError("");
+    try {
+      const response = await fetch("/api/timetable", { cache: "no-store" });
+      const result = (await response.json()) as ApiResult;
+
+      if (!result.ok) {
+        if (result.code === "UNAUTHORIZED") {
+          router.replace("/login");
           return;
         }
-
-        if (!active) return;
-        setTerm(result.data.term);
-        setProfile(result.data.profile);
-        setCourses(result.data.courses);
-        setWeek(1);
-      } catch {
-        setError("网络异常，请稍后重试");
-      } finally {
-        if (active) setLoading(false);
+        setError(result.message || "课表加载失败");
+        return;
       }
-    }
 
-    load();
-    return () => {
-      active = false;
-    };
-  }, [router]);
+      setTerm(result.data.term);
+      setProfile(result.data.profile);
+      setCourses(result.data.courses);
+      if (resetWeek) setWeek(1);
+    } catch {
+      setError("网络异常，请稍后重试");
+    } finally {
+      if (silent) setRefreshing(false);
+      else setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadTimetable({ resetWeek: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handleViewportChange = () => {
@@ -285,14 +287,19 @@ export function TimetableClient() {
   return (
     <>
       <section className="glass-card rise-in" style={{ padding: 16, marginBottom: 14 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
           <div>
             <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>当前学期</p>
             <h2 style={{ margin: "2px 0 0", fontSize: 20 }}>{term || "未识别"}</h2>
           </div>
-          <button onClick={logout} style={{ border: "1px solid #c8dce5", background: "white", borderRadius: 10, padding: "8px 10px" }}>
-            退出
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => loadTimetable({ silent: true })} style={smallBtn} disabled={refreshing}>
+              {refreshing ? "刷新中..." : "刷新"}
+            </button>
+            <button onClick={logout} style={smallBtn}>
+              退出
+            </button>
+          </div>
         </div>
 
         {profile ? (
@@ -439,14 +446,7 @@ export function TimetableClient() {
         </>
       )}
 
-      <nav className="bottom-nav" aria-label="底部导航">
-        <button className="active" type="button">
-          课表
-        </button>
-        <button type="button" onClick={logout}>
-          退出登录
-        </button>
-      </nav>
+      <BottomNav active="timetable" />
 
       {selected ? (
         <div

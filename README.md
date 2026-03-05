@@ -1,47 +1,62 @@
-# SDAU 教务移动端（第三方）
+﻿# SDAU 移动端教务系统（第三方）
 
-基于 Next.js 的手机优先教务系统，已适配 `https://jw.sdau.edu.cn` 当前新版登录与课表页面。
+一个基于 Next.js 的手机优先教务系统前端与服务端一体项目，适配 `https://jw.sdau.edu.cn` 的登录与课表抓取流程。
 
-## 功能概览
+## 功能范围
 
-- 学号密码登录（服务端登录，不在前端直连教务）
-- 读取个人信息并展示：姓名、学号、班级、专业、学院
-- 读取学期课表并按周展示（支持课程详情弹层）
-- 服务端加密会话 Cookie（不存储明文账号密码）
+- 学号密码登录（服务端代登录，不在前端直接请求教务站点）
+- 课表抓取与标准化输出
+- 个人信息展示：姓名、学号、班级、专业、学院
+- 移动端优先 UI（当天课表置顶、其他日期可收起展开）
+- 服务端会话 Cookie（不持久化明文密码）
+
+## 当前适配路径
+
+- 主页面：`/framework/xsMainV.jsp`
+- 个人信息页面：`/framework/xsMainV_new.htmlx?t1=1`
+- 课表页面：`/xskb/xskb_list.do?viweType=0`
 
 ## 技术栈
 
-- Next.js 15 (App Router)
+- Next.js 15（App Router）
 - TypeScript
 - Cheerio（服务端 HTML 解析）
 
-## 目录结构
+## 项目结构
 
 - `src/app/login`：登录页
 - `src/app/timetable`：课表页
-- `src/app/api/auth/*`：登录/退出 API
+- `src/app/api/auth/login`：登录 API
+- `src/app/api/auth/logout`：退出 API
 - `src/app/api/timetable`：课表 + 个人信息 API
-- `src/lib/jw/*`：教务系统适配层（登录、课表、解析）
-- `src/lib/session/*`：会话加密与存储
+- `src/lib/jw`：教务系统适配层（登录、抓取、解析）
+- `src/lib/session`：会话加密与存储
+- `src/types`：前后端共享类型
 
 ## 环境变量
 
-复制 `.env.example` 为 `.env.local`：
+复制模板：
 
 ```bash
 cp .env.example .env.local
 ```
 
-必须配置：
+`.env.local` 至少需要：
 
-- `SESSION_SECRET`：会话加密密钥（建议 32 位以上随机字符串）
+```env
+JW_BASE_URL=https://jw.sdau.edu.cn
+SESSION_SECRET=请填写32位以上随机字符串
+JW_TIMEOUT_MS=12000
+JW_RETRY_COUNT=1
+JW_USER_AGENT=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+SESSION_COOKIE_SECURE=false
+```
 
-可选配置：
+说明：
 
-- `JW_BASE_URL`：默认 `https://jw.sdau.edu.cn`
-- `JW_TIMEOUT_MS`：教务请求超时（毫秒）
-- `JW_RETRY_COUNT`：教务请求失败重试次数
-- `JW_USER_AGENT`：请求头 UA`r`n- `SESSION_COOKIE_SECURE`：是否仅 HTTPS 发送会话 Cookie（生产建议 `true`；本地 HTTP 联调可设 `false`）
+- `SESSION_SECRET` 不是随意短字符串，建议 32 位以上随机值。
+- 本地 `http://localhost` 调试时，`SESSION_COOKIE_SECURE=false`。
+- 生产 HTTPS 环境请设为 `true`。
 
 ## 本地运行
 
@@ -51,15 +66,15 @@ cp .env.example .env.local
 npm install
 ```
 
-2. 启动开发环境
+2. 启动开发模式
 
 ```bash
 npm run dev
 ```
 
-3. 打开
+3. 打开：
 
-- [http://localhost:3000](http://localhost:3000)
+- `http://localhost:3000/login`
 
 ## 生产构建
 
@@ -71,30 +86,33 @@ npm run start
 
 ## API 说明
 
-### 1) `POST /api/auth/login`
+### `POST /api/auth/login`
 
-请求体：
+请求：
 
 ```json
 { "studentId": "2024xxxxxx", "password": "******" }
 ```
 
-返回：
-
-- 成功：`{ "ok": true }`
-- 失败：`{ "ok": false, "code": "...", "message": "..." }`
-
-### 2) `POST /api/auth/logout`
-
-返回：
+响应：
 
 ```json
 { "ok": true }
 ```
 
-### 3) `GET /api/timetable?term=YYYY-YYYY-X`
+或
 
-返回：
+```json
+{ "ok": false, "code": "INVALID_CREDENTIALS | JW_UNAVAILABLE", "message": "..." }
+```
+
+### `POST /api/auth/logout`
+
+```json
+{ "ok": true }
+```
+
+### `GET /api/timetable?term=YYYY-YYYY-X`
 
 ```json
 {
@@ -115,50 +133,22 @@ npm run start
 }
 ```
 
-## 适配说明（当前版本）
+## 部署建议
 
-已按你校新版路径适配：
+本项目依赖服务端 API，不适合纯静态托管。
 
-- 主界面：`/framework/xsMainV.jsp`
-- 个人信息页：`/framework/xsMainV_new.htmlx?t1=1`
-- 课表页：`/xskb/xskb_list.do?viweType=0`
-
-如果后续学校改版（字段名、class 名、页面结构变化），需要更新 `src/lib/jw/client.ts` 与 `src/lib/jw/timetable-parser.ts`。
-
-## 部署说明
-
-### 推荐：Vercel（前后端一体）
-
-原因：本项目依赖服务端 API 登录教务系统，Vercel 可直接部署 Next.js 全栈。
-
-步骤：
-
-1. 推送代码到 GitHub
-2. 在 Vercel 导入仓库
-3. 配置环境变量（至少 `SESSION_SECRET`）
-4. 一键部署
-
-### GitHub Pages 注意事项
-
-GitHub Pages 只能托管静态文件，**不能运行本项目的服务端 API**。因此：
-
-- 不能把本仓库直接完整部署成“可登录教务”的纯 Pages 站点
-- 若必须用 Pages：需要拆分为
-  - 前端静态站（Pages）
-  - 独立后端服务（如 Vercel/云服务器）
-
-前端再通过 `NEXT_PUBLIC_API_BASE_URL` 调用后端 API。
+- 推荐：Vercel（最省事，前后端一体）
+- 可选：轻量云主机（Node + Nginx + PM2）
+- 不推荐：GitHub Pages（仅静态，无法运行本项目后端 API）
 
 ## 常见问题
 
-1. 登录失败但账号密码确认正确
-- 先确认学校教务是否临时维护或限制访问
-- 检查是否在校园网/VPN环境
+1. 本地提示 `JW_UNAVAILABLE`，云端正常
+- 多数是本地网络/代理/DNS 问题，不是业务逻辑错误。
+- 先确认本机能否在终端请求 `https://jw.sdau.edu.cn`。
 
-2. 课表为空
-- 可能当前学期无排课
-- 也可能页面结构变化导致解析失败（需更新解析器）
+2. 登录成功但课表异常
+- 学校页面结构变更会影响解析，需要更新 `src/lib/jw/timetable-parser.ts`。
 
-3. 页面报 `JW_UNAVAILABLE`
-- 教务系统超时或接口异常，稍后重试
-- 可调大 `JW_TIMEOUT_MS`
+3. Vercel 报 Next.js 漏洞版本
+- 当前项目已使用 `next@15.5.12` 和 `eslint-config-next@15.5.12`。

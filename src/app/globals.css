@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg-top: #d4f6f2;
   --bg-bottom: #f6fbff;
   --ink: #16323f;
@@ -79,6 +79,7 @@ a {
   gap: 8px;
 }
 
+.bottom-nav a,
 .bottom-nav button {
   border: 0;
   border-radius: 12px;
@@ -88,6 +89,7 @@ a {
   background: transparent;
 }
 
+.bottom-nav a.active,
 .bottom-nav button.active {
   color: #fff;
   background: linear-gradient(120deg, #0d8e7f, #13a89a);
