@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 import { BottomNav } from "@/components/bottom-nav";
+import { LoadingPanel } from "@/components/loading-panel";
 import type { StudentProfile, TimetableCourse, TimetableResponse } from "@/types/timetable";
 
 interface ApiError {
@@ -20,8 +21,11 @@ interface ApiSuccess {
 
 type ApiResult = ApiError | ApiSuccess;
 
+type SectionTimeMap = Record<number, string>;
+
 const weekdays = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
 const sectionIndexes = [1, 2, 3, 4, 5] as const;
+
 const sectionNameMap: Record<number, string> = {
   1: "第一大节",
   2: "第二大节",
@@ -30,7 +34,14 @@ const sectionNameMap: Record<number, string> = {
   5: "第五大节",
 };
 
-type SectionTimeMap = Record<number, string>;
+const courseColorPalette = [
+  { bg: "#EAF4FF", border: "#BCD9FF", text: "#1F3D63" },
+  { bg: "#ECFFF4", border: "#BFEBD2", text: "#1F5A42" },
+  { bg: "#FFF6EA", border: "#F2D9B0", text: "#6A4A1F" },
+  { bg: "#F3EEFF", border: "#D6C8F7", text: "#4A346E" },
+  { bg: "#FFEFF3", border: "#F5C6D5", text: "#6A2E44" },
+  { bg: "#EEF9FB", border: "#BFE6ED", text: "#245766" },
+] as const;
 
 function isSummerSchedule(date: Date): boolean {
   const month = date.getMonth() + 1;
@@ -109,24 +120,10 @@ function coursesForSlot(courses: TimetableCourse[], sectionIndex: number): Timet
   return courses.filter((course) => sectionIndex >= course.startSection && sectionIndex <= course.endSection);
 }
 
-function detectLandscape(): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(orientation: landscape)").matches || window.innerWidth > window.innerHeight;
-}
-
 function detectDesktop(): boolean {
   if (typeof window === "undefined") return false;
   return window.innerWidth >= 1024;
 }
-
-const courseColorPalette = [
-  { bg: "#EAF4FF", border: "#BCD9FF", text: "#1F3D63" },
-  { bg: "#ECFFF4", border: "#BFEBD2", text: "#1F5A42" },
-  { bg: "#FFF6EA", border: "#F2D9B0", text: "#6A4A1F" },
-  { bg: "#F3EEFF", border: "#D6C8F7", text: "#4A346E" },
-  { bg: "#FFEFF3", border: "#F5C6D5", text: "#6A2E44" },
-  { bg: "#EEF9FB", border: "#BFE6ED", text: "#245766" },
-] as const;
 
 function courseColorByName(seed: string) {
   let hash = 0;
@@ -135,6 +132,7 @@ function courseColorByName(seed: string) {
   }
   return courseColorPalette[hash % courseColorPalette.length];
 }
+
 interface DayPanelProps {
   day: number;
   label: string;
@@ -143,7 +141,7 @@ interface DayPanelProps {
   onCourseClick: (course: TimetableCourse) => void;
 }
 
-function DayPanel({ day, label, dayCourses, sectionTimeMap, onCourseClick }: DayPanelProps) {
+function DayPanel({ day, dayCourses, sectionTimeMap, onCourseClick }: DayPanelProps) {
   const weekendAllEmpty = day >= 6 && dayCourses.length === 0;
 
   if (weekendAllEmpty) {
@@ -159,25 +157,33 @@ function DayPanel({ day, label, dayCourses, sectionTimeMap, onCourseClick }: Day
       {sectionIndexes.map((sectionIndex) => {
         const slotCourses = coursesForSlot(dayCourses, sectionIndex);
         return (
-          <div key={`${label}-${sectionIndex}`} style={{ borderRadius: 10, background: "#f7fcff", padding: 10 }}>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--muted)" }}>
-              {sectionLabelWithTime(sectionIndex, sectionTimeMap)}
-            </p>
+          <div key={`${day}-${sectionIndex}`} style={{ borderRadius: 10, background: "#f7fcff", padding: 10 }}>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--muted)" }}>{sectionLabelWithTime(sectionIndex, sectionTimeMap)}</p>
             {slotCourses.length === 0 ? (
               <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--muted)" }}>无课</p>
             ) : (
               <div style={{ display: "grid", gap: 6, marginTop: 6 }}>
-                {slotCourses.map((course) => (
-                  <button
-                    key={`${course.id}-${sectionIndex}`}
-                    onClick={() => onCourseClick(course)}
-                    style={{ textAlign: "left", borderRadius: 10, border: `1px solid ${courseColorByName(course.name).border}`, background: courseColorByName(course.name).bg, color: courseColorByName(course.name).text, padding: "8px 10px" }}
-                  >
-                    <p style={{ margin: 0, fontWeight: 700, fontSize: 13 }}>{course.name}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 12, opacity: 0.9 }}>老师：{course.teacher || "待定"}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 12, fontWeight: 700 }}>教室：{course.location || "待定"}</p>
-                  </button>
-                ))}
+                {slotCourses.map((course) => {
+                  const color = courseColorByName(course.name);
+                  return (
+                    <button
+                      key={`${course.id}-${sectionIndex}`}
+                      onClick={() => onCourseClick(course)}
+                      style={{
+                        textAlign: "left",
+                        borderRadius: 10,
+                        border: `1px solid ${color.border}`,
+                        background: color.bg,
+                        color: color.text,
+                        padding: "8px 10px",
+                      }}
+                    >
+                      <p style={{ margin: 0, fontWeight: 700, fontSize: 13 }}>{course.name}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 12 }}>老师：{course.teacher || "待定"}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 12, fontWeight: 700 }}>教室：{course.location || "待定"}</p>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -189,6 +195,7 @@ function DayPanel({ day, label, dayCourses, sectionTimeMap, onCourseClick }: Day
 
 export function TimetableClient() {
   const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -197,7 +204,6 @@ export function TimetableClient() {
   const [week, setWeek] = useState(1);
   const [courses, setCourses] = useState<TimetableCourse[]>([]);
   const [selected, setSelected] = useState<TimetableCourse | null>(null);
-  const [isLandscape, setIsLandscape] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [sectionTimeMap, setSectionTimeMap] = useState<SectionTimeMap>(() => getSectionTimeMap(new Date()));
   const [openDay, setOpenDay] = useState<number | null>(null);
@@ -241,17 +247,10 @@ export function TimetableClient() {
   }, []);
 
   useEffect(() => {
-    const handleViewportChange = () => {
-      setIsLandscape(detectLandscape());
-      setIsDesktop(detectDesktop());
-    };
-    handleViewportChange();
-    window.addEventListener("resize", handleViewportChange);
-    window.addEventListener("orientationchange", handleViewportChange);
-    return () => {
-      window.removeEventListener("resize", handleViewportChange);
-      window.removeEventListener("orientationchange", handleViewportChange);
-    };
+    const onResize = () => setIsDesktop(detectDesktop());
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   useEffect(() => {
@@ -293,11 +292,7 @@ export function TimetableClient() {
   }
 
   if (loading) {
-    return (
-      <section className="glass-card rise-in" style={{ padding: 20 }}>
-        课表加载中...
-      </section>
-    );
+    return <LoadingPanel title="课表加载中" subtitle="正在整理本周课程安排..." rows={6} />;
   }
 
   return (
@@ -312,23 +307,12 @@ export function TimetableClient() {
             <button onClick={() => loadTimetable({ silent: true })} style={smallBtn} disabled={refreshing}>
               {refreshing ? "刷新中..." : "刷新"}
             </button>
-            <button onClick={logout} style={smallBtn}>
-              退出</button>
+            <button onClick={logout} style={smallBtn}>退出</button>
           </div>
         </div>
 
         {profile ? (
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 13,
-              color: "var(--muted)",
-              lineHeight: 1.5,
-              display: "grid",
-              gap: 2,
-              gridTemplateColumns: isLandscape ? "1fr 1fr" : "1fr",
-            }}
-          >
+          <div style={{ marginTop: 10, fontSize: 13, color: "var(--muted)", lineHeight: 1.5, display: "grid", gap: 2, gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr" }}>
             <div>{profile.displayName}</div>
             <div>班级：{profile.className || "-"}</div>
             <div>专业：{profile.major || "-"}</div>
@@ -337,13 +321,9 @@ export function TimetableClient() {
         ) : null}
 
         <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={() => setWeek((value) => Math.max(1, value - 1))} style={smallBtn}>
-            上一周
-          </button>
+          <button onClick={() => setWeek((value) => Math.max(1, value - 1))} style={smallBtn}>上一周</button>
           <div style={{ fontWeight: 700 }}>第 {week} 周</div>
-          <button onClick={() => setWeek((value) => Math.min(maxWeek, value + 1))} style={smallBtn}>
-            下一周
-          </button>
+          <button onClick={() => setWeek((value) => Math.min(maxWeek, value + 1))} style={smallBtn}>下一周</button>
         </div>
       </section>
 
@@ -354,13 +334,7 @@ export function TimetableClient() {
           <div className="glass-card rise-in" style={{ padding: 14 }}>
             <h3 style={{ margin: 0, fontSize: 16 }}>今日课表（{weekdays[currentWeekday - 1]}）</h3>
             <div style={{ marginTop: 10 }}>
-              <DayPanel
-                day={currentWeekday}
-                label={weekdays[currentWeekday - 1]}
-                dayCourses={todayCourses}
-                sectionTimeMap={sectionTimeMap}
-                onCourseClick={setSelected}
-              />
+              <DayPanel day={currentWeekday} label={weekdays[currentWeekday - 1]} dayCourses={todayCourses} sectionTimeMap={sectionTimeMap} onCourseClick={setSelected} />
             </div>
           </div>
 
@@ -375,17 +349,9 @@ export function TimetableClient() {
                   <button
                     key={label}
                     onClick={() => setSelectedDesktopDay(day)}
-                    style={{
-                      border: "1px solid #c8dce5",
-                      borderRadius: 999,
-                      background: active ? "#0d8e7f" : "white",
-                      color: active ? "white" : "var(--ink)",
-                      padding: "6px 12px",
-                      fontSize: 13,
-                    }}
+                    style={{ border: "1px solid #c8dce5", borderRadius: 999, background: active ? "#0d8e7f" : "white", color: active ? "white" : "var(--ink)", padding: "6px 12px", fontSize: 13 }}
                   >
-                    {label}
-                    {hint}
+                    {label}{hint}
                   </button>
                 );
               })}
@@ -407,17 +373,11 @@ export function TimetableClient() {
           <section className="glass-card rise-in" style={{ padding: 14, marginBottom: 10 }}>
             <h3 style={{ margin: 0, fontSize: 16 }}>今日课表（{weekdays[currentWeekday - 1]}）</h3>
             <div style={{ marginTop: 10 }}>
-              <DayPanel
-                day={currentWeekday}
-                label={weekdays[currentWeekday - 1]}
-                dayCourses={todayCourses}
-                sectionTimeMap={sectionTimeMap}
-                onCourseClick={setSelected}
-              />
+              <DayPanel day={currentWeekday} label={weekdays[currentWeekday - 1]} dayCourses={todayCourses} sectionTimeMap={sectionTimeMap} onCourseClick={setSelected} />
             </div>
           </section>
 
-          <section style={{ display: "grid", gap: 10, gridTemplateColumns: isLandscape ? "repeat(2, minmax(0, 1fr))" : "1fr" }}>
+          <section style={{ display: "grid", gap: 10, gridTemplateColumns: "1fr" }}>
             {otherDays.map(({ day, label }) => {
               const dayCourses = groupedByWeekday.get(day) ?? [];
               const emptyHint = day >= 6 && dayCourses.length === 0 ? " · 全天无课" : "";
@@ -425,33 +385,13 @@ export function TimetableClient() {
 
               return (
                 <article key={label} className="glass-card rise-in" style={{ padding: 12 }}>
-                  <button
-                    type="button"
-                    onClick={() => setOpenDay((prev) => (prev === day ? null : day))}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      border: 0,
-                      background: "transparent",
-                      padding: 0,
-                      fontWeight: 700,
-                      fontSize: 15,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {label}
-                    {emptyHint}
+                  <button type="button" onClick={() => setOpenDay((prev) => (prev === day ? null : day))} style={{ width: "100%", textAlign: "left", border: 0, background: "transparent", padding: 0, fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+                    {label}{emptyHint}
                     <span style={{ float: "right", color: "var(--muted)", fontWeight: 500 }}>{expanded ? "收起" : "展开"}</span>
                   </button>
                   {expanded ? (
                     <div style={{ marginTop: 10 }}>
-                      <DayPanel
-                        day={day}
-                        label={label}
-                        dayCourses={dayCourses}
-                        sectionTimeMap={sectionTimeMap}
-                        onCourseClick={setSelected}
-                      />
+                      <DayPanel day={day} label={label} dayCourses={dayCourses} sectionTimeMap={sectionTimeMap} onCourseClick={setSelected} />
                     </div>
                   ) : null}
                 </article>
@@ -479,9 +419,7 @@ export function TimetableClient() {
             <p style={{ ...detailText, fontWeight: 700 }}>上课教室：{selected.location || "待定"}</p>
             <p style={detailText}>节次：{sectionRangeText(selected.startSection, selected.endSection, sectionTimeMap)}</p>
             <p style={detailText}>周次：{formatWeeks(selected.weeks)}</p>
-            <button onClick={() => setSelected(null)} style={{ ...smallBtn, marginTop: 6 }}>
-              关闭
-            </button>
+            <button onClick={() => setSelected(null)} style={{ ...smallBtn, marginTop: 6 }}>关闭</button>
           </div>
         </div>
       ) : null}
@@ -502,8 +440,3 @@ const detailText: CSSProperties = {
   color: "var(--ink)",
   fontSize: 14,
 };
-
-
-
-
-

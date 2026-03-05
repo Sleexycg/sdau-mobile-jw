@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import type { CSSProperties, FormEvent } from "react";
+import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 interface LoginResult {
@@ -45,11 +45,13 @@ export function LoginForm() {
   }
 
   return (
-    <form className="glass-card rise-in" onSubmit={onSubmit} style={{ padding: 20 }}>
-      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 24 }}>山东农业大学综合教务系统移动端</h1>
-      <p style={{ marginTop: 0, marginBottom: 16, color: "var(--muted)", fontSize: 14 }}>第三方移动端教务系统</p>
+    <form className="login-form glass-card" onSubmit={onSubmit}>
+      <header className="login-form-header">
+        <p className="login-form-subtitle">登录教务系统</p>
+        <p className="login-form-desc">第三方移动端教务系统</p>
+      </header>
 
-      <label htmlFor="student-id" style={{ fontSize: 13, color: "var(--muted)" }}>
+      <label htmlFor="student-id" className="login-label">
         学号
       </label>
       <input
@@ -58,10 +60,10 @@ export function LoginForm() {
         onChange={(event) => setStudentId(event.target.value)}
         placeholder="请输入学号"
         autoComplete="username"
-        style={inputStyle}
+        className="login-input"
       />
 
-      <label htmlFor="password" style={{ fontSize: 13, color: "var(--muted)" }}>
+      <label htmlFor="password" className="login-label">
         密码
       </label>
       <input
@@ -71,39 +73,14 @@ export function LoginForm() {
         onChange={(event) => setPassword(event.target.value)}
         placeholder="请输入密码"
         autoComplete="current-password"
-        style={inputStyle}
+        className="login-input"
       />
 
       {error ? <p className="error-text">{error}</p> : null}
 
-      <button
-        disabled={loading}
-        style={{
-          marginTop: 10,
-          width: "100%",
-          border: 0,
-          borderRadius: 12,
-          background: "linear-gradient(120deg, var(--primary), #16b5a3)",
-          color: "white",
-          fontSize: 16,
-          fontWeight: 700,
-          padding: "12px 16px",
-        }}
-      >
-        {loading ? "登录中..." : "立即登录"}
+      <button disabled={loading} className="login-submit-btn">
+        {loading ? "登录中..." : "进入系统"}
       </button>
     </form>
   );
 }
-
-const inputStyle: CSSProperties = {
-  width: "100%",
-  border: "1px solid #c9dde6",
-  borderRadius: 12,
-  marginTop: 6,
-  marginBottom: 12,
-  padding: "12px 14px",
-  fontSize: 15,
-  outline: "none",
-  background: "#f8fdff",
-};

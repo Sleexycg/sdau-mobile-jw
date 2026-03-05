@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BottomNav } from "@/components/bottom-nav";
-import type { CampusName, EmptyRoomItem, EmptyRoomResponse, EmptyRoomQuery, SectionCode } from "@/types/empty-room";
+import type { CampusName, EmptyRoomItem, EmptyRoomQuery, EmptyRoomResponse, SectionCode } from "@/types/empty-room";
 
 interface ApiError {
   ok: false;
@@ -18,6 +18,7 @@ interface ApiSuccess {
 }
 
 type ApiResult = ApiError | ApiSuccess;
+type OpenField = "campus" | "weekday" | "section" | null;
 
 const weekdayOptions: Array<{ value: EmptyRoomQuery["weekday"]; label: string }> = [
   { value: 1, label: "周一" },
@@ -85,6 +86,8 @@ function buildCurrentLabel(termWeek: { term: string; week: number } | null, toda
 
 export function EmptyRoomsClient() {
   const router = useRouter();
+  const dropdownRootRef = useRef<HTMLDivElement | null>(null);
+
   const todayWeekday = useMemo(() => getTodayWeekday(), []);
   const [query, setQuery] = useState<EmptyRoomQuery>({
     weekday: todayWeekday,
@@ -96,6 +99,10 @@ export function EmptyRoomsClient() {
   const [rooms, setRooms] = useState<EmptyRoomItem[]>([]);
   const [termWeek, setTermWeek] = useState<{ term: string; week: number } | null>(null);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [openField, setOpenField] = useState<OpenField>(null);
+
+  const weekdayLabel = weekdayOptions.find((item) => item.value === query.weekday)?.label ?? "周一";
+  const sectionLabel = sectionOptions.find((item) => item.value === query.sectionCode)?.label ?? "第一大节（01-02）";
 
   const groupedRooms = useMemo(() => {
     const map = new Map<string, EmptyRoomItem[]>();
@@ -137,12 +144,32 @@ export function EmptyRoomsClient() {
           setTermWeek(result.data);
         }
       } catch {
-        // ignore context load errors; user can still query manually
+        // ignore context load errors
       }
     };
 
     loadContext();
   }, []);
+
+  useEffect(() => {
+    if (!openField) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (dropdownRootRef.current && !dropdownRootRef.current.contains(target)) {
+        setOpenField(null);
+      }
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [openField]);
+
+  function clearResults() {
+    setRooms([]);
+    setError("");
+    setOpenGroups({});
+  }
 
   async function onSearch() {
     setLoading(true);
@@ -182,66 +209,92 @@ export function EmptyRoomsClient() {
 
   return (
     <>
-      <section className="glass-card rise-in" style={{ padding: 16, marginBottom: 14 }}>
+      <section className="glass-card rise-in" style={{ padding: 16, marginBottom: 14, position: "relative", zIndex: 50 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div>
             <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>空教室查询</p>
             <h2 style={{ margin: "2px 0 0", fontSize: 20 }}>{buildCurrentLabel(termWeek, todayWeekday)}</h2>
           </div>
-          <button onClick={logout} style={smallBtn}>
-            退出
-          </button>
+          <button onClick={logout} style={smallBtn}>退出</button>
         </div>
 
-        <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
+        <div ref={dropdownRootRef} style={{ marginTop: 12, display: "grid", gap: 10 }}>
           <label style={labelStyle}>
             校区
-            <select
-              value={query.campus}
-              onChange={(e) => {
-                setQuery((q) => ({ ...q, campus: e.target.value as CampusName }));
-                setRooms([]);
-                setError("");
-                setOpenGroups({});
-              }}
-              style={selectStyle}
-            >
-              {campusOptions.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            <div className="inline-select-wrap">
+              <button type="button" className="inline-select-trigger" onClick={() => setOpenField((v) => (v === "campus" ? null : "campus"))}>
+                <span>{query.campus}</span>
+                <span className="inline-select-arrow">{openField === "campus" ? "收起" : "展开"}</span>
+              </button>
+              <div className={`inline-select-panel ${openField === "campus" ? "open" : ""}`}>
+                {campusOptions.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={`inline-select-option ${item === query.campus ? "active" : ""}`}
+                    onClick={() => {
+                      setQuery((q) => ({ ...q, campus: item }));
+                      clearResults();
+                      setOpenField(null);
+                    }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
           </label>
 
           <label style={labelStyle}>
-            星期几
-            <select
-              value={String(query.weekday)}
-              onChange={(e) => setQuery((q) => ({ ...q, weekday: Number(e.target.value) as EmptyRoomQuery["weekday"] }))}
-              style={selectStyle}
-            >
-              {weekdayOptions.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
+            星期
+            <div className="inline-select-wrap">
+              <button type="button" className="inline-select-trigger" onClick={() => setOpenField((v) => (v === "weekday" ? null : "weekday"))}>
+                <span>{weekdayLabel}</span>
+                <span className="inline-select-arrow">{openField === "weekday" ? "收起" : "展开"}</span>
+              </button>
+              <div className={`inline-select-panel ${openField === "weekday" ? "open" : ""}`}>
+                {weekdayOptions.map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    className={`inline-select-option ${item.value === query.weekday ? "active" : ""}`}
+                    onClick={() => {
+                      setQuery((q) => ({ ...q, weekday: item.value }));
+                      clearResults();
+                      setOpenField(null);
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </label>
 
           <label style={labelStyle}>
             节次
-            <select
-              value={query.sectionCode}
-              onChange={(e) => setQuery((q) => ({ ...q, sectionCode: e.target.value as SectionCode }))}
-              style={selectStyle}
-            >
-              {sectionOptions.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
+            <div className="inline-select-wrap">
+              <button type="button" className="inline-select-trigger" onClick={() => setOpenField((v) => (v === "section" ? null : "section"))}>
+                <span>{sectionLabel}</span>
+                <span className="inline-select-arrow">{openField === "section" ? "收起" : "展开"}</span>
+              </button>
+              <div className={`inline-select-panel ${openField === "section" ? "open" : ""}`}>
+                {sectionOptions.map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    className={`inline-select-option ${item.value === query.sectionCode ? "active" : ""}`}
+                    onClick={() => {
+                      setQuery((q) => ({ ...q, sectionCode: item.value }));
+                      clearResults();
+                      setOpenField(null);
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </label>
 
           <button onClick={onSearch} disabled={loading} style={{ ...smallBtn, width: "100%" }}>
@@ -283,7 +336,7 @@ export function EmptyRoomsClient() {
                     maxHeight: openGroups[groupName] ? 1200 : 0,
                     opacity: openGroups[groupName] ? 1 : 0,
                     transform: openGroups[groupName] ? "translateY(0)" : "translateY(-4px)",
-                    transition: "max-height 280ms ease, opacity 220ms ease, transform 220ms ease",
+                    transition: "max-height 460ms ease, opacity 360ms ease, transform 360ms ease",
                   }}
                 >
                   {list.map((item, index) => (
@@ -312,14 +365,6 @@ const labelStyle = {
   color: "var(--muted)",
 } as const;
 
-const selectStyle = {
-  border: "1px solid #c8dce5",
-  borderRadius: 10,
-  padding: "10px 12px",
-  fontSize: 14,
-  background: "white",
-} as const;
-
 const smallBtn = {
   border: "1px solid #c8dce5",
   borderRadius: 10,
@@ -327,4 +372,3 @@ const smallBtn = {
   padding: "8px 12px",
   fontSize: 12,
 } as const;
-

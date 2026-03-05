@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BottomNav } from "@/components/bottom-nav";
+import { LoadingPanel } from "@/components/loading-panel";
 import type { GradeExamRecord, GradeExamResponse } from "@/types/score";
 import type { StudentProfile } from "@/types/timetable";
 
@@ -70,11 +71,7 @@ export function GradeExamClient() {
   }
 
   if (loading) {
-    return (
-      <section className="glass-card rise-in" style={{ padding: 20 }}>
-        等级考试成绩加载中...
-      </section>
-    );
+    return <LoadingPanel title="等级考试成绩加载中" subtitle="正在拉取等级考试成绩数据..." rows={4} />;
   }
 
   return (

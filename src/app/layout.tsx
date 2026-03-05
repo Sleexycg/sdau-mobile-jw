@@ -3,7 +3,7 @@
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "山东农业大学综合教务系统移动端",
+  title: "WeSDAU",
   description: "第三方移动端教务系统",
 };
 

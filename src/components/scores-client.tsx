@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BottomNav } from "@/components/bottom-nav";
+import { LoadingPanel } from "@/components/loading-panel";
 import type { CourseScoreResponse, ScoreRecord, ScoreTermOption } from "@/types/score";
 import type { StudentProfile } from "@/types/timetable";
 
@@ -19,6 +20,14 @@ interface ApiSuccess {
 }
 
 type ApiResult = ApiError | ApiSuccess;
+
+function isFailScore(score: string): boolean {
+  const raw = score.trim();
+  if (!raw) return false;
+  const num = Number.parseFloat(raw);
+  if (!Number.isFinite(num)) return false;
+  return num < 60;
+}
 
 export function ScoresClient() {
   const router = useRouter();
@@ -115,11 +124,7 @@ export function ScoresClient() {
   }
 
   if (loading) {
-    return (
-      <section className="glass-card rise-in" style={{ padding: 20 }}>
-        课程成绩加载中...
-      </section>
-    );
+    return <LoadingPanel title="课程成绩加载中" subtitle="正在汇总课程成绩与统计信息..." rows={5} />;
   }
 
   return (
@@ -165,23 +170,21 @@ export function ScoresClient() {
               <span style={{ float: "right", color: "var(--muted)" }}>{termOpen ? "收起" : "展开"}</span>
             </button>
 
-            {termOpen ? (
-              <div style={{ position: "absolute", zIndex: 3000, left: 0, right: 0, top: "calc(100% + 6px)", border: "1px solid #c8dce5", borderRadius: 10, background: "white", maxHeight: 280, overflowY: "auto", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}>
-                {terms.map((termOption) => {
-                  const active = termOption.value === selectedTerm;
-                  return (
-                    <button
-                      key={termOption.value}
-                      type="button"
-                      onClick={() => handleSelectTerm(termOption.value)}
-                      style={{ display: "block", width: "100%", border: 0, borderBottom: "1px solid #eef3f6", background: active ? "#eef8ff" : "white", textAlign: "left", padding: "10px 12px", fontSize: 14, color: active ? "#0d8e7f" : "var(--ink)" }}
-                    >
-                      {termOption.label}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : null}
+            <div className={`term-dropdown-panel ${termOpen ? "open" : ""}`}>
+              {terms.map((termOption) => {
+                const active = termOption.value === selectedTerm;
+                return (
+                  <button
+                    key={termOption.value}
+                    type="button"
+                    onClick={() => handleSelectTerm(termOption.value)}
+                    style={{ display: "block", width: "100%", border: 0, borderBottom: "1px solid #eef3f6", background: active ? "#eef8ff" : "white", textAlign: "left", padding: "10px 12px", fontSize: 14, color: active ? "#0d8e7f" : "var(--ink)" }}
+                  >
+                    {termOption.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {switchingTerm ? <p style={{ margin: 0, fontSize: 12, color: "var(--muted)" }}>切换开课时间中...</p> : null}
@@ -212,7 +215,9 @@ export function ScoresClient() {
                   <p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{record.courseCode || "-"}</p>
                   <p style={{ margin: 0, fontWeight: 700, fontSize: 14 }}>{record.courseName || "-"}</p>
                   <p style={{ margin: 0, fontSize: 13 }}>{record.credit || "-"}</p>
-                  <p style={{ margin: 0, fontSize: 13 }}>{record.score || "-"}</p>
+                  <p style={{ margin: 0, fontSize: 13, color: isFailScore(record.score) ? "#d63b3b" : undefined, fontWeight: isFailScore(record.score) ? 700 : 500 }}>
+                    {record.score || "-"}
+                  </p>
                   <p style={{ margin: 0, fontSize: 13 }}>{record.gpa || "-"}</p>
                 </div>
               </article>
