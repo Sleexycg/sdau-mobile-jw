@@ -145,7 +145,7 @@ openssl rand -hex 32
 在 `.env.local` 中设置：
 
 ```env
-NEXT_PUBLIC_CHANGELOG_URL=https://你的域名/updates/sdau-mobile-jw.json
+NEXT_PUBLIC_CHANGELOG_URL=https://raw.githubusercontent.com/Sleexycg/sdau-mobile-jw/main/updates/sdau-mobile-jw.json
 ```
 
 ```json
