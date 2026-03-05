@@ -44,6 +44,11 @@
   - 西北片区：`21号楼(21#*)` / `22号楼(22#*)` / `其他区域`
 - 切换校区时会自动清空上一校区结果，避免数据残留
 
+### 1.6 远程更新日志自动弹窗
+- 支持通过远程 JSON 下发更新日志
+- 前端检测到新版本（version 未读）自动弹窗
+- 同一版本只弹一次（浏览器本地缓存）
+
 ## 2. 校区与代码映射
 
 - 岱宗校区：`001`
@@ -115,6 +120,7 @@ SESSION_COOKIE_SECURE=true
 JW_CAMPUS_DAIZONG_CODE=001
 JW_CAMPUS_ZHONGYANG_CODE=002
 JW_CAMPUS_XIBEI_CODE=A5F850229661E843E0536685C2CAF624
+NEXT_PUBLIC_CHANGELOG_URL=
 ```
 
 关键项：
@@ -133,6 +139,39 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 openssl rand -hex 32
 ```
 
+
+## 5.1 远程更新日志配置
+
+在 `.env.local` 中设置：
+
+```env
+NEXT_PUBLIC_CHANGELOG_URL=https://你的域名/updates/sdau-mobile-jw.json
+```
+
+```json
+{
+  "version": "V1.0",
+  "title": "更新公告",
+  "publishedAt": "2026-03-05 20:30",
+  "items": [
+    "新增空教室分区折叠与过渡动画",
+    "修复切换校区后保留上次结果的问题",
+    "优化成绩页面学期选择体验"
+  ]
+}
+```
+
+字段说明：
+- `version`：版本标识，必须唯一（建议用日期+序号）
+- `title`：弹窗标题（可选）
+- `publishedAt`：发布时间（可选）
+- `items`：更新点列表（推荐）
+- `details`：多行文本（可选，未提供 `items` 时使用）
+
+使用方式：
+1. 发布新功能后，修改远程 JSON 的 `version` 与内容
+2. 用户下次打开页面会自动弹窗
+3. 用户点击“我知道了”后，该版本不再重复弹出
 ## 6. 本地开发
 
 ```bash
