@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
@@ -119,6 +119,22 @@ function detectDesktop(): boolean {
   return window.innerWidth >= 1024;
 }
 
+const courseColorPalette = [
+  { bg: "#EAF4FF", border: "#BCD9FF", text: "#1F3D63" },
+  { bg: "#ECFFF4", border: "#BFEBD2", text: "#1F5A42" },
+  { bg: "#FFF6EA", border: "#F2D9B0", text: "#6A4A1F" },
+  { bg: "#F3EEFF", border: "#D6C8F7", text: "#4A346E" },
+  { bg: "#FFEFF3", border: "#F5C6D5", text: "#6A2E44" },
+  { bg: "#EEF9FB", border: "#BFE6ED", text: "#245766" },
+] as const;
+
+function courseColorByName(seed: string) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return courseColorPalette[hash % courseColorPalette.length];
+}
 interface DayPanelProps {
   day: number;
   label: string;
@@ -155,11 +171,11 @@ function DayPanel({ day, label, dayCourses, sectionTimeMap, onCourseClick }: Day
                   <button
                     key={`${course.id}-${sectionIndex}`}
                     onClick={() => onCourseClick(course)}
-                    style={{ textAlign: "left", border: 0, borderRadius: 10, background: "#eef8ff", padding: "8px 10px" }}
+                    style={{ textAlign: "left", borderRadius: 10, border: `1px solid ${courseColorByName(course.name).border}`, background: courseColorByName(course.name).bg, color: courseColorByName(course.name).text, padding: "8px 10px" }}
                   >
                     <p style={{ margin: 0, fontWeight: 700, fontSize: 13 }}>{course.name}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>老师：{course.teacher || "待定"}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--ink)", fontWeight: 700 }}>教室：{course.location || "待定"}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: 12, opacity: 0.9 }}>老师：{course.teacher || "待定"}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: 12, fontWeight: 700 }}>教室：{course.location || "待定"}</p>
                   </button>
                 ))}
               </div>
@@ -289,7 +305,7 @@ export function TimetableClient() {
       <section className="glass-card rise-in" style={{ padding: 16, marginBottom: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
           <div>
-            <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>当前学期</p>
+            <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>个人信息及课程表</p>
             <h2 style={{ margin: "2px 0 0", fontSize: 20 }}>{term || "未识别"}</h2>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -297,8 +313,7 @@ export function TimetableClient() {
               {refreshing ? "刷新中..." : "刷新"}
             </button>
             <button onClick={logout} style={smallBtn}>
-              退出
-            </button>
+              退出</button>
           </div>
         </div>
 
@@ -487,3 +502,8 @@ const detailText: CSSProperties = {
   color: "var(--ink)",
   fontSize: 14,
 };
+
+
+
+
+

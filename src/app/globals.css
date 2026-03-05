@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg-top: #d4f6f2;
   --bg-bottom: #f6fbff;
   --ink: #16323f;
@@ -70,29 +70,39 @@ a {
   left: 50%;
   bottom: 16px;
   transform: translateX(-50%);
-  width: min(452px, calc(100% - 24px));
+  width: min(720px, calc(100% - 28px));
   padding: 10px 12px;
-  border-radius: 16px;
-  background: rgba(21, 63, 80, 0.92);
+  border-radius: 36px;
+  background: rgba(247, 251, 253, 0.94);
+  border: 1px solid rgba(181, 200, 209, 0.4);
+  box-shadow: 0 6px 20px rgba(29, 63, 77, 0.12);
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  align-items: center;
 }
 
 .bottom-nav a,
 .bottom-nav button {
-  border: 0;
-  border-radius: 12px;
-  padding: 10px;
-  font-size: 14px;
-  color: #d5e7f0;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  padding: 12px 12px;
+  font-size: 13px;
+  color: #708892;
   background: transparent;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
 
 .bottom-nav a.active,
 .bottom-nav button.active {
-  color: #fff;
-  background: linear-gradient(120deg, #0d8e7f, #13a89a);
+  color: #3b5b67;
+  background: rgba(217, 232, 239, 0.76);
+  border-color: rgba(138, 165, 176, 0.4);
 }
 
 .error-text {

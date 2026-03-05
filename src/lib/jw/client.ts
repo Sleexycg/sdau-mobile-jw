@@ -4,6 +4,7 @@ import { buildEncodedCredential } from "@/lib/jw/encoding";
 import { JwError } from "@/lib/jw/errors";
 import { jwRequest } from "@/lib/jw/http";
 import {
+  parseGradeExamRecordsFromJson,
   parseScoreRecordsFromJson,
   parseScoreTermsFromHtml,
   parseSummaryFromJson,
@@ -13,7 +14,7 @@ import {
   parseSelectedTerm,
   parseTimetableFromHtml,
 } from "@/lib/jw/timetable-parser";
-import type { ScoreRecord, ScoreSummary, ScoreTermOption } from "@/types/score";
+import type { GradeExamRecord, ScoreRecord, ScoreTermOption } from "@/types/score";
 import type { StudentProfile, TimetableCourse } from "@/types/timetable";
 
 interface LoginResult {
@@ -25,11 +26,16 @@ interface TimetableFetchResult {
   courses: TimetableCourse[];
 }
 
-interface ScoreFetchResult {
+interface CourseScoreFetchResult {
   selectedTerm: string;
   terms: ScoreTermOption[];
   records: ScoreRecord[];
-  summary: ScoreSummary;
+  summary: {
+    avgScore: string;
+    avgCreditGpa: string;
+    courseCount: number;
+    totalCredits: string;
+  };
 }
 
 function isLoginPage(html: string): boolean {
@@ -75,16 +81,11 @@ function parseProfileFromHtml(html: string): StudentProfile | null {
 
     const label = parts[0];
     const value = parts.slice(1).join(":").trim();
-
     if (!value) return;
 
-    if (label.includes("班级")) {
-      className = value;
-    } else if (label.includes("专业")) {
-      major = value;
-    } else if (label.includes("学院")) {
-      college = value;
-    }
+    if (label.includes("班级")) className = value;
+    else if (label.includes("专业")) major = value;
+    else if (label.includes("学院")) college = value;
   });
 
   if (!name || !studentId) return null;
@@ -104,7 +105,7 @@ function decodeJson<T>(text: string): T {
   return JSON.parse(raw) as T;
 }
 
-function buildScoreListPath(term: string): string {
+function buildCourseScoreListPath(term: string): string {
   const query = new URLSearchParams({
     pageNum: "1",
     pageSize: "200",
@@ -116,6 +117,11 @@ function buildScoreListPath(term: string): string {
     sfxsbcxq: "1",
   });
   return `/kscj/cjcx_list?${query.toString()}`;
+}
+
+function buildGradeExamListPath(): string {
+  const query = new URLSearchParams({ pageNum: "1", pageSize: "200" });
+  return `/kscj/djkscj_list?${query.toString()}`;
 }
 
 function buildFixedScoreTerms(): ScoreTermOption[] {
@@ -135,7 +141,6 @@ function inferDefaultTerm(terms: ScoreTermOption[]): string {
   const endYear = startYear + 1;
   const termNo = month >= 2 && month <= 7 ? 2 : 1;
   const inferred = `${startYear}-${endYear}-${termNo}`;
-
   if (terms.some((item) => item.value === inferred)) return inferred;
   return terms[0]?.value ?? "";
 }
@@ -218,17 +223,14 @@ export async function fetchTimetable(cookieHeader: string, term: string): Promis
   throw new JwError("JW_UNAVAILABLE", "未获取到可解析的课表页面，请稍后重试");
 }
 
-export async function fetchScores(cookieHeader: string, term?: string): Promise<ScoreFetchResult> {
+export async function fetchCourseScores(cookieHeader: string, term?: string): Promise<CourseScoreFetchResult> {
   const frmPage = await jwRequest("/kscj/cjcx_frm", { cookieHeader });
-
   if (isLoginPage(frmPage.text)) {
     throw new JwError("UNAUTHORIZED", "登录状态已失效");
   }
 
   const pageTerms = parseScoreTermsFromHtml(frmPage.text);
-  const fixedTerms = buildFixedScoreTerms();
-  const terms = fixedTerms;
-
+  const terms = buildFixedScoreTerms();
   const defaultTerm = inferDefaultTerm(terms);
   const selectedTerm = normalizeTerm(term || defaultTerm || pageTerms[0]?.value || "");
 
@@ -236,39 +238,53 @@ export async function fetchScores(cookieHeader: string, term?: string): Promise<
     throw new JwError("JW_UNAVAILABLE", "未读取到可查询的开课时间");
   }
 
-  const listRes = await jwRequest(buildScoreListPath(selectedTerm), {
+  const listRes = await jwRequest(buildCourseScoreListPath(selectedTerm), {
     method: "GET",
     cookieHeader,
     referer: frmPage.finalUrl,
   });
 
-  if (isLoginPage(listRes.text)) {
+  const summaryRes = await jwRequest(buildCourseScoreListPath(""), {
+    method: "GET",
+    cookieHeader,
+    referer: frmPage.finalUrl,
+  });
+
+  if (isLoginPage(listRes.text) || isLoginPage(summaryRes.text)) {
     throw new JwError("UNAUTHORIZED", "登录状态已失效");
   }
 
-  const summaryRes = await jwRequest(buildScoreListPath(""), {
-    method: "GET",
-    cookieHeader,
-    referer: frmPage.finalUrl,
-  });
-
   let listPayload: unknown;
   let summaryPayload: unknown;
-
   try {
     listPayload = decodeJson<unknown>(listRes.text);
     summaryPayload = decodeJson<unknown>(summaryRes.text);
   } catch {
-    throw new JwError("JW_UNAVAILABLE", "成绩接口返回格式异常");
+    throw new JwError("JW_UNAVAILABLE", "课程成绩接口返回格式异常");
   }
-
-  const records = parseScoreRecordsFromJson(listPayload, selectedTerm);
-  const summary = parseSummaryFromJson(summaryPayload);
 
   return {
     selectedTerm,
     terms,
-    records,
-    summary,
+    records: parseScoreRecordsFromJson(listPayload, selectedTerm),
+    summary: parseSummaryFromJson(summaryPayload),
   };
+}
+
+export async function fetchGradeExamScores(cookieHeader: string): Promise<GradeExamRecord[]> {
+  const response = await jwRequest(buildGradeExamListPath(), {
+    method: "GET",
+    cookieHeader,
+  });
+
+  if (isLoginPage(response.text)) {
+    throw new JwError("UNAUTHORIZED", "登录状态已失效");
+  }
+
+  try {
+    const payload = decodeJson<unknown>(response.text);
+    return parseGradeExamRecordsFromJson(payload);
+  } catch {
+    throw new JwError("JW_UNAVAILABLE", "等级考试成绩接口返回格式异常");
+  }
 }

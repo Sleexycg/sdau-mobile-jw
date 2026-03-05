@@ -14,18 +14,32 @@ export interface ScoreRecord {
   gpa: string;
 }
 
-export interface ScoreSummary {
+export interface GradeExamRecord {
+  id: string;
+  sequence: string;
+  examCourse: string;
+  score: string;
+  examTime: string;
+}
+
+export interface CourseScoreSummary {
   avgScore: string;
   avgCreditGpa: string;
   courseCount: number;
   totalCredits: string;
 }
 
-export interface ScoreResponse {
+export interface CourseScoreResponse {
   profile: StudentProfile;
   selectedTerm: string;
   terms: ScoreTermOption[];
   records: ScoreRecord[];
-  summary: ScoreSummary;
+  summary: CourseScoreSummary;
+  generatedAt: string;
+}
+
+export interface GradeExamResponse {
+  profile: StudentProfile;
+  records: GradeExamRecord[];
   generatedAt: string;
 }

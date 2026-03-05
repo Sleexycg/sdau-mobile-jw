@@ -2,14 +2,14 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { ScoresClient } from "@/components/scores-client";
+import { EmptyRoomsClient } from "@/components/empty-rooms-client";
 import { getSessionCookieName } from "@/lib/session/crypto";
 
 export const metadata: Metadata = {
-  title: "课程成绩查询",
+  title: "空教室查询",
 };
 
-export default async function ScoresPage() {
+export default async function EmptyRoomsPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get(getSessionCookieName())?.value;
 
@@ -19,7 +19,7 @@ export default async function ScoresPage() {
 
   return (
     <main className="main-shell">
-      <ScoresClient />
+      <EmptyRoomsClient />
     </main>
   );
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
@@ -46,10 +46,8 @@ export function LoginForm() {
 
   return (
     <form className="glass-card rise-in" onSubmit={onSubmit} style={{ padding: 20 }}>
-      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 24 }}>登陆教务系统</h1>
-      <p style={{ marginTop: 0, marginBottom: 16, color: "var(--muted)", fontSize: 14 }}>
-        第三方移动端教务系统
-      </p>
+      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 24 }}>山东农业大学综合教务系统移动端</h1>
+      <p style={{ marginTop: 0, marginBottom: 16, color: "var(--muted)", fontSize: 14 }}>第三方移动端教务系统</p>
 
       <label htmlFor="student-id" style={{ fontSize: 13, color: "var(--muted)" }}>
         学号

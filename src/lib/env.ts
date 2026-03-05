@@ -28,3 +28,15 @@ export function getJwUserAgent(): string {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
   );
 }
+
+export function getDaizongCampusCode(): string | null {
+  return process.env.JW_CAMPUS_DAIZONG_CODE ?? "001";
+}
+
+export function getZhongyangCampusCode(): string | null {
+  return process.env.JW_CAMPUS_ZHONGYANG_CODE ?? "002";
+}
+
+export function getXibeiCampusCode(): string | null {
+  return process.env.JW_CAMPUS_XIBEI_CODE ?? "A5F850229661E843E0536685C2CAF624";
+}

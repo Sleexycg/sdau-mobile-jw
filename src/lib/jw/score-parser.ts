@@ -2,19 +2,35 @@ import { createHash } from "crypto";
 
 import * as cheerio from "cheerio";
 
-import type { ScoreRecord, ScoreTermOption } from "@/types/score";
+import type { GradeExamRecord, ScoreRecord, ScoreTermOption } from "@/types/score";
 
 function cleanText(value: string): string {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function toText(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  return String(value).trim();
+}
+
+function normalizeArrayPayload(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
+  if (payload && typeof payload === "object") {
+    const rec = payload as Record<string, unknown>;
+    if (Array.isArray(rec.rows)) return rec.rows;
+    if (Array.isArray(rec.data)) return rec.data;
+    if (Array.isArray(rec.list)) return rec.list;
+    if (Array.isArray(rec.result)) return rec.result;
+  }
+  return [];
 }
 
 function buildScoreId(term: string, courseCode: string, courseName: string): string {
   return createHash("sha1").update(`${term}-${courseCode}-${courseName}`).digest("hex").slice(0, 16);
 }
 
-function toText(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  return String(value).trim();
+function buildGradeExamId(sequence: string, examCourse: string, examTime: string): string {
+  return createHash("sha1").update(`${sequence}-${examCourse}-${examTime}`).digest("hex").slice(0, 16);
 }
 
 export function parseScoreTermsFromHtml(html: string): ScoreTermOption[] {
@@ -30,7 +46,6 @@ export function parseScoreTermsFromHtml(html: string): ScoreTermOption[] {
     .first();
 
   const target = select.length > 0 ? select : $("select").first();
-
   target.find("option").each((_, option) => {
     const value = cleanText($(option).attr("value") ?? "");
     const label = cleanText($(option).text());
@@ -40,20 +55,6 @@ export function parseScoreTermsFromHtml(html: string): ScoreTermOption[] {
   });
 
   return terms;
-}
-
-function normalizeArrayPayload(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) return payload;
-
-  if (payload && typeof payload === "object") {
-    const rec = payload as Record<string, unknown>;
-    if (Array.isArray(rec.rows)) return rec.rows;
-    if (Array.isArray(rec.data)) return rec.data;
-    if (Array.isArray(rec.list)) return rec.list;
-    if (Array.isArray(rec.result)) return rec.result;
-  }
-
-  return [];
 }
 
 export function parseScoreRecordsFromJson(payload: unknown, term: string): ScoreRecord[] {
@@ -83,6 +84,37 @@ export function parseScoreRecordsFromJson(payload: unknown, term: string): Score
   }
 
   const uniq = new Map<string, ScoreRecord>();
+  for (const rec of records) uniq.set(rec.id, rec);
+  return Array.from(uniq.values());
+}
+
+export function parseGradeExamRecordsFromJson(payload: unknown): GradeExamRecord[] {
+  const rows = normalizeArrayPayload(payload);
+  const records: GradeExamRecord[] = [];
+
+  for (const item of rows) {
+    if (!item || typeof item !== "object") continue;
+    const row = item as Record<string, unknown>;
+
+    const sequence = toText(row.xh || row.rownum_ || row.xh_ || row.index || row.id);
+    const course = toText(row.djkcmc || row.kcmc || row.kc_mc || row.kskcmc || row.courseName);
+    const level = toText(row.djmc || row.dj || row.ksdj || row.level);
+    const examCourse = level && course && !course.includes(level) ? `${course}（${level}）` : course;
+    const score = toText(row.cj || row.kscj || row.score || row.zcj);
+    const examTime = toText(row.kssj || row.ksrq || row.time || row.sj);
+
+    if (!examCourse && !score && !examTime) continue;
+
+    records.push({
+      id: buildGradeExamId(sequence || `${records.length + 1}`, examCourse, examTime),
+      sequence: sequence || `${records.length + 1}`,
+      examCourse,
+      score,
+      examTime,
+    });
+  }
+
+  const uniq = new Map<string, GradeExamRecord>();
   for (const rec of records) uniq.set(rec.id, rec);
   return Array.from(uniq.values());
 }
