@@ -1,82 +1,155 @@
-﻿# SDAU 移动端教务系统（第三方）
+﻿# 山东农业大学综合教务系统移动端
 
-一个基于 Next.js 的手机优先教务系统前端与服务端一体项目，适配 `https://jw.sdau.edu.cn` 的登录与课表抓取流程。
+面向手机优先的第三方教务系统网站，适配 `https://jw.sdau.edu.cn`，提供统一登录、个人信息、课程表、课程成绩、等级考试成绩、空教室查询。
 
-## 功能范围
+- 技术栈：Next.js 15 + TypeScript + App Router
+- 运行形态：前后端一体（必须有 Node 服务）
+- 数据策略：不落库，不保存明文密码，仅使用服务端短期会话 Cookie
 
-- 学号密码登录（服务端代登录，不在前端直接请求教务站点）
-- 课表抓取与标准化输出
-- 个人信息展示：姓名、学号、班级、专业、学院
-- 移动端优先 UI（当天课表置顶、其他日期可收起展开）
-- 服务端会话 Cookie（不持久化明文密码）
+## 1. 功能清单
 
-## 当前适配路径
+### 1.1 登录与会话
+- 登录页标题：`山东农业大学综合教务系统移动端`
+- 输入学号/密码后由服务端代登录教务系统
+- 登录成功后写入 HttpOnly 会话
+- 退出登录会清理本地会话与远端状态
 
-- 主页面：`/framework/xsMainV.jsp`
-- 个人信息页面：`/framework/xsMainV_new.htmlx?t1=1`
-- 课表页面：`/xskb/xskb_list.do?viweType=0`
+### 1.2 个人信息与课程表
+- 页面标题：`个人信息及课程表`
+- 展示姓名、学号、班级、专业、学院
+- 支持周次切换、当天置顶、展开/收起
+- 每门课显示：课程名、教师、教室、节次、时间
+- 同名课程使用同一底色，便于识别
+- 周末全天无课时显示“无课”
 
-## 技术栈
+### 1.3 课程成绩查询
+- 页面标题：`课程成绩查询`
+- 学期下拉范围：`2022-2023-1` 到 `2029-2030-2`
+- 显示列：课程代码、课程名、学分、成绩、绩点
+- 顶部统计：平均成绩（红色 `#F56C7E`）、平均学分绩点（紫色 `#838CC7`）
 
-- Next.js 15（App Router）
-- TypeScript
-- Cheerio（服务端 HTML 解析）
+### 1.4 等级考试成绩查询
+- 页面标题：`等级考试成绩查询`
+- 接口独立于课程成绩
+- 显示：序号、考级课程（等级）、成绩、考试时间
 
-## 项目结构
+### 1.5 空教室查询
+- 页面标题：`空教室查询`
+- 查询条件：校区、星期几、节次
+- 打开页面即显示“当前学期 + 当前周 + 今天星期几”
+- 严格按“空教室”定义：目标节次单元格必须为空（无上课/考试/借用/占用）
+- 分组展示（支持展开/收起动画）
+  - 岱宗校区：`5N教室` / `5S教室` / `12号楼` / `其他区域`
+  - 泮河校区：`东南片区(19#*)` / `中央片区(其余)`
+  - 西北片区：`21号楼(21#*)` / `22号楼(22#*)` / `其他区域`
+- 切换校区时会自动清空上一校区结果，避免数据残留
 
-- `src/app/login`：登录页
-- `src/app/timetable`：课表页
-- `src/app/api/auth/login`：登录 API
-- `src/app/api/auth/logout`：退出 API
-- `src/app/api/timetable`：课表 + 个人信息 API
-- `src/lib/jw`：教务系统适配层（登录、抓取、解析）
-- `src/lib/session`：会话加密与存储
-- `src/types`：前后端共享类型
+## 2. 校区与代码映射
 
-## 环境变量
+- 岱宗校区：`001`
+- 泮河校区：`002`
+- 西北片区：`A5F850229661E843E0536685C2CAF624`
 
-复制模板：
+> 若学校后续调整编码，可通过环境变量覆盖。
+
+## 3. 页面路由
+
+- `/login` 登录
+- `/timetable` 个人信息及课程表
+- `/scores` 课程成绩
+- `/grade-exams` 等级考试成绩
+- `/empty-rooms` 空教室
+
+底部导航已接入以上 4 个业务页（课表/课程成绩/等级考试/空教室）。
+
+## 4. API 概览
+
+### 4.1 认证
+- `POST /api/auth/login`
+  - Request: `{ studentId: string; password: string }`
+  - Response: `{ ok: true }` 或 `{ ok: false, code, message }`
+- `POST /api/auth/logout`
+  - Response: `{ ok: true }`
+
+### 4.2 课表与信息
+- `GET /api/timetable?term=YYYY-YYYY-X`
+  - 返回个人信息 + 标准化课程表
+
+### 4.3 成绩
+- `GET /api/course-scores?term=YYYY-YYYY-X`
+  - 返回课程成绩列表 + 平均成绩 + 平均学分绩点
+- `GET /api/grade-exam-scores`
+  - 返回等级考试成绩列表
+
+### 4.4 空教室
+- `GET /api/empty-rooms/context`
+  - 返回当前学期与当前周
+- `POST /api/empty-rooms`
+  - Request:
+  ```json
+  {
+    "campus": "岱宗校区",
+    "weekday": 4,
+    "sectionCode": "0102"
+  }
+  ```
+  - `sectionCode` 支持：`0102`、`0304`、`中午`、`0506`、`0708`、`0910`、`晚间`
+
+## 5. 环境变量
+
+先复制模板：
 
 ```bash
 cp .env.example .env.local
 ```
 
-`.env.local` 至少需要：
+`.env.local` 说明：
 
 ```env
 JW_BASE_URL=https://jw.sdau.edu.cn
-SESSION_SECRET=请填写32位以上随机字符串
+SESSION_SECRET=replace-with-a-long-random-string
 JW_TIMEOUT_MS=12000
 JW_RETRY_COUNT=1
 JW_USER_AGENT=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
-SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_SECURE=true
+JW_CAMPUS_DAIZONG_CODE=001
+JW_CAMPUS_ZHONGYANG_CODE=002
+JW_CAMPUS_XIBEI_CODE=A5F850229661E843E0536685C2CAF624
 ```
 
-说明：
+关键项：
+- `SESSION_SECRET`：必须是高强度随机串，建议 32 位以上
+- `SESSION_COOKIE_SECURE`：
+  - 本地 `http://localhost` 调试请设为 `false`
+  - 线上 HTTPS（Vercel/自建域名）设为 `true`
 
-- `SESSION_SECRET` 不是随意短字符串，建议 32 位以上随机值。
-- 本地 `http://localhost` 调试时，`SESSION_COOKIE_SECURE=false`。
-- 生产 HTTPS 环境请设为 `true`。
+可用命令生成随机密钥（任选一个）：
 
-## 本地运行
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
-1. 安装依赖
+```bash
+openssl rand -hex 32
+```
+
+## 6. 本地开发
 
 ```bash
 npm install
-```
-
-2. 启动开发模式
-
-```bash
 npm run dev
 ```
 
-3. 打开：
+默认地址：
+- `http://localhost:3000`
 
-- `http://localhost:3000/login`
+若使用 3002 端口：
 
-## 生产构建
+```bash
+npm run dev -- -p 3002
+```
+
+## 7. 构建与生产启动
 
 ```bash
 npm run lint
@@ -84,71 +157,72 @@ npm run build
 npm run start
 ```
 
-## API 说明
+## 8. 部署方案
 
-### `POST /api/auth/login`
+### 8.1 推荐：Vercel（最省事）
 
-请求：
+1. 代码推送到 GitHub
+2. Vercel 导入该仓库
+3. Framework 选择 Next.js（通常自动识别）
+4. 在 Vercel 项目中配置环境变量（与 `.env.local` 同名）
+5. Deploy
 
-```json
-{ "studentId": "2024xxxxxx", "password": "******" }
+注意：
+- 不要把 `Output Directory` 设为 `public`（Next.js 不需要）
+- 若出现 Next.js 安全版本提示，按要求升级 `next` 与 `eslint-config-next`
+
+### 8.2 国内访问优化（不新增云服务器）
+
+如果海外域名访问不稳定，可用 Cloudflare Tunnel 将本地服务映射到固定域名。
+
+基本流程：
+1. 本地保持 `npm run dev -- -p 3002` 或 `npm run start`
+2. 安装并登录 `cloudflared`
+3. 创建 Tunnel 与 DNS 记录
+4. 将公网域名转发到 `http://localhost:3002`
+
+这样后端仍在你本地机器上运行，成本最低，但要求本机持续在线。
+
+## 9. Git 推送最简流程（Git Bash）
+
+```bash
+git init
+git branch -M main
+git config --global user.name "你的GitHub用户名"
+git config --global user.email "你的邮箱"
+git add .
+git commit -m "feat: initial release"
+git remote add origin git@github.com:你的用户名/你的仓库.git
+git push -u origin main
 ```
 
-响应：
+若 HTTPS push 失败，优先改 SSH。
 
-```json
-{ "ok": true }
-```
+## 10. 常见问题排查
 
-或
+### 10.1 `stream did not contain valid UTF-8`
+某些编辑操作把文件写成了 UTF-16。把对应源码文件改回 UTF-8（无 BOM）即可。
 
-```json
-{ "ok": false, "code": "INVALID_CREDENTIALS | JW_UNAVAILABLE", "message": "..." }
-```
+### 10.2 本地报 `JW_UNAVAILABLE`，云端正常
+通常是本地网络问题（DNS/代理/防火墙/运营商链路）。先确认本机可直接访问 `https://jw.sdau.edu.cn`。
 
-### `POST /api/auth/logout`
+### 10.3 第三/四大节空教室查不到
+已在后端加入组合节次回退策略；若学校接口再次变更，需根据最新响应调整解析规则。
 
-```json
-{ "ok": true }
-```
+### 10.4 Git 警告 `LF will be replaced by CRLF`
+是 Windows 常见换行提示，不影响功能。可按团队规范统一行尾设置。
 
-### `GET /api/timetable?term=YYYY-YYYY-X`
+## 11. 项目目录（核心）
 
-```json
-{
-  "ok": true,
-  "data": {
-    "term": "2025-2026-2",
-    "generatedAt": "2026-03-05T00:00:00.000Z",
-    "profile": {
-      "name": "张三",
-      "studentId": "2024xxxxxx",
-      "className": "xx班",
-      "major": "xx专业",
-      "college": "xx学院",
-      "displayName": "张三-2024xxxxxx"
-    },
-    "courses": []
-  }
-}
-```
+- `src/app` 页面与 API 路由
+- `src/components` 业务组件（课表/成绩/等级考试/空教室/导航）
+- `src/lib/jw` 教务系统适配层（登录、抓取、解析）
+- `src/lib/session` 会话加解密
+- `src/types` 共享类型定义
 
-## 部署建议
+## 12. 合规与安全建议
 
-本项目依赖服务端 API，不适合纯静态托管。
-
-- 推荐：Vercel（最省事，前后端一体）
-- 可选：轻量云主机（Node + Nginx + PM2）
-- 不推荐：GitHub Pages（仅静态，无法运行本项目后端 API）
-
-## 常见问题
-
-1. 本地提示 `JW_UNAVAILABLE`，云端正常
-- 多数是本地网络/代理/DNS 问题，不是业务逻辑错误。
-- 先确认本机能否在终端请求 `https://jw.sdau.edu.cn`。
-
-2. 登录成功但课表异常
-- 学校页面结构变更会影响解析，需要更新 `src/lib/jw/timetable-parser.ts`。
-
-3. Vercel 报 Next.js 漏洞版本
-- 当前项目已使用 `next@15.5.12` 和 `eslint-config-next@15.5.12`。
+- 严禁把真实账号密码提交到仓库
+- `.env.local` 不要上传 GitHub
+- 仅在受信任设备部署与运行
+- 定期更新依赖，特别是 `next` 和安全相关库
