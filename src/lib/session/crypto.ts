@@ -6,7 +6,9 @@ const SESSION_COOKIE_NAME = "jw_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 6;
 
 export interface SessionPayload {
-  cookieHeader: string;
+  mode: "jw" | "mock";
+  cookieHeader?: string;
+  userId?: string;
   createdAt: number;
 }
 
@@ -46,9 +48,9 @@ export function decryptSession(token: string): SessionPayload | null {
     const decipher = createDecipheriv("aes-256-gcm", getSessionKey(), iv);
     decipher.setAuthTag(authTag);
     const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-    const parsed = JSON.parse(plaintext.toString("utf8")) as SessionPayload;
+    const parsed = JSON.parse(plaintext.toString("utf8")) as Partial<SessionPayload>;
 
-    if (!parsed.cookieHeader || typeof parsed.createdAt !== "number") {
+    if (typeof parsed.createdAt !== "number") {
       return null;
     }
 
@@ -57,7 +59,23 @@ export function decryptSession(token: string): SessionPayload | null {
       return null;
     }
 
-    return parsed;
+    if (parsed.mode === "mock") {
+      return {
+        mode: "mock",
+        userId: parsed.userId || "admin",
+        createdAt: parsed.createdAt,
+      };
+    }
+
+    if (typeof parsed.cookieHeader === "string" && parsed.cookieHeader.length > 0) {
+      return {
+        mode: "jw",
+        cookieHeader: parsed.cookieHeader,
+        createdAt: parsed.createdAt,
+      };
+    }
+
+    return null;
   } catch {
     return null;
   }

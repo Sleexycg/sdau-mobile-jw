@@ -1,4 +1,4 @@
-import * as cheerio from "cheerio";
+﻿import * as cheerio from "cheerio";
 
 import { buildEncodedCredential } from "@/lib/jw/encoding";
 import { JwError } from "@/lib/jw/errors";
@@ -120,7 +120,7 @@ function buildCourseScoreListPath(term: string): string {
 }
 
 function buildGradeExamListPath(): string {
-  const query = new URLSearchParams({ pageNum: "1", pageSize: "200" });
+  const query = new URLSearchParams({ type: "listData", pageNum: "1", pageSize: "20" });
   return `/kscj/djkscj_list?${query.toString()}`;
 }
 
@@ -220,7 +220,7 @@ export async function fetchTimetable(cookieHeader: string, term: string): Promis
     return { term: resolvedTerm, courses };
   }
 
-  throw new JwError("JW_UNAVAILABLE", "未获取到可解析的课表页面，请稍后重试");
+  throw new JwError("JW_UNAVAILABLE", "未获取到可解析的课表页面");
 }
 
 export async function fetchCourseScores(cookieHeader: string, term?: string): Promise<CourseScoreFetchResult> {

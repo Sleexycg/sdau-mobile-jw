@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BottomNav } from "@/components/bottom-nav";
+import { ChevronIcon } from "@/components/chevron-icon";
 import { LoadingPanel } from "@/components/loading-panel";
 import type { CourseScoreResponse, ScoreRecord, ScoreTermOption } from "@/types/score";
 import type { StudentProfile } from "@/types/timetable";
@@ -22,11 +23,8 @@ interface ApiSuccess {
 type ApiResult = ApiError | ApiSuccess;
 
 function isFailScore(score: string): boolean {
-  const raw = score.trim();
-  if (!raw) return false;
-  const num = Number.parseFloat(raw);
-  if (!Number.isFinite(num)) return false;
-  return num < 60;
+  const n = Number.parseFloat(score);
+  return Number.isFinite(n) && n < 60;
 }
 
 export function ScoresClient() {
@@ -34,14 +32,16 @@ export function ScoresClient() {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [switchingTerm, setSwitchingTerm] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [switchingTerm, setSwitchingTerm] = useState(false);
   const [error, setError] = useState("");
+
   const [profile, setProfile] = useState<StudentProfile | null>(null);
+  const [records, setRecords] = useState<ScoreRecord[]>([]);
   const [terms, setTerms] = useState<ScoreTermOption[]>([]);
   const [selectedTerm, setSelectedTerm] = useState("");
   const [termOpen, setTermOpen] = useState(false);
-  const [records, setRecords] = useState<ScoreRecord[]>([]);
+
   const [avgScore, setAvgScore] = useState("-");
   const [avgCreditGpa, setAvgCreditGpa] = useState("-");
   const [courseCount, setCourseCount] = useState(0);
@@ -52,16 +52,26 @@ export function ScoresClient() {
     [terms, selectedTerm],
   );
 
-  async function loadScoreData(term?: string, mode: "normal" | "switch" | "refresh" = "normal") {
+  useEffect(() => {
+    const onClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setTermOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  async function loadScoreData(term?: string, mode: "normal" | "refresh" | "switch" = "normal") {
     if (mode === "normal") setLoading(true);
-    if (mode === "switch") setSwitchingTerm(true);
     if (mode === "refresh") setRefreshing(true);
+    if (mode === "switch") setSwitchingTerm(true);
 
     setError("");
 
     try {
-      const query = term ? `?term=${encodeURIComponent(term)}` : "";
-      const response = await fetch(`/api/course-scores${query}`, { cache: "no-store" });
+      const params = term ? `?term=${encodeURIComponent(term)}` : "";
+      const response = await fetch(`/api/course-scores${params}`, { cache: "no-store" });
       const result = (await response.json()) as ApiResult;
 
       if (!result.ok) {
@@ -74,9 +84,9 @@ export function ScoresClient() {
       }
 
       setProfile(result.data.profile);
-      setTerms(result.data.terms);
-      setSelectedTerm(result.data.selectedTerm);
-      setRecords(result.data.records);
+      setRecords(result.data.records || []);
+      setTerms(result.data.terms || []);
+      setSelectedTerm(result.data.selectedTerm || "");
       setAvgScore(result.data.summary.avgScore || "-");
       setAvgCreditGpa(result.data.summary.avgCreditGpa || "-");
       setCourseCount(result.data.summary.courseCount || 0);
@@ -85,31 +95,15 @@ export function ScoresClient() {
       setError("网络异常，请稍后重试");
     } finally {
       if (mode === "normal") setLoading(false);
-      if (mode === "switch") setSwitchingTerm(false);
       if (mode === "refresh") setRefreshing(false);
+      if (mode === "switch") setSwitchingTerm(false);
     }
   }
 
   useEffect(() => {
-    loadScoreData();
+    loadScoreData(undefined, "normal");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (!termOpen) return;
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
-        setTermOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-    };
-  }, [termOpen]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -117,14 +111,13 @@ export function ScoresClient() {
     router.refresh();
   }
 
-  async function handleSelectTerm(term: string) {
-    setSelectedTerm(term);
+  function handleSelectTerm(term: string) {
     setTermOpen(false);
-    await loadScoreData(term, "switch");
+    loadScoreData(term, "switch");
   }
 
   if (loading) {
-    return <LoadingPanel title="课程成绩加载中" subtitle="正在汇总课程成绩与统计信息..." rows={5} />;
+    return <LoadingPanel title="课程成绩加载中" subtitle="正在拉取课程成绩数据..." rows={5} />;
   }
 
   return (
@@ -167,7 +160,7 @@ export function ScoresClient() {
               style={{ width: "100%", border: "1px solid #c8dce5", borderRadius: 10, padding: "10px 12px", fontSize: 14, background: "white", textAlign: "left" }}
             >
               <span>{selectedTermLabel}</span>
-              <span style={{ float: "right", color: "var(--muted)" }}>{termOpen ? "收起" : "展开"}</span>
+              <ChevronIcon expanded={termOpen} color="var(--muted)" style={{ float: "right" }} />
             </button>
 
             <div className={`term-dropdown-panel ${termOpen ? "open" : ""}`}>

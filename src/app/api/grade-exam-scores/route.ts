@@ -1,12 +1,22 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { fetchGradeExamScores, fetchStudentProfile } from "@/lib/jw/client";
 import { JwError } from "@/lib/jw/errors";
-import { readSessionCookieHeader } from "@/lib/session/store";
+import { buildMockGradeExamResponse } from "@/lib/mock/admin-data";
+import { readSession } from "@/lib/session/store";
 import type { GradeExamResponse } from "@/types/score";
 
 export async function GET(): Promise<NextResponse> {
-  const sessionCookieHeader = await readSessionCookieHeader();
+  const session = await readSession();
+  if (!session) {
+    return NextResponse.json({ ok: false, code: "UNAUTHORIZED", message: "请先登录" }, { status: 401 });
+  }
+
+  if (session.mode === "mock") {
+    return NextResponse.json({ ok: true, data: buildMockGradeExamResponse() });
+  }
+
+  const sessionCookieHeader = session.cookieHeader;
   if (!sessionCookieHeader) {
     return NextResponse.json({ ok: false, code: "UNAUTHORIZED", message: "请先登录" }, { status: 401 });
   }

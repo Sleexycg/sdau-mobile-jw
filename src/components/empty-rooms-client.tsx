@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BottomNav } from "@/components/bottom-nav";
+import { ChevronIcon } from "@/components/chevron-icon";
 import type { CampusName, EmptyRoomItem, EmptyRoomQuery, EmptyRoomResponse, SectionCode } from "@/types/empty-room";
 
 interface ApiError {
@@ -21,13 +22,13 @@ type ApiResult = ApiError | ApiSuccess;
 type OpenField = "campus" | "weekday" | "section" | null;
 
 const weekdayOptions: Array<{ value: EmptyRoomQuery["weekday"]; label: string }> = [
-  { value: 1, label: "周一" },
-  { value: 2, label: "周二" },
-  { value: 3, label: "周三" },
-  { value: 4, label: "周四" },
-  { value: 5, label: "周五" },
-  { value: 6, label: "周六" },
-  { value: 7, label: "周日" },
+  { value: 1, label: "星期一" },
+  { value: 2, label: "星期二" },
+  { value: 3, label: "星期三" },
+  { value: 4, label: "星期四" },
+  { value: 5, label: "星期五" },
+  { value: 6, label: "星期六" },
+  { value: 7, label: "星期日" },
 ];
 
 const sectionOptions: Array<{ value: SectionCode; label: string }> = [
@@ -41,14 +42,14 @@ const sectionOptions: Array<{ value: SectionCode; label: string }> = [
 ];
 
 const campusOptions: CampusName[] = ["岱宗校区", "泮河校区", "西北片区"];
-const weekdayNameMap = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+const weekdayNameMap = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"];
 
 function roomGroupName(campus: CampusName, roomName: string): string {
   if (campus === "岱宗校区") {
     if (roomName.startsWith("5N")) return "5N教室";
     if (roomName.startsWith("5S")) return "5S教室";
     if (roomName.startsWith("北校12号楼")) return "12号楼";
-    return "其他区域";
+    return "其他教室";
   }
 
   if (campus === "泮河校区") {
@@ -58,17 +59,17 @@ function roomGroupName(campus: CampusName, roomName: string): string {
   if (campus === "西北片区") {
     if (roomName.startsWith("21#")) return "21号楼";
     if (roomName.startsWith("22#")) return "22号楼";
-    return "其他区域";
+    return "其他教室";
   }
 
-  return "其他区域";
+  return "其他教室";
 }
 
 function roomGroupOrder(campus: CampusName): string[] {
-  if (campus === "岱宗校区") return ["5N教室", "5S教室", "12号楼", "其他区域"];
+  if (campus === "岱宗校区") return ["5N教室", "5S教室", "12号楼", "其他教室"];
   if (campus === "泮河校区") return ["东南片区", "中央片区"];
-  if (campus === "西北片区") return ["21号楼", "22号楼", "其他区域"];
-  return ["其他区域"];
+  if (campus === "西北片区") return ["21号楼", "22号楼", "其他教室"];
+  return ["其他教室"];
 }
 
 function getTodayWeekday(): EmptyRoomQuery["weekday"] {
@@ -81,7 +82,7 @@ function buildCurrentLabel(termWeek: { term: string; week: number } | null, toda
   if (termWeek) {
     return `${termWeek.term} 第${termWeek.week}周 ${todayLabel}`;
   }
-  return `加载中... ${todayLabel}`;
+  return `当前学期周次加载中... ${todayLabel}`;
 }
 
 export function EmptyRoomsClient() {
@@ -94,6 +95,7 @@ export function EmptyRoomsClient() {
     sectionCode: "0102",
     campus: "岱宗校区",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [rooms, setRooms] = useState<EmptyRoomItem[]>([]);
@@ -101,7 +103,7 @@ export function EmptyRoomsClient() {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [openField, setOpenField] = useState<OpenField>(null);
 
-  const weekdayLabel = weekdayOptions.find((item) => item.value === query.weekday)?.label ?? "周一";
+  const weekdayLabel = weekdayOptions.find((item) => item.value === query.weekday)?.label ?? "星期一";
   const sectionLabel = sectionOptions.find((item) => item.value === query.sectionCode)?.label ?? "第一大节（01-02）";
 
   const groupedRooms = useMemo(() => {
@@ -120,68 +122,56 @@ export function EmptyRoomsClient() {
   }, [rooms, query.campus]);
 
   useEffect(() => {
-    if (groupedRooms.length === 0) {
-      setOpenGroups({});
-      return;
-    }
-
     const next: Record<string, boolean> = {};
-    groupedRooms.forEach(([groupName], index) => {
-      next[groupName] = openGroups[groupName] ?? index === 0;
-    });
+    for (const [groupName] of groupedRooms) {
+      next[groupName] = openGroups[groupName] ?? true;
+    }
     setOpenGroups(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupedRooms.length, query.campus]);
 
   useEffect(() => {
-    const loadContext = async () => {
-      try {
-        const response = await fetch("/api/empty-rooms/context", { cache: "no-store" });
-        const result = (await response.json()) as
-          | { ok: true; data: { term: string; week: number } }
-          | { ok: false; code: string };
-        if (result.ok) {
-          setTermWeek(result.data);
-        }
-      } catch {
-        // ignore context load errors
-      }
-    };
-
-    loadContext();
-  }, []);
-
-  useEffect(() => {
-    if (!openField) return;
-
-    const onPointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (dropdownRootRef.current && !dropdownRootRef.current.contains(target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRootRef.current && !dropdownRootRef.current.contains(event.target as Node)) {
         setOpenField(null);
       }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [openField]);
+  useEffect(() => {
+    async function loadContext() {
+      try {
+        const response = await fetch("/api/empty-rooms/context", { cache: "no-store" });
+        const result = (await response.json()) as { ok: boolean; data?: { term: string; week: number } };
+        if (result.ok && result.data) {
+          setTermWeek({ term: result.data.term, week: result.data.week });
+        }
+      } catch {
+        // ignore
+      }
+    }
+    loadContext();
+  }, []);
 
   function clearResults() {
     setRooms([]);
     setError("");
-    setOpenGroups({});
   }
 
   async function onSearch() {
     setLoading(true);
     setError("");
+    setOpenField(null);
 
     try {
-      const response = await fetch("/api/empty-rooms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(query),
+      const params = new URLSearchParams({
+        weekday: String(query.weekday),
+        sectionCode: query.sectionCode,
+        campus: query.campus,
       });
-
+      const response = await fetch(`/api/empty-rooms?${params.toString()}`, { cache: "no-store" });
       const result = (await response.json()) as ApiResult;
       if (!result.ok) {
         if (result.code === "UNAUTHORIZED") {
@@ -224,7 +214,7 @@ export function EmptyRoomsClient() {
             <div className="inline-select-wrap">
               <button type="button" className="inline-select-trigger" onClick={() => setOpenField((v) => (v === "campus" ? null : "campus"))}>
                 <span>{query.campus}</span>
-                <span className="inline-select-arrow">{openField === "campus" ? "收起" : "展开"}</span>
+                <ChevronIcon expanded={openField === "campus"} className="inline-select-arrow" />
               </button>
               <div className={`inline-select-panel ${openField === "campus" ? "open" : ""}`}>
                 {campusOptions.map((item) => (
@@ -250,7 +240,7 @@ export function EmptyRoomsClient() {
             <div className="inline-select-wrap">
               <button type="button" className="inline-select-trigger" onClick={() => setOpenField((v) => (v === "weekday" ? null : "weekday"))}>
                 <span>{weekdayLabel}</span>
-                <span className="inline-select-arrow">{openField === "weekday" ? "收起" : "展开"}</span>
+                <ChevronIcon expanded={openField === "weekday"} className="inline-select-arrow" />
               </button>
               <div className={`inline-select-panel ${openField === "weekday" ? "open" : ""}`}>
                 {weekdayOptions.map((item) => (
@@ -276,7 +266,7 @@ export function EmptyRoomsClient() {
             <div className="inline-select-wrap">
               <button type="button" className="inline-select-trigger" onClick={() => setOpenField((v) => (v === "section" ? null : "section"))}>
                 <span>{sectionLabel}</span>
-                <span className="inline-select-arrow">{openField === "section" ? "收起" : "展开"}</span>
+                <ChevronIcon expanded={openField === "section"} className="inline-select-arrow" />
               </button>
               <div className={`inline-select-panel ${openField === "section" ? "open" : ""}`}>
                 {sectionOptions.map((item) => (
@@ -315,7 +305,7 @@ export function EmptyRoomsClient() {
         ) : (
           <div style={{ display: "grid", gap: 10 }}>
             {groupedRooms.map(([groupName, list]) => (
-              <section key={groupName} style={{ borderRadius: 12, background: "#f7fcff", padding: 10 }}>
+              <section key={groupName} data-expand-state={openGroups[groupName] ? "open" : "closed"} style={{ borderRadius: 12, background: "#f7fcff", padding: 10 }}>
                 <button
                   type="button"
                   onClick={() => setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }))}
@@ -323,7 +313,7 @@ export function EmptyRoomsClient() {
                 >
                   <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--muted)" }}>
                     {groupName}（{list.length} 间）
-                    <span style={{ float: "right" }}>{openGroups[groupName] ? "收起" : "展开"}</span>
+                    <ChevronIcon expanded={openGroups[groupName]} style={{ float: "right" }} />
                   </p>
                 </button>
 
@@ -370,5 +360,6 @@ const smallBtn = {
   borderRadius: 10,
   background: "white",
   padding: "8px 12px",
-  fontSize: 12,
+  fontSize: 13,
+  cursor: "pointer",
 } as const;

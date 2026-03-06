@@ -1,4 +1,4 @@
-import type { StudentProfile } from "@/types/timetable";
+﻿import type { StudentProfile } from "@/types/timetable";
 
 export interface ScoreTermOption {
   value: string;
@@ -20,6 +20,7 @@ export interface GradeExamRecord {
   examCourse: string;
   score: string;
   examTime: string;
+  examCategory?: string;
 }
 
 export interface CourseScoreSummary {

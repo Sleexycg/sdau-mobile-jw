@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BottomNav } from "@/components/bottom-nav";
@@ -20,6 +20,22 @@ interface ApiSuccess {
 }
 
 type ApiResult = ApiError | ApiSuccess;
+
+function parseDateValue(input: string): number {
+  if (!input) return Number.MAX_SAFE_INTEGER;
+  const normalized = input.trim().replace(/\./g, "-").replace(/\//g, "-");
+  const ts = Date.parse(normalized);
+  return Number.isNaN(ts) ? Number.MAX_SAFE_INTEGER : ts;
+}
+
+function parseScoreNumber(score: string): number | null {
+  const n = Number.parseFloat((score || "").trim());
+  return Number.isFinite(n) ? n : null;
+}
+
+function isCetCategory(record: GradeExamRecord): boolean {
+  return (record.examCategory || "").trim() === "大学英语四六级";
+}
 
 export function GradeExamClient() {
   const router = useRouter();
@@ -64,6 +80,17 @@ export function GradeExamClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const sortedRecords = useMemo(() => {
+    const list = [...records].sort((a, b) => {
+      const ta = parseDateValue(a.examTime);
+      const tb = parseDateValue(b.examTime);
+      if (ta !== tb) return ta - tb;
+      return (a.examCourse || "").localeCompare(b.examCourse || "", "zh-CN");
+    });
+
+    return list.map((item, index) => ({ ...item, sequence: String(index + 1) }));
+  }, [records]);
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/login");
@@ -102,22 +129,28 @@ export function GradeExamClient() {
           <div>考试时间</div>
         </div>
 
-        {records.length === 0 ? (
+        {sortedRecords.length === 0 ? (
           <div style={{ borderRadius: 12, background: "#f7fcff", padding: 12, fontSize: 14, color: "var(--muted)" }}>
             暂无等级考试成绩
           </div>
         ) : (
           <div style={{ display: "grid", gap: 8 }}>
-            {records.map((record) => (
-              <article key={record.id} style={{ borderRadius: 12, background: "#f7fcff", padding: 10 }}>
-                <div style={{ display: "grid", gridTemplateColumns: ".6fr 2.4fr .8fr 1.2fr", gap: 8, alignItems: "center" }}>
-                  <p style={{ margin: 0, fontSize: 13 }}>{record.sequence || "-"}</p>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{record.examCourse || "-"}</p>
-                  <p style={{ margin: 0, fontSize: 13 }}>{record.score || "-"}</p>
-                  <p style={{ margin: 0, fontSize: 13 }}>{record.examTime || "-"}</p>
-                </div>
-              </article>
-            ))}
+            {sortedRecords.map((record) => {
+              const scoreNum = parseScoreNumber(record.score);
+              const cet = isCetCategory(record);
+              const scoreColor = cet ? (scoreNum !== null && scoreNum >= 425 ? "#1f9d57" : "#d63b3b") : undefined;
+
+              return (
+                <article key={record.id} style={{ borderRadius: 12, background: "#f7fcff", padding: 10 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: ".6fr 2.4fr .8fr 1.2fr", gap: 8, alignItems: "center" }}>
+                    <p style={{ margin: 0, fontSize: 13 }}>{record.sequence || "-"}</p>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{record.examCourse || "-"}</p>
+                    <p style={{ margin: 0, fontSize: 13, fontWeight: cet ? 700 : 500, color: scoreColor }}>{record.score || "-"}</p>
+                    <p style={{ margin: 0, fontSize: 13 }}>{record.examTime || "-"}</p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

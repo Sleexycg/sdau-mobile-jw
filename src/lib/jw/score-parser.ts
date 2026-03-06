@@ -97,10 +97,10 @@ export function parseGradeExamRecordsFromJson(payload: unknown): GradeExamRecord
     const row = item as Record<string, unknown>;
 
     const sequence = toText(row.xh || row.rownum_ || row.xh_ || row.index || row.id);
-    const course = toText(row.djkcmc || row.kcmc || row.kc_mc || row.kskcmc || row.courseName);
-    const level = toText(row.djmc || row.dj || row.ksdj || row.level);
-    const examCourse = level && course && !course.includes(level) ? `${course}（${level}）` : course;
-    const score = toText(row.cj || row.kscj || row.score || row.zcj);
+    const examCategory = toText(row.skkcmc || row.djkcmc || row.kcmc || row.kc_mc);
+    const examName = toText(row.skkcdjmc || row.skdjmc || row.djmc || row.ksdj || row.level);
+    const examCourse = examName || examCategory;
+    const score = toText(row.fslcj ?? row.cj ?? row.kscj ?? row.score ?? row.zcj);
     const examTime = toText(row.kssj || row.ksrq || row.time || row.sj);
 
     if (!examCourse && !score && !examTime) continue;
@@ -111,6 +111,7 @@ export function parseGradeExamRecordsFromJson(payload: unknown): GradeExamRecord
       examCourse,
       score,
       examTime,
+      examCategory,
     });
   }
 

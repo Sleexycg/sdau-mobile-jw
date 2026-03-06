@@ -1,18 +1,28 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { fetchCourseScores, fetchStudentProfile } from "@/lib/jw/client";
 import { JwError } from "@/lib/jw/errors";
-import { readSessionCookieHeader } from "@/lib/session/store";
+import { buildMockCourseScoreResponse } from "@/lib/mock/admin-data";
+import { readSession } from "@/lib/session/store";
 import type { CourseScoreResponse } from "@/types/score";
 
 export async function GET(request: Request): Promise<NextResponse> {
-  const sessionCookieHeader = await readSessionCookieHeader();
-  if (!sessionCookieHeader) {
+  const session = await readSession();
+  if (!session) {
     return NextResponse.json({ ok: false, code: "UNAUTHORIZED", message: "请先登录" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
   const term = searchParams.get("term")?.trim() ?? "";
+
+  if (session.mode === "mock") {
+    return NextResponse.json({ ok: true, data: buildMockCourseScoreResponse(term || undefined) });
+  }
+
+  const sessionCookieHeader = session.cookieHeader;
+  if (!sessionCookieHeader) {
+    return NextResponse.json({ ok: false, code: "UNAUTHORIZED", message: "请先登录" }, { status: 401 });
+  }
 
   try {
     const profile = await fetchStudentProfile(sessionCookieHeader);

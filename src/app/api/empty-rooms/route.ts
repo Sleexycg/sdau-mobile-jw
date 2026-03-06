@@ -2,7 +2,8 @@
 
 import { fetchEmptyRooms } from "@/lib/jw/empty-room-client";
 import { JwError } from "@/lib/jw/errors";
-import { readSessionCookieHeader } from "@/lib/session/store";
+import { buildMockEmptyRooms } from "@/lib/mock/admin-data";
+import { readSession } from "@/lib/session/store";
 import type { ApiErrorCode } from "@/types/api";
 import type { CampusName, EmptyRoomQuery, SectionCode } from "@/types/empty-room";
 
@@ -20,8 +21,8 @@ function errorResponse(status: number, code: ApiErrorCode, message: string) {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const sessionCookieHeader = await readSessionCookieHeader();
-  if (!sessionCookieHeader) {
+  const session = await readSession();
+  if (!session) {
     return errorResponse(401, "UNAUTHORIZED", "请先登录");
   }
 
@@ -52,6 +53,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     campus,
   };
 
+  if (session.mode === "mock") {
+    return NextResponse.json({ ok: true, data: buildMockEmptyRooms(query) });
+  }
+
+  const sessionCookieHeader = session.cookieHeader;
+  if (!sessionCookieHeader) {
+    return errorResponse(401, "UNAUTHORIZED", "请先登录");
+  }
+
   try {
     const data = await fetchEmptyRooms(sessionCookieHeader, query);
     return NextResponse.json({ ok: true, data });
@@ -65,5 +75,3 @@ export async function POST(request: Request): Promise<NextResponse> {
     return errorResponse(503, "JW_UNAVAILABLE", "空教室查询失败");
   }
 }
-
-

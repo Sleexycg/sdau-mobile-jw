@@ -2,14 +2,12 @@
 
 import { fetchStudentProfile, fetchTimetable } from "@/lib/jw/client";
 import { JwError } from "@/lib/jw/errors";
-import { readSessionCookieHeader } from "@/lib/session/store";
+import { buildMockTimetableResponse } from "@/lib/mock/admin-data";
+import { readSession } from "@/lib/session/store";
 import type { TimetableResponse } from "@/types/timetable";
 
 function resolveTerm(rawTerm: string | null): string {
-  if (rawTerm && /^\d{4}-\d{4}-[12]$/.test(rawTerm)) {
-    return rawTerm;
-  }
-
+  if (rawTerm && /^\d{4}-\d{4}-[12]$/.test(rawTerm)) return rawTerm;
   const now = new Date();
   const year = now.getMonth() + 1 >= 8 ? now.getFullYear() : now.getFullYear() - 1;
   const nextYear = year + 1;
@@ -18,16 +16,23 @@ function resolveTerm(rawTerm: string | null): string {
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
-  const sessionCookieHeader = await readSessionCookieHeader();
-  if (!sessionCookieHeader) {
-    return NextResponse.json(
-      { ok: false, code: "UNAUTHORIZED", message: "请先登录" },
-      { status: 401 },
-    );
+  const session = await readSession();
+  if (!session) {
+    return NextResponse.json({ ok: false, code: "UNAUTHORIZED", message: "请先登录" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
   const term = resolveTerm(searchParams.get("term"));
+
+  if (session.mode === "mock") {
+    const data = buildMockTimetableResponse(term);
+    return NextResponse.json({ ok: true, data });
+  }
+
+  const sessionCookieHeader = session.cookieHeader;
+  if (!sessionCookieHeader) {
+    return NextResponse.json({ ok: false, code: "UNAUTHORIZED", message: "请先登录" }, { status: 401 });
+  }
 
   try {
     const profile = await fetchStudentProfile(sessionCookieHeader);
@@ -47,9 +52,6 @@ export async function GET(request: Request): Promise<NextResponse> {
       return NextResponse.json({ ok: false, code: error.code, message: error.message }, { status });
     }
 
-    return NextResponse.json(
-      { ok: false, code: "JW_UNAVAILABLE", message: "课表拉取失败，请稍后再试" },
-      { status: 503 },
-    );
+    return NextResponse.json({ ok: false, code: "JW_UNAVAILABLE", message: "课表拉取失败，请稍后再试" }, { status: 503 });
   }
 }
