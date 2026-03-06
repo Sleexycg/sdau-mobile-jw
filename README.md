@@ -95,33 +95,6 @@ npm run build
 npm run start
 ```
 
-## 远程更新日志弹窗
-
-在 `.env.local` 配置：
-
-```env
-NEXT_PUBLIC_CHANGELOG_URL=https://raw.githubusercontent.com/<你的用户名>/<仓库名>/main/updates/sdau-mobile-jw.json
-```
-
-远程 JSON 示例：
-
-```json
-{
-  "version": "V1.1",
-  "title": "更新公告",
-  "publishedAt": "2026-03-05 20:30",
-  "items": [
-    "新增空教室分区折叠与过渡动画",
-    "修复切换校区后保留上次结果的问题",
-    "优化成绩页面学期选择体验"
-  ]
-}
-```
-
-规则：
-- `version` 变化时自动弹窗
-- 用户点击“我知道了”后，同版本不再重复弹出
-
 ## Powered By
 
 Powered by Next.js 15, React 19, TypeScript, and Node.js.
