@@ -12,6 +12,17 @@ export interface ScoreRecord {
   credit: string;
   score: string;
   gpa: string;
+  studentIdRaw: string;
+  teachingTaskId: string;
+  scoreRecordId: string;
+}
+
+export interface UsualScoreDetail {
+  usualScore: string;
+  usualRatio: string;
+  finalScore: string;
+  finalRatio: string;
+  totalScore: string;
 }
 
 export interface GradeExamRecord {

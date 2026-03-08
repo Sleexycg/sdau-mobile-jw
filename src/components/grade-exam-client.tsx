@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -110,10 +110,25 @@ export function GradeExamClient() {
             <h2 style={{ margin: "2px 0 0", fontSize: 20 }}>{profile?.displayName ?? "-"}</h2>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => loadData("refresh")} style={smallBtn} disabled={refreshing}>
-              {refreshing ? "刷新中..." : "刷新"}
+            <button
+              onClick={() => loadData("refresh")}
+              className="timetable-icon-btn"
+              aria-label="\u5237\u65B0\u7B49\u7EA7\u8003\u8BD5\u6210\u7EE9"
+              title={refreshing ? "\u5237\u65B0\u4E2D" : "\u5237\u65B0"}
+              disabled={refreshing}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                <path d="M21 3v6h-6" />
+              </svg>
             </button>
-            <button onClick={logout} style={smallBtn}>退出</button>
+            <button onClick={logout} className="timetable-icon-btn" aria-label="\u9000\u51FA\u767B\u5F55" title="\u9000\u51FA">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <path d="M10 17l5-5-5-5" />
+                <path d="M15 12H3" />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
@@ -160,10 +175,3 @@ export function GradeExamClient() {
   );
 }
 
-const smallBtn = {
-  border: "1px solid #c8dce5",
-  borderRadius: 10,
-  background: "white",
-  padding: "8px 12px",
-  fontSize: 12,
-} as const;

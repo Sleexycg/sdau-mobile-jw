@@ -8,13 +8,16 @@ import {
   parseScoreRecordsFromJson,
   parseScoreTermsFromHtml,
   parseSummaryFromJson,
+  parseUsualScoreDetailFromText,
 } from "@/lib/jw/score-parser";
+import { parseTrainingPlanFromHtml } from "@/lib/jw/training-plan-parser";
 import {
   looksLikeTimetablePage,
   parseSelectedTerm,
   parseTimetableFromHtml,
 } from "@/lib/jw/timetable-parser";
-import type { GradeExamRecord, ScoreRecord, ScoreTermOption } from "@/types/score";
+import type { GradeExamRecord, ScoreRecord, ScoreTermOption, UsualScoreDetail } from "@/types/score";
+import type { TrainingPlanItem, TrainingPlanSummary } from "@/types/training-plan";
 import type { StudentProfile, TimetableCourse } from "@/types/timetable";
 
 interface LoginResult {
@@ -36,6 +39,13 @@ interface CourseScoreFetchResult {
     courseCount: number;
     totalCredits: string;
   };
+}
+
+interface UsualScoreQuery {
+  xs0101id: string;
+  jx0404id: string;
+  cj0708id: string;
+  zcj: string;
 }
 
 function isLoginPage(html: string): boolean {
@@ -117,6 +127,16 @@ function buildCourseScoreListPath(term: string): string {
     sfxsbcxq: "1",
   });
   return `/kscj/cjcx_list?${query.toString()}`;
+}
+
+function buildUsualScorePath(query: UsualScoreQuery): string {
+  const params = new URLSearchParams({
+    xs0101id: query.xs0101id,
+    jx0404id: query.jx0404id,
+    cj0708id: query.cj0708id,
+    zcj: query.zcj,
+  });
+  return `/kscj/pscj_list.do?${params.toString()}`;
 }
 
 function buildGradeExamListPath(): string {
@@ -271,6 +291,23 @@ export async function fetchCourseScores(cookieHeader: string, term?: string): Pr
   };
 }
 
+export async function fetchUsualScoreDetail(cookieHeader: string, query: UsualScoreQuery): Promise<UsualScoreDetail> {
+  const response = await jwRequest(buildUsualScorePath(query), {
+    method: "GET",
+    cookieHeader,
+  });
+
+  if (isLoginPage(response.text)) {
+    throw new JwError("UNAUTHORIZED", "登录状态已失效");
+  }
+
+  try {
+    return parseUsualScoreDetailFromText(response.text);
+  } catch {
+    throw new JwError("JW_UNAVAILABLE", "平时成绩接口返回格式异常");
+  }
+}
+
 export async function fetchGradeExamScores(cookieHeader: string): Promise<GradeExamRecord[]> {
   const response = await jwRequest(buildGradeExamListPath(), {
     method: "GET",
@@ -286,5 +323,26 @@ export async function fetchGradeExamScores(cookieHeader: string): Promise<GradeE
     return parseGradeExamRecordsFromJson(payload);
   } catch {
     throw new JwError("JW_UNAVAILABLE", "等级考试成绩接口返回格式异常");
+  }
+}
+
+function buildTrainingPlanPath(): string {
+  const query = new URLSearchParams({ isdb: "0" });
+  return `/xxwcqk/xxwcqkOnkctx.do?${query.toString()}`;
+}
+export async function fetchTrainingPlan(cookieHeader: string): Promise<{ items: TrainingPlanItem[]; summary: TrainingPlanSummary }> {
+  const response = await jwRequest(buildTrainingPlanPath(), {
+    method: "GET",
+    cookieHeader,
+  });
+
+  if (isLoginPage(response.text)) {
+    throw new JwError("UNAUTHORIZED", "登录状态已失效");
+  }
+
+  try {
+    return parseTrainingPlanFromHtml(response.text);
+  } catch {
+    throw new JwError("JW_UNAVAILABLE", "培养方案接口返回格式异常");
   }
 }

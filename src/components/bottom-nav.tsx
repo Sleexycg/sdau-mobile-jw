@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 interface BottomNavProps {
-  active: "timetable" | "course-scores" | "grade-exams" | "empty-rooms";
+  active?: "timetable" | "course-scores" | "grade-exams" | "empty-rooms";
 }
 
 function hasExpandedPanels(): boolean {

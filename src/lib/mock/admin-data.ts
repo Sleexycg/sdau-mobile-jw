@@ -1,4 +1,5 @@
-import type { CourseScoreResponse, GradeExamRecord, GradeExamResponse, ScoreRecord, ScoreTermOption } from "@/types/score";
+﻿import type { CourseScoreResponse, GradeExamRecord, GradeExamResponse, ScoreRecord, ScoreTermOption } from "@/types/score";
+import type { TrainingPlanResponse } from "@/types/training-plan";
 import type { CampusName, EmptyRoomQuery, EmptyRoomResponse } from "@/types/empty-room";
 import type { StudentProfile, TimetableCourse, TimetableResponse } from "@/types/timetable";
 
@@ -46,19 +47,19 @@ const scoreTerms: ScoreTermOption[] = [
 
 const scoreByTerm: Record<string, ScoreRecord[]> = {
   "2025-2026-2": [
-    { id: "s1", courseCode: "MA101", courseName: "高等数学A1", credit: "4", score: "88", gpa: "3.8" },
-    { id: "s2", courseCode: "EN101", courseName: "大学英语B1", credit: "3", score: "91", gpa: "4.1" },
-    { id: "s3", courseCode: "PL101", courseName: "毛泽东思想和中国特色社会主义理论体系概论", credit: "3", score: "84", gpa: "3.4" },
-    { id: "s4", courseCode: "ME101", courseName: "理论力学", credit: "3", score: "59", gpa: "0.0" },
-    { id: "s5", courseCode: "AC101", courseName: "初级会计学", credit: "2", score: "86", gpa: "3.6" },
-    { id: "s6", courseCode: "CH101", courseName: "无机化学", credit: "3", score: "82", gpa: "3.2" },
-    { id: "s7", courseCode: "BC101", courseName: "生物化学", credit: "3", score: "89", gpa: "3.9" },
+    { id: "s1", courseCode: "MA101", courseName: "高等数学A1", credit: "4", score: "88", gpa: "3.8", studentIdRaw: "admin", teachingTaskId: "mock-jx-1", scoreRecordId: "mock-cj-1" },
+    { id: "s2", courseCode: "EN101", courseName: "大学英语B1", credit: "3", score: "91", gpa: "4.1", studentIdRaw: "admin", teachingTaskId: "mock-jx-2", scoreRecordId: "mock-cj-2" },
+    { id: "s3", courseCode: "PL101", courseName: "毛泽东思想和中国特色社会主义理论体系概论", credit: "3", score: "84", gpa: "3.4", studentIdRaw: "admin", teachingTaskId: "mock-jx-3", scoreRecordId: "mock-cj-3" },
+    { id: "s4", courseCode: "ME101", courseName: "理论力学", credit: "3", score: "59", gpa: "0.0", studentIdRaw: "admin", teachingTaskId: "mock-jx-4", scoreRecordId: "mock-cj-4" },
+    { id: "s5", courseCode: "AC101", courseName: "初级会计学", credit: "2", score: "86", gpa: "3.6", studentIdRaw: "admin", teachingTaskId: "mock-jx-5", scoreRecordId: "mock-cj-5" },
+    { id: "s6", courseCode: "CH101", courseName: "无机化学", credit: "3", score: "82", gpa: "3.2", studentIdRaw: "admin", teachingTaskId: "mock-jx-6", scoreRecordId: "mock-cj-6" },
+    { id: "s7", courseCode: "BC101", courseName: "生物化学", credit: "3", score: "89", gpa: "3.9", studentIdRaw: "admin", teachingTaskId: "mock-jx-7", scoreRecordId: "mock-cj-7" },
   ],
   "2025-2026-1": [
-    { id: "s8", courseCode: "PE001", courseName: "体育", credit: "1", score: "92", gpa: "4.2" },
+    { id: "s8", courseCode: "PE001", courseName: "体育", credit: "1", score: "92", gpa: "4.2", studentIdRaw: "admin", teachingTaskId: "mock-jx-8", scoreRecordId: "mock-cj-8" },
   ],
   "2024-2025-2": [
-    { id: "s9", courseCode: "CS001", courseName: "程序设计基础", credit: "3", score: "82", gpa: "3.2" },
+    { id: "s9", courseCode: "CS001", courseName: "程序设计基础", credit: "3", score: "82", gpa: "3.2", studentIdRaw: "admin", teachingTaskId: "mock-jx-9", scoreRecordId: "mock-cj-9" },
   ],
 };
 
@@ -158,6 +159,44 @@ export function buildMockEmptyRooms(query: EmptyRoomQuery): EmptyRoomResponse {
   };
 }
 
+export function buildMockUsualScoreDetail(totalScore: string) {
+  return {
+    usualScore: "88",
+    usualRatio: "50%",
+    finalScore: "94",
+    finalRatio: "50%",
+    totalScore: totalScore || "91",
+  };
+}
+
 export function getMockProfile(): StudentProfile {
   return mockProfile;
 }
+
+export function buildMockTrainingPlanResponse(): TrainingPlanResponse {
+  const items = [
+    { id: "tp-1", category: "专业方向课", requiredCredits: "19.0", completedCredits: "4.0", currentCredits: "0.0", remainingCredits: "15.0", subjects: ["2025-2026-1 | XF002003 | Java语言程序设计实验 | 1学分 | 已修读"] },
+    { id: "tp-2", category: "专业核心课", requiredCredits: "16.0", completedCredits: "4.5", currentCredits: "4.5", remainingCredits: "7.0" },
+    { id: "tp-3", category: "学科基础课组", requiredCredits: "59.5", completedCredits: "41.5", currentCredits: "9.0", remainingCredits: "9.0" },
+    { id: "tp-4", category: "实践教学环节", requiredCredits: "30.5", completedCredits: "7.0", currentCredits: "4.1", remainingCredits: "19.4", subjects: ["2025-2026-1 | BS000101 | 金工实习 | 2学分 | 已修读"] },
+    { id: "tp-5", category: "通识必修课", requiredCredits: "38.0", completedCredits: "31.0", currentCredits: "4.0", remainingCredits: "3.0" },
+    { id: "tp-6", category: "耕读教育类", requiredCredits: "2.0", completedCredits: "2.0", currentCredits: "0.0", remainingCredits: "0.0" },
+    { id: "tp-7", category: "其它", requiredCredits: "0.0", completedCredits: "0.0", currentCredits: "0.0", remainingCredits: "0.0" },
+    { id: "tp-8", category: "四史教育类", requiredCredits: "1.0", completedCredits: "1.0", currentCredits: "0.0", remainingCredits: "0.0" },
+    { id: "tp-9", category: "体育健康类", requiredCredits: "2.0", completedCredits: "0.0", currentCredits: "1.0", remainingCredits: "1.0" },
+    { id: "tp-10", category: "艺术审美类", requiredCredits: "2.0", completedCredits: "2.0", currentCredits: "0.0", remainingCredits: "0.0" },
+  ];
+
+  return {
+    profile: mockProfile,
+    items,
+    summary: {
+      requiredCredits: "170.0",
+      completedCredits: "93.0",
+      currentCredits: "22.6",
+      remainingCredits: "54.4",
+    },
+    generatedAt: new Date().toISOString(),
+  };
+}
+

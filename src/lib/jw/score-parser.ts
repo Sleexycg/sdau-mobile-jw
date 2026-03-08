@@ -1,8 +1,8 @@
-import { createHash } from "crypto";
+﻿import { createHash } from "crypto";
 
 import * as cheerio from "cheerio";
 
-import type { GradeExamRecord, ScoreRecord, ScoreTermOption } from "@/types/score";
+import type { GradeExamRecord, ScoreRecord, ScoreTermOption, UsualScoreDetail } from "@/types/score";
 
 function cleanText(value: string): string {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
@@ -71,15 +71,22 @@ export function parseScoreRecordsFromJson(payload: unknown, term: string): Score
     const score = toText(row.zcj ?? row.zcjstr ?? row.score);
     const gpa = toText(row.jd ?? row.gpa);
 
+    const studentIdRaw = toText(row.xs0101id);
+    const teachingTaskId = toText(row.jx0404id);
+    const scoreRecordId = toText(row.cj0708id);
+
     if (!courseCode && !courseName) continue;
 
     records.push({
-      id: buildScoreId(term, courseCode, courseName),
+      id: scoreRecordId || buildScoreId(term, courseCode, courseName),
       courseCode,
       courseName,
       credit,
       score,
       gpa,
+      studentIdRaw,
+      teachingTaskId,
+      scoreRecordId,
     });
   }
 
@@ -138,4 +145,23 @@ export function parseSummaryFromJson(payload: unknown): {
   const totalCredits = toText(row.sxzxf) || "-";
 
   return { avgScore, avgCreditGpa, courseCount, totalCredits };
+}
+
+export function parseUsualScoreDetailFromText(text: string): UsualScoreDetail {
+  const raw = text.replace(/^\uFEFF/, "").trim();
+  const matches = raw.match(/let\s+arr\s*=\s*(\[[\s\S]*?\]);?/i) ?? raw.match(/arr\s*=\s*(\[[\s\S]*?\]);?/i);
+  if (!matches?.[1]) {
+    throw new Error("usual score payload not found");
+  }
+
+  const parsed = JSON.parse(matches[1]) as Array<Record<string, unknown>>;
+  const first = parsed[0] ?? {};
+
+  return {
+    usualScore: toText(first.cjxm1) || "-",
+    usualRatio: toText(first.cjxm1bl) || "-",
+    finalScore: toText(first.cjxm3) || "-",
+    finalRatio: toText(first.cjxm3bl) || "-",
+    totalScore: toText(first.zcj) || "-",
+  };
 }

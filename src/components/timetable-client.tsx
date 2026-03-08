@@ -20,17 +20,31 @@ interface ApiSuccess {
   data: TimetableResponse;
 }
 
+
 type ApiResult = ApiError | ApiSuccess;
 type SectionTimeMap = Record<number, string>;
+type ChangelogEntry = {
+  version: string;
+  title?: string;
+  publishedAt?: string;
+  items?: string[];
+};
+type ChangelogData = {
+  version: string;
+  title?: string;
+  publishedAt?: string;
+  items?: string[];
+  history?: ChangelogEntry[];
+};
 
-const weekdays = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+const weekdays = ["\u5468\u4e00", "\u5468\u4e8c", "\u5468\u4e09", "\u5468\u56db", "\u5468\u4e94", "\u5468\u516d", "\u5468\u65e5"];
 const sectionIndexes = [1, 2, 3, 4, 5] as const;
 const sectionNameMap: Record<number, string> = {
-  1: "第一大节",
-  2: "第二大节",
-  3: "第三大节",
-  4: "第四大节",
-  5: "第五大节",
+  1: "\u7b2c\u4e00\u5927\u8282",
+  2: "\u7b2c\u4e8c\u5927\u8282",
+  3: "\u7b2c\u4e09\u5927\u8282",
+  4: "\u7b2c\u56db\u5927\u8282",
+  5: "\u7b2c\u4e94\u5927\u8282",
 };
 
 const courseColorPalette = [
@@ -59,9 +73,9 @@ function getSectionTimeMap(date: Date): SectionTimeMap {
 }
 
 function sectionLabelWithTime(sectionIndex: number, timeMap: SectionTimeMap): string {
-  const name = sectionNameMap[sectionIndex] ?? `第${sectionIndex}大节`;
+  const name = sectionNameMap[sectionIndex] ?? `\u7b2c${sectionIndex}\u5927\u8282`;
   const time = timeMap[sectionIndex];
-  return time ? `${name}（${time}）` : name;
+  return time ? `${name}\uff08${time}\uff09` : name;
 }
 
 function sectionRangeText(startSection: number, endSection: number, timeMap: SectionTimeMap): string {
@@ -87,13 +101,13 @@ function formatWeeks(weeks: number[]): string {
     end = current;
   }
   ranges.push(start === end ? `${start}` : `${start}-${end}`);
-  return `${ranges.join(",")}周`;
+  return `${ranges.join(",")}\u5468`;
 }
 
 function weekTitle(week: number): string {
-  const zh = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十"];
-  if (week >= 0 && week < zh.length) return `第${zh[week]}周`;
-  return `第${week}周`;
+  const zh = ["\u96f6", "\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94", "\u516d", "\u4e03", "\u516b", "\u4e5d", "\u5341", "\u5341\u4e00", "\u5341\u4e8c", "\u5341\u4e09", "\u5341\u56db", "\u5341\u4e94", "\u5341\u516d", "\u5341\u4e03", "\u5341\u516b", "\u5341\u4e5d", "\u4e8c\u5341"];
+  if (week >= 0 && week < zh.length) return `\u7b2c${zh[week]}\u5468`;
+  return `\u7b2c${week}\u5468`;
 }
 
 function todayWeekday(): number {
@@ -123,15 +137,15 @@ function courseColorByName(seed: string) {
 function WeekOverviewGrid({ groupedByWeekday, sectionTimeMap, compact }: { groupedByWeekday: Map<number, TimetableCourse[]>; sectionTimeMap: SectionTimeMap; compact: boolean }) {
   const sectionColWidth = compact ? 52 : 138;
   const dayColWidth = compact ? 0 : 134;
-  const weekdayTitles = compact ? ["一", "二", "三", "四", "五", "六", "日"] : weekdays;
-  const sectionTitles = ["一", "二", "三", "四", "五"];
+  const weekdayTitles = compact ? ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94", "\u516d", "\u65e5"] : weekdays;
+  const sectionTitles = ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94"];
   const gridColumns = compact ? `${sectionColWidth}px repeat(7, minmax(0, 1fr))` : `${sectionColWidth}px repeat(7, minmax(${dayColWidth}px, 1fr))`;
 
   return (
     <div style={{ overflowX: compact ? "hidden" : "auto", paddingBottom: 4 }}>
       <div style={{ width: "100%", minWidth: compact ? 0 : sectionColWidth + dayColWidth * 7 + 92 }}>
         <div style={{ display: "grid", gridTemplateColumns: gridColumns, gap: compact ? 6 : 8, marginBottom: compact ? 6 : 8 }}>
-          <div style={{ color: "var(--muted)", fontSize: compact ? 10 : 12, textAlign: "center" }}>{compact ? "节" : "节次"}</div>
+          <div style={{ color: "var(--muted)", fontSize: compact ? 10 : 12, textAlign: "center" }}>{compact ? "\u8282" : "\u8282\u6b21"}</div>
           {weekdayTitles.map((day) => (
             <div key={day} style={{ color: "var(--muted)", fontSize: compact ? 10 : 12, textAlign: "center" }}>{day}</div>
           ))}
@@ -173,8 +187,8 @@ function WeekOverviewGrid({ groupedByWeekday, sectionTimeMap, compact }: { group
                         return (
                           <div key={`${course.id}-${section}-overview`} style={{ borderRadius: 8, border: `1px solid ${color.border}`, background: color.bg, padding: compact ? "6px 6px" : "6px 8px", color: color.text, minWidth: 0 }}>
                             <p style={{ margin: 0, fontSize: compact ? 10.5 : 12, fontWeight: 700, lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: compact ? 2 : "unset", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{course.name}</p>
-                            <p style={{ margin: "2px 0 0", fontSize: compact ? 9.2 : 11, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{course.teacher || "待定"}</p>
-                            <p style={{ margin: "2px 0 0", fontSize: compact ? 9.2 : 11, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{course.location || "待定教室"}</p>
+                            <p style={{ margin: "2px 0 0", fontSize: compact ? 9.2 : 11, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{course.teacher || "\u5f85\u5b9a"}</p>
+                            <p style={{ margin: "2px 0 0", fontSize: compact ? 9.2 : 11, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{course.location || "\u5f85\u5b9a\u6559\u5ba4"}</p>
                           </div>
                         );
                       })}
@@ -204,7 +218,7 @@ function DayPanel({ day, dayCourses, sectionTimeMap, onCourseClick }: DayPanelPr
   if (weekendAllEmpty) {
     return (
       <div style={{ borderRadius: 10, background: "#f7fcff", padding: 10 }}>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--muted)" }}>全天无课</p>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--muted)" }}>{"\u5168\u5929\u65e0\u8bfe"}</p>
       </div>
     );
   }
@@ -225,8 +239,8 @@ function DayPanel({ day, dayCourses, sectionTimeMap, onCourseClick }: DayPanelPr
                   return (
                     <button key={`${course.id}-${sectionIndex}`} onClick={() => onCourseClick(course)} style={{ textAlign: "left", borderRadius: 10, border: `1px solid ${color.border}`, background: color.bg, color: color.text, padding: "8px 10px" }}>
                       <p style={{ margin: 0, fontWeight: 700, fontSize: 13 }}>{course.name}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 12 }}>老师：{course.teacher || "待定"}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 12, fontWeight: 700 }}>教室：{course.location || "待定"}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 12 }}>{"\u8001\u5e08\uff1a"}{course.teacher || "\u5f85\u5b9a"}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 12, fontWeight: 700 }}>{"\u6559\u5ba4\uff1a"}{course.location || "\u5f85\u5b9a"}</p>
                     </button>
                   );
                 })}
@@ -254,6 +268,42 @@ export function TimetableClient() {
   const [openDay, setOpenDay] = useState<number | null>(null);
   const [selectedDesktopDay, setSelectedDesktopDay] = useState<number>(todayWeekday() === 7 ? 1 : todayWeekday() + 1);
   const [showOverview, setShowOverview] = useState(false);
+  const [changelog, setChangelog] = useState<ChangelogData | null>(null);
+  const [showChangelog, setShowChangelog] = useState(false);
+  const [checkingChangelog, setCheckingChangelog] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
+  async function fetchChangelog(autoOpen: boolean) {
+    const url = process.env.NEXT_PUBLIC_CHANGELOG_URL;
+    if (!url) return;
+
+    try {
+      setCheckingChangelog(true);
+      const bustUrl = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
+      const response = await fetch(bustUrl, { cache: "no-store" });
+      if (!response.ok) return;
+      const data = (await response.json()) as ChangelogData;
+      if (!data?.version) return;
+      setChangelog(data);
+
+      if (!autoOpen || typeof window === "undefined") return;
+      const viewedKey = `wesdau_changelog_seen_${data.version}`;
+      const hasSeen = window.localStorage.getItem(viewedKey) === "1";
+      if (!hasSeen) setShowChangelog(true);
+    } catch {
+      // Ignore changelog errors.
+    } finally {
+      setCheckingChangelog(false);
+    }
+  }
+
+  function closeChangelog() {
+    if (changelog?.version && typeof window !== "undefined") {
+      window.localStorage.setItem(`wesdau_changelog_seen_${changelog.version}`, "1");
+    }
+    setShowChangelog(false);
+    setShowHistory(false);
+  }
 
   async function loadTimetable(options: { resetWeek?: boolean; silent?: boolean } = {}) {
     const { resetWeek = false, silent = false } = options;
@@ -268,7 +318,7 @@ export function TimetableClient() {
           router.replace("/login");
           return;
         }
-        setError(result.message || "课表加载失败");
+        setError(result.message || "\u8bfe\u8868\u52a0\u8f7d\u5931\u8d25");
         return;
       }
       setTerm(result.data.term);
@@ -276,7 +326,7 @@ export function TimetableClient() {
       setCourses(result.data.courses);
       if (resetWeek) setWeek(1);
     } catch {
-      setError("网络异常，请稍后重试");
+      setError("\u7f51\u7edc\u5f02\u5e38\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5");
     } finally {
       if (silent) setRefreshing(false); else setLoading(false);
     }
@@ -297,6 +347,10 @@ export function TimetableClient() {
   useEffect(() => {
     const timer = window.setInterval(() => setSectionTimeMap(getSectionTimeMap(new Date())), 60 * 1000);
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    fetchChangelog(true);
   }, []);
 
   const groupedByWeekday = useMemo(() => {
@@ -338,29 +392,67 @@ export function TimetableClient() {
       <section className="glass-card rise-in" style={{ padding: 16, marginBottom: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
           <div>
-            <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>个人信息及课程表</p>
-            <h2 style={{ margin: "2px 0 0", fontSize: 20 }}>{term || "未识别"}</h2>
+            <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>{"\u4e2a\u4eba\u4fe1\u606f\u53ca\u8bfe\u7a0b\u8868"}</p>
+            <h2 style={{ margin: "2px 0 0", fontSize: 20 }}>{term || "\u672a\u8bc6\u522b"}</h2>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => loadTimetable({ silent: true })} style={smallBtn} disabled={refreshing}>{refreshing ? "刷新中..." : "刷新"}</button>
-            <button onClick={logout} style={smallBtn}>退出</button>
+            <button
+              onClick={() => loadTimetable({ silent: true })}
+              className="timetable-icon-btn"
+              aria-label="\u5237\u65B0\u8BFE\u8868"
+              title={refreshing ? "\u5237\u65B0\u4E2D" : "\u5237\u65B0"}
+              disabled={refreshing}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                <path d="M21 3v6h-6" />
+              </svg>
+            </button>
+            <button
+              onClick={logout}
+              className="timetable-icon-btn"
+              aria-label="\u9000\u51FA\u767B\u5F55"
+              title="\u9000\u51FA"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <path d="M10 17l5-5-5-5" />
+                <path d="M15 12H3" />
+              </svg>
+            </button>
           </div>
         </div>
 
         {profile ? (
           <div style={{ marginTop: 10, fontSize: 13, color: "var(--muted)", lineHeight: 1.5, display: "grid", gap: 2, gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr" }}>
             <div>{profile.displayName}</div>
-            <div>班级：{profile.className || "-"}</div>
-            <div>专业：{profile.major || "-"}</div>
-            <div>学院：{profile.college || "-"}</div>
+            <div>{"\u73ed\u7ea7\uff1a"}{profile.className || "-"}</div>
+            <div>{"\u4e13\u4e1a\uff1a"}{profile.major || "-"}</div>
+            <div>{"\u5b66\u9662\uff1a"}{profile.college || "-"}</div>
           </div>
         ) : null}
 
-        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <button onClick={() => setWeek((v) => Math.max(1, v - 1))} style={smallBtn}>上一周</button>
-          <div style={{ fontWeight: 700 }}>第 {week} 周</div>
-          <button onClick={() => setWeek((v) => Math.min(maxWeek, v + 1))} style={smallBtn}>下一周</button>
-          <button onClick={() => setShowOverview(true)} style={smallBtn}>周课表</button>
+        <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
+          <div className="timetable-week-switch">
+            <button onClick={() => setWeek((v) => Math.max(1, v - 1))} style={chipBtn}>{"\u4e0a\u4e00\u5468"}</button>
+            <div className="timetable-week-badge">{"\u7b2c"}{week}{"\u5468"}</div>
+            <button onClick={() => setWeek((v) => Math.min(maxWeek, v + 1))} style={chipBtn}>{"\u4e0b\u4e00\u5468"}</button>
+          </div>
+
+          <div className="timetable-action-row">
+            <button onClick={() => setShowOverview(true)} style={chipBtn}>{"\u5468\u8BFE\u8868"}</button>
+            <button onClick={() => router.push("/training-plan")} style={primaryBtn}>{"\u57F9\u517B\u65B9\u6848"}</button>
+            <button
+              onClick={async () => {
+                await fetchChangelog(false);
+                setShowChangelog(true);
+              }}
+              style={chipBtn}
+              disabled={checkingChangelog}
+            >
+              {checkingChangelog ? "\u8BFB\u53D6\u4E2D..." : "\u66F4\u65B0\u65E5\u5FD7"}
+            </button>
+          </div>
         </div>
       </section>
 
@@ -369,11 +461,11 @@ export function TimetableClient() {
       {isDesktop ? (
         <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <div className="glass-card rise-in" style={{ padding: 14 }}>
-            <h3 style={{ margin: 0, fontSize: 16 }}>今日课表（{weekdays[currentWeekday - 1]}）</h3>
+            <h3 style={{ margin: 0, fontSize: 16 }}>{"\u4eca\u65e5\u8bfe\u8868\uff08"}{weekdays[currentWeekday - 1]}{"\uff09"}</h3>
             <div style={{ marginTop: 10 }}><DayPanel day={currentWeekday} dayCourses={todayCourses} sectionTimeMap={sectionTimeMap} onCourseClick={setSelected} /></div>
           </div>
           <div className="glass-card rise-in" style={{ padding: 14 }}>
-            <h3 style={{ margin: 0, fontSize: 16 }}>其他日期课表</h3>
+            <h3 style={{ margin: 0, fontSize: 16 }}>{"\u5176\u4ed6\u65e5\u671f\u8bfe\u8868"}</h3>
             <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 8 }}>
               {otherDays.map(({ day, label }) => {
                 const active = selectedDesktopDay === day;
@@ -392,7 +484,7 @@ export function TimetableClient() {
       ) : (
         <>
           <section className="glass-card rise-in" style={{ padding: 14, marginBottom: 10 }}>
-            <h3 style={{ margin: 0, fontSize: 16 }}>今日课表（{weekdays[currentWeekday - 1]}）</h3>
+            <h3 style={{ margin: 0, fontSize: 16 }}>{"\u4eca\u65e5\u8bfe\u8868\uff08"}{weekdays[currentWeekday - 1]}{"\uff09"}</h3>
             <div style={{ marginTop: 10 }}><DayPanel day={currentWeekday} dayCourses={todayCourses} sectionTimeMap={sectionTimeMap} onCourseClick={setSelected} /></div>
           </section>
 
@@ -411,6 +503,7 @@ export function TimetableClient() {
               );
             })}
           </section>
+
         </>
       )}
 
@@ -431,11 +524,75 @@ export function TimetableClient() {
         <div role="button" tabIndex={0} onClick={() => setSelected(null)} onKeyDown={(event) => { if (event.key === "Escape") setSelected(null); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", display: "grid", placeItems: "center", padding: 16, zIndex: 1250 }}>
           <div className="glass-card" style={{ width: "100%", maxWidth: 420, padding: 16 }}>
             <h3 style={{ marginTop: 0 }}>{selected.name}</h3>
-            <p style={detailText}>任课教师：{selected.teacher || "待定"}</p>
-            <p style={{ ...detailText, fontWeight: 700 }}>上课教室：{selected.location || "待定"}</p>
-            <p style={detailText}>节次：{sectionRangeText(selected.startSection, selected.endSection, sectionTimeMap)}</p>
-            <p style={detailText}>周次：{formatWeeks(selected.weeks)}</p>
-            <button onClick={() => setSelected(null)} style={{ ...smallBtn, marginTop: 6 }}>关闭</button>
+            <p style={detailText}>{"\u4efb\u8bfe\u6559\u5e08\uff1a"}{selected.teacher || "\u5f85\u5b9a"}</p>
+            <p style={{ ...detailText, fontWeight: 700 }}>{"\u4e0a\u8bfe\u6559\u5ba4\uff1a"}{selected.location || "\u5f85\u5b9a"}</p>
+            <p style={detailText}>{"\u8282\u6b21\uff1a"}{sectionRangeText(selected.startSection, selected.endSection, sectionTimeMap)}</p>
+            <p style={detailText}>{"\u5468\u6b21\uff1a"}{formatWeeks(selected.weeks)}</p>
+            <button onClick={() => setSelected(null)} style={{ ...smallBtn, marginTop: 6 }}>{"\u5173\u95ed"}</button>
+          </div>
+        </div>
+      ) : null}
+      {showChangelog ? (
+        <div className="update-mask" role="button" tabIndex={0} onClick={closeChangelog} onKeyDown={(event) => { if (event.key === "Escape") closeChangelog(); }}>
+          <div className="update-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="update-modal-glow" />
+            <p className="update-kicker">WeSDAU · 更新日志</p>
+            <div className="update-modal-header">
+              <h3>{changelog?.title || "更新日志"}</h3>
+              <span className="update-version">{changelog?.version || "-"}</span>
+            </div>
+            <p className="update-time">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" />
+                <path d="M12 8v4l3 2" />
+              </svg>
+              {changelog?.publishedAt || "发布时间未提供"}
+            </p>
+            <div className="update-content">
+              {changelog?.items && changelog.items.length > 0 ? (
+                <ul className="update-list">
+                  {changelog.items.map((item, idx) => (
+                    <li key={`${item}-${idx}`}>
+                      <span className="update-list-index">{idx + 1}</span>
+                      <span className="update-list-text">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>暂无更新内容</p>
+              )}
+            </div>
+                        {changelog?.history && changelog.history.length > 0 ? (
+              <div className="update-history-wrap">
+                <button
+                  className={`update-history-toggle ${showHistory ? "open" : ""}`}
+                  onClick={() => setShowHistory((v) => !v)}
+                >
+                  历史版本
+                  <ChevronIcon expanded={showHistory} color="currentColor" />
+                </button>
+                <div className={`update-history-panel ${showHistory ? "open" : ""}`}>
+                  {changelog.history.map((entry) => (
+                    <article key={`${entry.version}-${entry.publishedAt || ""}`} className="update-history-item">
+                      <div className="update-history-head">
+                        <p>{entry.title || "更新日志"}</p>
+                        <span>{entry.version}</span>
+                      </div>
+                      <p className="update-history-time">{entry.publishedAt || "-"}</p>
+                      {entry.items && entry.items.length > 0 ? (
+                        <ul>
+                          {entry.items.map((item, idx) => (
+                            <li key={`${entry.version}-${idx}`}>{item}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="update-history-empty">暂无详细内容</p>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ) : null}            <button className="update-close-btn" onClick={closeChangelog}>知道了</button>
           </div>
         </div>
       ) : null}
@@ -451,8 +608,47 @@ const smallBtn: CSSProperties = {
   fontSize: 12,
 };
 
+const chipBtn: CSSProperties = {
+  border: "1px solid #c8dce5",
+  borderRadius: 999,
+  background: "white",
+  padding: "8px 12px",
+  fontSize: 13,
+  color: "#21414d",
+  whiteSpace: "nowrap",
+};
+
+const primaryBtn: CSSProperties = {
+  border: "1px solid #1ea08f",
+  borderRadius: 999,
+  background: "linear-gradient(120deg, #0d8e7f, #15af8c)",
+  color: "#ffffff",
+  padding: "8px 14px",
+  fontSize: 13,
+  fontWeight: 700,
+  whiteSpace: "nowrap",
+};
+
+
 const detailText: CSSProperties = {
   margin: "6px 0",
   color: "var(--ink)",
   fontSize: 14,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
