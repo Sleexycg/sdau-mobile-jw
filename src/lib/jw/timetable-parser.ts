@@ -49,13 +49,30 @@ function buildCourseId(
   return createHash("sha1").update(seed).digest("hex").slice(0, 16);
 }
 
+function parseSectionRangeFromDetail(raw: string): { start: number; end: number } | null {
+  const compact = raw.replace(/\s+/g, "");
+  const labels = ["第一大节", "第二大节", "第三大节", "第四大节", "第五大节"] as const;
+  const hits: number[] = [];
+
+  labels.forEach((label, idx) => {
+    if (compact.includes(label)) {
+      hits.push(idx + 1);
+    }
+  });
+
+  if (hits.length === 0) return null;
+  hits.sort((a, b) => a - b);
+  return { start: hits[0], end: hits[hits.length - 1] };
+}
+
 function parseCourseDetail(raw: string) {
   const teacher = raw.match(/老师[:：]\s*([^;；]+)/)?.[1]?.trim() ?? "";
   const location = raw.match(/地点[:：]\s*([^;；]+)/)?.[1]?.trim() ?? "";
   const weekRaw = raw.match(/时间[:：]\s*([^\[]+周)/)?.[1]?.trim() ?? "";
   const weeks = weekRaw ? parseWeeks(weekRaw) : [];
+  const sectionRange = parseSectionRangeFromDetail(raw);
 
-  return { teacher, location, weeks };
+  return { teacher, location, weeks, sectionRange };
 }
 
 function parseSectionIndexFromLabel(labelText: string, fallback: number): number {
@@ -136,8 +153,8 @@ export function parseTimetableFromHtml(html: string, term: string): TimetableCou
             .trim();
 
           const detail = parseCourseDetail(detailText);
-          const startSection = sectionIndex;
-          const endSection = Math.min(5, sectionIndex + rowspan - 1);
+          const startSection = detail.sectionRange?.start ?? sectionIndex;
+          const endSection = detail.sectionRange?.end ?? Math.min(5, sectionIndex + rowspan - 1);
 
           courses.push({
             id: buildCourseId(term, weekday, startSection, endSection, name, detail.teacher, detail.location),

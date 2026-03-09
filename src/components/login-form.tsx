@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -10,12 +10,26 @@ interface LoginResult {
   message?: string;
 }
 
+const LAST_LOGIN_KEY = "wesdau_last_login";
+
 export function LoginForm() {
   const router = useRouter();
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(LAST_LOGIN_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { studentId?: string; password?: string };
+      if (typeof parsed.studentId === "string") setStudentId(parsed.studentId);
+      if (typeof parsed.password === "string") setPassword(parsed.password);
+    } catch {
+      // ignore invalid local cache
+    }
+  }, []);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,6 +47,12 @@ export function LoginForm() {
       if (!result.ok) {
         setError(result.message ?? "登录失败，请稍后重试");
         return;
+      }
+
+      try {
+        window.localStorage.setItem(LAST_LOGIN_KEY, JSON.stringify({ studentId, password }));
+      } catch {
+        // ignore localStorage failure
       }
 
       router.replace("/timetable");

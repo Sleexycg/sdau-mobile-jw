@@ -158,10 +158,13 @@ export function parseUsualScoreDetailFromText(text: string): UsualScoreDetail {
   const first = parsed[0] ?? {};
 
   return {
-    usualScore: toText(first.cjxm1) || "-",
-    usualRatio: toText(first.cjxm1bl) || "-",
-    finalScore: toText(first.cjxm3) || "-",
-    finalRatio: toText(first.cjxm3bl) || "-",
+    // SDAU 接口中 cjxm1/cjxm1bl 与 cjxm3/cjxm3bl 在页面语义上相反，这里做对调。
+    usualScore: toText(first.cjxm3) || "-",
+    usualRatio: toText(first.cjxm3bl) || "-",
+    finalScore: toText(first.cjxm1) || "-",
+    finalRatio: toText(first.cjxm1bl) || "-",
     totalScore: toText(first.zcj) || "-",
   };
 }
+
+

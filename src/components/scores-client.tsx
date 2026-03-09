@@ -33,7 +33,14 @@ function isFailScore(score: string): boolean {
 }
 
 function getScoreTone(score: string): "green" | "yellow" | "red" | "neutral" {
-  const n = Number.parseFloat(score);
+  const raw = String(score ?? "").trim();
+  if (!raw) return "neutral";
+
+  if (raw.includes("优秀") || raw.includes("良好")) return "green";
+  if (raw.includes("中等") || raw.includes("及格")) return "yellow";
+  if (raw.includes("不合格")) return "red";
+
+  const n = Number.parseFloat(raw);
   if (!Number.isFinite(n)) return "neutral";
   if (n >= 80) return "green";
   if (n >= 60) return "yellow";
@@ -360,5 +367,6 @@ export function ScoresClient() {
     </>
   );
 }
+
 
 

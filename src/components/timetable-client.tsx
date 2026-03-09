@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
@@ -104,12 +104,30 @@ function formatWeeks(weeks: number[]): string {
   return `${ranges.join(",")}\u5468`;
 }
 
-function weekTitle(week: number): string {
-  const zh = ["\u96f6", "\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94", "\u516d", "\u4e03", "\u516b", "\u4e5d", "\u5341", "\u5341\u4e00", "\u5341\u4e8c", "\u5341\u4e09", "\u5341\u56db", "\u5341\u4e94", "\u5341\u516d", "\u5341\u4e03", "\u5341\u516b", "\u5341\u4e5d", "\u4e8c\u5341"];
-  if (week >= 0 && week < zh.length) return `\u7b2c${zh[week]}\u5468`;
-  return `\u7b2c${week}\u5468`;
+function weeksToCsvText(weeks: number[]): string {
+  if (weeks.length === 0) return "-";
+  const sorted = [...new Set(weeks)].sort((a, b) => a - b);
+  const ranges: string[] = [];
+  let start = sorted[0];
+  let end = sorted[0];
+  for (let i = 1; i < sorted.length; i += 1) {
+    const current = sorted[i];
+    if (current === end + 1) {
+      end = current;
+      continue;
+    }
+    ranges.push(start === end ? `${start}` : `${start}-${end}`);
+    start = current;
+    end = current;
+  }
+  ranges.push(start === end ? `${start}` : `${start}-${end}`);
+  return ranges.join(",");
 }
 
+function csvField(value: string | number): string {
+  const raw = String(value ?? "");
+  return `"${raw.replace(/"/g, '""')}"`;
+}
 function todayWeekday(): number {
   const day = new Date().getDay();
   return day === 0 ? 7 : day;
@@ -134,78 +152,42 @@ function courseColorByName(seed: string) {
   return courseColorPalette[hash % courseColorPalette.length];
 }
 
-function WeekOverviewGrid({ groupedByWeekday, sectionTimeMap, compact }: { groupedByWeekday: Map<number, TimetableCourse[]>; sectionTimeMap: SectionTimeMap; compact: boolean }) {
-  const sectionColWidth = compact ? 52 : 138;
-  const dayColWidth = compact ? 0 : 134;
-  const weekdayTitles = compact ? ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94", "\u516d", "\u65e5"] : weekdays;
-  const sectionTitles = ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94"];
-  const gridColumns = compact ? `${sectionColWidth}px repeat(7, minmax(0, 1fr))` : `${sectionColWidth}px repeat(7, minmax(${dayColWidth}px, 1fr))`;
-
-  return (
-    <div style={{ overflowX: compact ? "hidden" : "auto", paddingBottom: 4 }}>
-      <div style={{ width: "100%", minWidth: compact ? 0 : sectionColWidth + dayColWidth * 7 + 92 }}>
-        <div style={{ display: "grid", gridTemplateColumns: gridColumns, gap: compact ? 6 : 8, marginBottom: compact ? 6 : 8 }}>
-          <div style={{ color: "var(--muted)", fontSize: compact ? 10 : 12, textAlign: "center" }}>{compact ? "\u8282" : "\u8282\u6b21"}</div>
-          {weekdayTitles.map((day) => (
-            <div key={day} style={{ color: "var(--muted)", fontSize: compact ? 10 : 12, textAlign: "center" }}>{day}</div>
-          ))}
-        </div>
-
-        {sectionIndexes.map((section, idx) => (
-          <div key={section} style={{ display: "grid", gridTemplateColumns: gridColumns, gap: compact ? 6 : 8, marginBottom: compact ? 6 : 8 }}>
-            <div
-              style={{
-                borderRadius: compact ? 10 : 12,
-                background: "#f5fafc",
-                padding: compact ? "6px 4px" : "9px 8px",
-                fontSize: compact ? 10 : 12,
-                color: "var(--muted)",
-                minHeight: compact ? 108 : 88,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-              }}
-            >
-              <p style={{ margin: 0, lineHeight: 1.2 }}>{compact ? sectionTitles[idx] : sectionNameMap[section]}</p>
-              {compact ? null : <p style={{ margin: "4px 0 0", lineHeight: 1.2 }}>{sectionTimeMap[section]}</p>}
-            </div>
-
-            {Array.from({ length: 7 }).map((_, dayIdx) => {
-              const day = dayIdx + 1;
-              const courses = coursesForSlot(groupedByWeekday.get(day) ?? [], section);
-              return (
-                <div
-                  key={`${section}-${day}`}
-                  style={{ borderRadius: compact ? 10 : 12, background: "#f7fcff", padding: compact ? 4 : 6, minHeight: compact ? 108 : 88, display: "flex", alignItems: "stretch", overflow: "hidden" }}
-                >
-                  {courses.length > 0 ? (
-                    <div style={{ display: "grid", gap: compact ? 4 : 5, width: "100%" }}>
-                      {courses.map((course) => {
-                        const color = courseColorByName(course.name);
-                        return (
-                          <div key={`${course.id}-${section}-overview`} style={{ borderRadius: 8, border: `1px solid ${color.border}`, background: color.bg, padding: compact ? "6px 6px" : "6px 8px", color: color.text, minWidth: 0 }}>
-                            <p style={{ margin: 0, fontSize: compact ? 10.5 : 12, fontWeight: 700, lineHeight: 1.2, wordBreak: "break-word", overflowWrap: "anywhere", display: "-webkit-box", WebkitLineClamp: compact ? 2 : "unset", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{course.name}</p>
-                            <p style={{ margin: "2px 0 0", fontSize: compact ? 9.2 : 11, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{course.teacher || "\u5f85\u5b9a"}</p>
-                            <p style={{ margin: "2px 0 0", fontSize: compact ? 9.2 : 11, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>@{course.location || "\u5f85\u5b9a\u6559\u5ba4"}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div style={{ width: "100%" }} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+function drawRoundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
 }
 
+
+function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  if (!text) return [];
+  const chars = [...text];
+  const lines: string[] = [];
+  let current = "";
+  for (const ch of chars) {
+    const next = `${current}${ch}`;
+    if (ctx.measureText(next).width <= maxWidth) {
+      current = next;
+      continue;
+    }
+    if (current) lines.push(current);
+    current = ch;
+  }
+  if (current) lines.push(current);
+  return lines;
+}
 interface DayPanelProps {
   day: number;
   dayCourses: TimetableCourse[];
@@ -267,11 +249,12 @@ export function TimetableClient() {
   const [sectionTimeMap, setSectionTimeMap] = useState<SectionTimeMap>(() => getSectionTimeMap(new Date()));
   const [openDay, setOpenDay] = useState<number | null>(null);
   const [selectedDesktopDay, setSelectedDesktopDay] = useState<number>(todayWeekday() === 7 ? 1 : todayWeekday() + 1);
-  const [showOverview, setShowOverview] = useState(false);
   const [changelog, setChangelog] = useState<ChangelogData | null>(null);
   const [showChangelog, setShowChangelog] = useState(false);
   const [checkingChangelog, setCheckingChangelog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
 
   async function fetchChangelog(autoOpen: boolean) {
     const url = process.env.NEXT_PUBLIC_CHANGELOG_URL;
@@ -324,7 +307,25 @@ export function TimetableClient() {
       setTerm(result.data.term);
       setProfile(result.data.profile);
       setCourses(result.data.courses);
-      if (resetWeek) setWeek(1);
+      if (resetWeek) {
+        const maxWeekFromData = maxWeekFromCourses(result.data.courses || []);
+        let initialWeek = 1;
+
+        try {
+          const ctxRes = await fetch("/api/empty-rooms/context", { cache: "no-store" });
+          if (ctxRes.ok) {
+            const ctxJson = (await ctxRes.json()) as { ok?: boolean; data?: { week?: number } };
+            const ctxWeek = Number(ctxJson?.data?.week ?? 0);
+            if (Number.isFinite(ctxWeek) && ctxWeek > 0) {
+              initialWeek = ctxWeek;
+            }
+          }
+        } catch {
+          // ignore context failure and fallback to week 1
+        }
+
+        setWeek(Math.max(1, Math.min(maxWeekFromData, initialWeek)));
+      }
     } catch {
       setError("\u7f51\u7edc\u5f02\u5e38\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5");
     } finally {
@@ -345,13 +346,35 @@ export function TimetableClient() {
   }, []);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setSectionTimeMap(getSectionTimeMap(new Date())), 60 * 1000);
-    return () => window.clearInterval(timer);
+    const updateSectionTime = () => setSectionTimeMap(getSectionTimeMap(new Date()));
+    const onVisibilityOrFocus = () => updateSectionTime();
+
+    updateSectionTime();
+    const timer = window.setInterval(updateSectionTime, 60 * 1000);
+    window.addEventListener("focus", onVisibilityOrFocus);
+    document.addEventListener("visibilitychange", onVisibilityOrFocus);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", onVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", onVisibilityOrFocus);
+    };
   }, []);
 
   useEffect(() => {
     fetchChangelog(true);
   }, []);
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const onClickOutside = (event: MouseEvent) => {
+      if (!exportMenuRef.current) return;
+      if (!exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [showExportMenu]);
 
   const groupedByWeekday = useMemo(() => {
     const map = new Map<number, TimetableCourse[]>();
@@ -383,6 +406,201 @@ export function TimetableClient() {
     router.refresh();
   }
 
+
+  function exportTimetableCsv() {
+    const headers = ["课程名称", "星期", "开始节数", "结束节数", "老师", "地点", "周数"];
+    const sorted = [...courses].sort((a, b) => {
+      if (a.weekday !== b.weekday) return a.weekday - b.weekday;
+      if (a.startSection !== b.startSection) return a.startSection - b.startSection;
+      if (a.endSection !== b.endSection) return a.endSection - b.endSection;
+      return a.name.localeCompare(b.name, "zh-CN");
+    });
+
+    const rows = sorted.map((course) => [
+      course.name || "-",
+      course.weekday,
+      (course.startSection - 1) * 2 + 1,
+      course.endSection * 2,
+      course.teacher || "-",
+      course.location || "-",
+      weeksToCsvText(course.weeks),
+    ]);
+
+    const csvText = [
+      headers.map(csvField).join(","),
+      ...rows.map((row) => row.map(csvField).join(",")),
+    ].join("\r\n");
+
+    const blob = new Blob([`\uFEFF${csvText}`], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `课表-${term || "unknown"}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }
+
+  function exportTimetableImage() {
+    const width = 2200;
+    const height = 1280;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const padding = 44;
+    const titleH = 118;
+    const tableTop = padding + titleH;
+    const tableH = height - tableTop - padding;
+    const sectionW = 210;
+    const dayW = Math.floor((width - padding * 2 - sectionW) / 7);
+    const rowH = Math.floor(tableH / 6);
+
+    ctx.fillStyle = "#f3fbff";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "#16323f";
+    ctx.font = "bold 54px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+    ctx.fillText("WeSDAU-课程表", padding, padding + 58);
+
+    ctx.fillStyle = "#5d7480";
+    ctx.font = "32px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+    ctx.fillText(`${term || "-"}  第${week}周`, padding, padding + 102);
+
+    ctx.fillStyle = "#ffffff";
+    drawRoundRect(ctx, padding, tableTop, sectionW + dayW * 7, rowH * 6, 18);
+    ctx.fill();
+    ctx.strokeStyle = "#cfe2ec";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = "#eff7fb";
+    drawRoundRect(ctx, padding + 2, tableTop + 2, sectionW + dayW * 7 - 4, rowH - 4, 14);
+    ctx.fill();
+
+    ctx.strokeStyle = "#d8e8f0";
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i <= 7; i += 1) {
+      const x = padding + sectionW + i * dayW;
+      ctx.beginPath();
+      ctx.moveTo(x, tableTop);
+      ctx.lineTo(x, tableTop + rowH * 6);
+      ctx.stroke();
+    }
+    for (let i = 1; i <= 6; i += 1) {
+      const y = tableTop + i * rowH;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(padding + sectionW + dayW * 7, y);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "#2f5060";
+    ctx.font = "bold 30px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("节次", padding + sectionW / 2, tableTop + rowH / 2);
+    weekdays.forEach((day, idx) => {
+      const x = padding + sectionW + idx * dayW + dayW / 2;
+      ctx.fillText(day, x, tableTop + rowH / 2);
+    });
+
+    sectionIndexes.forEach((section, rowIdx) => {
+      const y = tableTop + (rowIdx + 1) * rowH + rowH / 2;
+      ctx.fillStyle = "#3f5d6a";
+      ctx.font = "bold 34px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText(`第${section}大节`, padding + sectionW / 2, y - 16);
+      ctx.fillStyle = "#67818e";
+      ctx.font = "24px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText(sectionTimeMap[section], padding + sectionW / 2, y + 22);
+    });
+
+    ctx.textAlign = "left";
+    for (let day = 1; day <= 7; day += 1) {
+      const dayCourses = groupedByWeekday.get(day) ?? [];
+      for (let section = 1; section <= 5; section += 1) {
+        const slot = coursesForSlot(dayCourses, section);
+        if (!slot.length) continue;
+        const course = slot[0];
+        const x = padding + sectionW + (day - 1) * dayW + 8;
+        const y = tableTop + section * rowH + 8;
+        const w = dayW - 16;
+        const h = rowH - 16;
+        const color = courseColorByName(course.name);
+
+        drawRoundRect(ctx, x, y, w, h, 12);
+        ctx.fillStyle = color.bg;
+        ctx.fill();
+        ctx.strokeStyle = color.border;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.fillStyle = color.text;
+        const textLeftX = x + 10;
+        const maxTextWidth = w - 20;
+        const teacher = course.teacher || "待定";
+        const loc = `@${course.location || "待定教室"}`;
+        let nameFontSize = 24;
+        let infoFontSize = 20;
+        let nameLineHeight = 30;
+        let infoLineHeight = 26;
+        let groupGap = 12;
+        let nameLines: string[] = [];
+        let teacherLines: string[] = [];
+        let locLines: string[] = [];
+
+        for (let i = 0; i < 4; i += 1) {
+          ctx.font = `bold ${nameFontSize}px 'Microsoft YaHei', 'PingFang SC', sans-serif`;
+          nameLines = wrapLines(ctx, course.name, maxTextWidth);
+          ctx.font = `${infoFontSize}px 'Microsoft YaHei', 'PingFang SC', sans-serif`;
+          teacherLines = wrapLines(ctx, teacher, maxTextWidth);
+          locLines = wrapLines(ctx, loc, maxTextWidth);
+
+          const totalHeight =
+            nameLines.length * nameLineHeight +
+            teacherLines.length * infoLineHeight +
+            locLines.length * infoLineHeight +
+            groupGap * 2;
+          if (totalHeight <= h - 14) break;
+
+          nameFontSize = Math.max(20, nameFontSize - 1);
+          infoFontSize = Math.max(16, infoFontSize - 1);
+          nameLineHeight = Math.max(24, nameLineHeight - 1);
+          infoLineHeight = Math.max(20, infoLineHeight - 1);
+          groupGap = Math.max(8, groupGap - 1);
+        }
+
+        let cursorY = y + 26;
+        ctx.font = `bold ${nameFontSize}px 'Microsoft YaHei', 'PingFang SC', sans-serif`;
+        nameLines.forEach((line) => {
+          ctx.fillText(line, textLeftX, cursorY);
+          cursorY += nameLineHeight;
+        });
+        cursorY += groupGap;
+
+        ctx.font = `${infoFontSize}px 'Microsoft YaHei', 'PingFang SC', sans-serif`;
+        teacherLines.forEach((line) => {
+          ctx.fillText(line, textLeftX, cursorY);
+          cursorY += infoLineHeight;
+        });
+        cursorY += groupGap;
+
+        locLines.forEach((line) => {
+          ctx.fillText(line, textLeftX, cursorY);
+          cursorY += infoLineHeight;
+        });
+      }
+    }
+
+    const url = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `课表-${term || "unknown"}-第${week}周.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
   if (loading) {
     return <LoadingPanel title="课表加载中" subtitle="正在整理本周课程安排..." rows={6} />;
   }
@@ -395,12 +613,31 @@ export function TimetableClient() {
             <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>{"\u4e2a\u4eba\u4fe1\u606f\u53ca\u8bfe\u7a0b\u8868"}</p>
             <h2 style={{ margin: "2px 0 0", fontSize: 20 }}>{term || "\u672a\u8bc6\u522b"}</h2>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8 }}>            <div className="export-menu-wrap" ref={exportMenuRef}>
+              <button
+                onClick={() => setShowExportMenu((v) => !v)}
+                className="timetable-icon-btn"
+                aria-label="导出课表"
+                title="导出课表"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 3v12" />
+                  <path d="M8 11l4 4 4-4" />
+                  <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                </svg>
+              </button>
+              {showExportMenu ? (
+                <div className="export-menu-panel">
+                  <button type="button" onClick={() => { exportTimetableCsv(); setShowExportMenu(false); }}>导出 CSV</button>
+                  <button type="button" onClick={() => { exportTimetableImage(); setShowExportMenu(false); }}>导出图片</button>
+                </div>
+              ) : null}
+            </div>
             <button
               onClick={() => loadTimetable({ silent: true })}
               className="timetable-icon-btn"
-              aria-label="\u5237\u65B0\u8BFE\u8868"
-              title={refreshing ? "\u5237\u65B0\u4E2D" : "\u5237\u65B0"}
+              aria-label="刷新课表"
+              title={refreshing ? "刷新中" : "刷新"}
               disabled={refreshing}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -440,7 +677,6 @@ export function TimetableClient() {
           </div>
 
           <div className="timetable-action-row">
-            <button onClick={() => setShowOverview(true)} style={chipBtn}>{"\u5468\u8BFE\u8868"}</button>
             <button onClick={() => router.push("/training-plan")} style={primaryBtn}>{"\u57F9\u517B\u65B9\u6848"}</button>
             <button
               onClick={async () => {
@@ -508,18 +744,6 @@ export function TimetableClient() {
       )}
 
       <BottomNav active="timetable" />
-
-      {showOverview ? (
-        <div role="button" tabIndex={0} onClick={() => setShowOverview(false)} onKeyDown={(event) => { if (event.key === "Escape") setShowOverview(false); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", display: "grid", placeItems: "center", padding: isDesktop ? 16 : 8, zIndex: 1200 }}>
-          <div className="glass-card" onClick={(e) => e.stopPropagation()} style={{ width: isDesktop ? "min(1320px, 96vw)" : "100%", maxWidth: 1320, maxHeight: isDesktop ? "90vh" : "97vh", overflow: "auto", padding: isDesktop ? 18 : 8, borderRadius: isDesktop ? 20 : 16 }}>
-            <div style={{ marginBottom: 10 }}>
-              <h3 style={{ margin: 0 }}>{weekTitle(week)}</h3>
-            </div>
-            <WeekOverviewGrid groupedByWeekday={groupedByWeekday} sectionTimeMap={sectionTimeMap} compact={!isDesktop} />
-          </div>
-        </div>
-      ) : null}
-
       {selected ? (
         <div role="button" tabIndex={0} onClick={() => setSelected(null)} onKeyDown={(event) => { if (event.key === "Escape") setSelected(null); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", display: "grid", placeItems: "center", padding: 16, zIndex: 1250 }}>
           <div className="glass-card" style={{ width: "100%", maxWidth: 420, padding: 16 }}>
@@ -635,6 +859,63 @@ const detailText: CSSProperties = {
   color: "var(--ink)",
   fontSize: 14,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

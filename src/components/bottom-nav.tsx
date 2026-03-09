@@ -19,18 +19,40 @@ export function BottomNav({ active }: BottomNavProps) {
 
   useEffect(() => {
     let lastY = window.scrollY;
+    let rafId = 0;
+    let sinkTimer = 0;
 
     const refreshState = () => {
       const y = window.scrollY;
       const expanded = hasExpandedPanels();
-      const scrollingDown = y > lastY;
-      const shouldSink = expanded || y > 28 || (scrollingDown && y > 8);
-      setSunk(shouldSink);
+      const delta = y - lastY;
+
+      if (expanded) {
+        setSunk(true);
+        lastY = y;
+        return;
+      }
+
+      if (delta > 0.5) {
+        setSunk(true);
+        window.clearTimeout(sinkTimer);
+        sinkTimer = window.setTimeout(() => {
+          if (!hasExpandedPanels()) setSunk(false);
+        }, 220);
+      } else if (delta < -0.5) {
+        window.clearTimeout(sinkTimer);
+        setSunk(false);
+      }
+
       lastY = y;
     };
 
     const onScroll = () => {
-      window.requestAnimationFrame(refreshState);
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0;
+        refreshState();
+      });
     };
 
     const observer = new MutationObserver(() => refreshState());
@@ -45,6 +67,8 @@ export function BottomNav({ active }: BottomNavProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      window.clearTimeout(sinkTimer);
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
