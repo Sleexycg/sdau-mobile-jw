@@ -50,7 +50,6 @@ function getScoreTone(score: string): "green" | "yellow" | "red" | "neutral" {
 export function ScoresClient() {
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const captureRef = useRef<HTMLDivElement | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -140,18 +139,188 @@ export function ScoresClient() {
   }
 
   async function exportCurrentTermImage() {
-    if (!captureRef.current || exportingImage) return;
+    if (exportingImage) return;
     setExportingImage(true);
     try {
-      document.body.classList.add("exporting-score-image");
-      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+      const width = 1600;
+      const padding = 44;
+      const headerHeight = 170;
+      const summaryHeight = 120;
+      const tableTitleHeight = 48;
+      const tableHeaderHeight = 56;
+      const rowHeight = 68;
+      const tableRows = Math.max(1, records.length);
+      const tableHeight = tableHeaderHeight + tableRows * rowHeight;
+      const height = padding * 2 + headerHeight + summaryHeight + tableTitleHeight + tableHeight;
 
-      const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: "#ffffff",
-        scale: Math.min(3, Math.max(2, window.devicePixelRatio || 1)),
-        useCORS: true,
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const contentW = width - padding * 2;
+      const drawRoundRect = (x: number, y: number, w: number, h: number, r: number) => {
+        const rr = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + rr, y);
+        ctx.arcTo(x + w, y, x + w, y + h, rr);
+        ctx.arcTo(x + w, y + h, x, y + h, rr);
+        ctx.arcTo(x, y + h, x, y, rr);
+        ctx.arcTo(x, y, x + w, y, rr);
+        ctx.closePath();
+      };
+
+      const wrapText = (text: string, maxWidth: number): string[] => {
+        const safe = String(text || "-");
+        const chars = [...safe];
+        const lines: string[] = [];
+        let current = "";
+        for (const ch of chars) {
+          const next = `${current}${ch}`;
+          if (ctx.measureText(next).width <= maxWidth) current = next;
+          else {
+            if (current) lines.push(current);
+            current = ch;
+          }
+        }
+        if (current) lines.push(current);
+        return lines.length ? lines : ["-"];
+      };
+
+      ctx.fillStyle = "#f3f9fc";
+      ctx.fillRect(0, 0, width, height);
+
+      drawRoundRect(padding, padding, contentW, headerHeight, 24);
+      const headerGradient = ctx.createLinearGradient(padding, padding, padding + contentW, padding + headerHeight);
+      headerGradient.addColorStop(0, "#e8f8ff");
+      headerGradient.addColorStop(1, "#f5efff");
+      ctx.fillStyle = headerGradient;
+      ctx.fill();
+
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = "#4f6b79";
+      ctx.font = "600 24px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText("WeSDAU-成绩单", padding + 24, padding + 44);
+
+      ctx.fillStyle = "#17333f";
+      ctx.font = "700 40px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText(profile?.displayName || "-", padding + 24, padding + 98);
+
+      ctx.fillStyle = "#577382";
+      ctx.font = "500 24px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText(`学期：${selectedTermLabel || selectedTerm || "-"}`, padding + 24, padding + 136);
+
+      let y = padding + headerHeight + 18;
+      const summaryGap = 18;
+      const summaryCardW = (contentW - summaryGap * 2) / 3;
+
+      drawRoundRect(padding, y, summaryCardW, summaryHeight, 18);
+      ctx.fillStyle = "#fff5f8";
+      ctx.fill();
+      ctx.fillStyle = "#6c8090";
+      ctx.font = "500 22px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText("平均成绩", padding + 20, y + 38);
+      ctx.fillStyle = "#F56C7E";
+      ctx.font = "700 44px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText(avgScore || "-", padding + 20, y + 92);
+
+      const gpaX = padding + summaryCardW + summaryGap;
+      drawRoundRect(gpaX, y, summaryCardW, summaryHeight, 18);
+      ctx.fillStyle = "#f5f4ff";
+      ctx.fill();
+      ctx.fillStyle = "#6c8090";
+      ctx.font = "500 22px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText("平均学分绩点", gpaX + 20, y + 38);
+      ctx.fillStyle = "#838CC7";
+      ctx.font = "700 44px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText(avgCreditGpa || "-", gpaX + 20, y + 92);
+
+      const metaX = gpaX + summaryCardW + summaryGap;
+      drawRoundRect(metaX, y, summaryCardW, summaryHeight, 18);
+      ctx.fillStyle = "#f7fcff";
+      ctx.fill();
+      ctx.fillStyle = "#5f7783";
+      ctx.font = "500 22px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText("课程统计", metaX + 20, y + 38);
+      ctx.fillStyle = "#1f3d4b";
+      ctx.font = "600 28px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      const countText = `门数：${courseCount}`;
+      ctx.fillText(countText, metaX + 20, y + 88);
+      const countWidth = ctx.measureText(countText).width;
+      ctx.font = "500 20px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText(`总学分：${totalCredits}`, metaX + 20 + countWidth + 22, y + 88);
+      ctx.font = "600 28px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+
+
+      y += summaryHeight + 18;
+      ctx.fillStyle = "#244656";
+      ctx.font = "700 30px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      ctx.fillText("课程成绩", padding + 2, y + 34);
+      y += tableTitleHeight;
+
+      const colRatios = [1.2, 2.3, 0.8, 0.8, 0.8];
+      const ratioSum = colRatios.reduce((sum, n) => sum + n, 0);
+      const colWidths = colRatios.map((n) => (contentW * n) / ratioSum);
+      const headers = ["课程代码", "课程名", "学分", "总成绩", "绩点"];
+
+      drawRoundRect(padding, y, contentW, tableHeaderHeight, 14);
+      ctx.fillStyle = "#eaf4fa";
+      ctx.fill();
+
+      let xCursor = padding;
+      ctx.fillStyle = "#506977";
+      ctx.font = "600 21px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+      headers.forEach((header, index) => {
+        ctx.fillText(header, xCursor + 14, y + 35);
+        xCursor += colWidths[index];
       });
+      y += tableHeaderHeight;
+
+      const rows: ScoreRecord[] = records.length > 0
+        ? records
+        : [{ id: "empty", courseCode: "-", courseName: "当前开课时间暂无成绩记录", credit: "-", score: "-", gpa: "-", studentIdRaw: "", teachingTaskId: "", scoreRecordId: "" }];
+
+      rows.forEach((record, idx) => {
+        const rowY = y + idx * rowHeight;
+        drawRoundRect(padding, rowY + 3, contentW, rowHeight - 6, 12);
+        ctx.fillStyle = idx % 2 === 0 ? "#ffffff" : "#f8fcff";
+        ctx.fill();
+        ctx.strokeStyle = "#e6eff4";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, rowY + rowHeight);
+        ctx.lineTo(padding + contentW, rowY + rowHeight);
+        ctx.stroke();
+
+        const values = [record.courseCode || "-", record.courseName || "-", record.credit || "-", record.score || "-", record.gpa || "-"];
+        let cellX = padding;
+        values.forEach((value, col) => {
+          const w = colWidths[col];
+          if (col === 1) {
+            ctx.fillStyle = "#193744";
+            ctx.font = "600 22px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+            const lines = wrapText(value, w - 28).slice(0, 2);
+            const lineHeight = 24;
+            const startY = rowY + (lines.length === 2 ? 27 : 42);
+            lines.forEach((line, lineIndex) => {
+              ctx.fillText(line, cellX + 14, startY + lineIndex * lineHeight);
+            });
+          } else {
+            const scoreTone = col === 3 ? getScoreTone(record.score) : "neutral";
+            const color = col === 3
+              ? (scoreTone === "green" ? "#1f9d57" : scoreTone === "yellow" ? "#c58a00" : scoreTone === "red" ? "#d63b3b" : "#1f3d4b")
+              : "#1f3d4b";
+            ctx.fillStyle = color;
+            ctx.font = col === 0 ? "700 20px 'Microsoft YaHei', 'PingFang SC', sans-serif" : "600 22px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+            const line = wrapText(value, w - 28)[0];
+            ctx.fillText(line, cellX + 14, rowY + 42);
+          }
+          cellX += w;
+        });
+      });
+
       const safeTerm = (selectedTermLabel || selectedTerm || "term").replace(/[^\w\u4e00-\u9fa5-]/g, "_");
       const link = document.createElement("a");
       link.href = canvas.toDataURL("image/png");
@@ -162,11 +331,9 @@ export function ScoresClient() {
     } catch {
       setError("导出图片失败，请稍后重试");
     } finally {
-      document.body.classList.remove("exporting-score-image");
       setExportingImage(false);
     }
   }
-
   function closeDetailModal() {
     setDetailOpen(false);
     setDetailError("");
@@ -226,7 +393,7 @@ export function ScoresClient() {
 
   return (
     <>
-      <div ref={captureRef} style={{ display: "grid", gap: 14 }}>
+      <div style={{ display: "grid", gap: 14 }}>
         <section className="glass-card rise-in" style={{ padding: 16, marginBottom: 14, position: "relative", zIndex: 30 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
             <div>
@@ -367,6 +534,10 @@ export function ScoresClient() {
     </>
   );
 }
+
+
+
+
 
 
 
