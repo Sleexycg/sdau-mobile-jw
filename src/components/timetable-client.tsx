@@ -677,6 +677,7 @@ export function TimetableClient() {
           </div>
 
           <div className="timetable-action-row">
+            <button onClick={() => router.push("/community")} style={chipBtn}>{"\u8BA8\u8BBA\u533A"}</button>
             <button onClick={() => router.push("/training-plan")} style={primaryBtn}>{"\u57F9\u517B\u65B9\u6848"}</button>
             <button
               onClick={async () => {
@@ -752,7 +753,6 @@ export function TimetableClient() {
             <p style={{ ...detailText, fontWeight: 700 }}>{"\u4e0a\u8bfe\u6559\u5ba4\uff1a"}{selected.location || "\u5f85\u5b9a"}</p>
             <p style={detailText}>{"\u8282\u6b21\uff1a"}{sectionRangeText(selected.startSection, selected.endSection, sectionTimeMap)}</p>
             <p style={detailText}>{"\u5468\u6b21\uff1a"}{formatWeeks(selected.weeks)}</p>
-            <button onClick={() => setSelected(null)} style={{ ...smallBtn, marginTop: 6 }}>{"\u5173\u95ed"}</button>
           </div>
         </div>
       ) : null}
@@ -824,13 +824,6 @@ export function TimetableClient() {
   );
 }
 
-const smallBtn: CSSProperties = {
-  border: "1px solid #c8dce5",
-  borderRadius: 10,
-  background: "white",
-  padding: "7px 10px",
-  fontSize: 12,
-};
 
 const chipBtn: CSSProperties = {
   border: "1px solid #c8dce5",
@@ -859,6 +852,8 @@ const detailText: CSSProperties = {
   color: "var(--ink)",
   fontSize: 14,
 };
+
+
 
 
 
