@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { GroupMemberTimetable } from "@/types/group-timetable";
+import type { TimetableCourse } from "@/types/timetable";
 
 type ImportApiResult =
   | { ok: true; data: GroupMemberTimetable }
@@ -17,6 +18,8 @@ const sectionTimeMap: Record<number, string> = {
   4: "16:00-17:40",
   5: "19:00-20:40",
 };
+
+type GridCellItem = { member: GroupMemberTimetable; course: TimetableCourse };
 
 function toColor(seed: string) {
   const colors = ["#eaf4ff", "#ecfff4", "#fff6ea", "#f3eeff", "#ffeff3", "#eef9fb"];
@@ -73,6 +76,17 @@ function sectionTimeRange(startSection: number, endSection: number): string {
   return start || end;
 }
 
+function getCourseTimeRange(course: {
+  startSection: number;
+  endSection: number;
+  startTime?: string;
+  endTime?: string;
+}): string {
+  const start = (course.startTime || "").trim();
+  const end = (course.endTime || "").trim();
+  if (start && end) return `${start}-${end}`;
+  return sectionTimeRange(course.startSection, course.endSection);
+}
 
 function parseSemesterStart(input: string): { month: number; day: number } | null {
   const value = input.trim();
@@ -84,7 +98,7 @@ function parseSemesterStart(input: string): { month: number; day: number } | nul
   return { month, day };
 }
 
-function getAcademicWeekFromSemesterStart(input: string): number | null {
+function getSemesterStartDate(input: string): Date | null {
   const parsed = parseSemesterStart(input);
   if (!parsed) return null;
 
@@ -92,11 +106,23 @@ function getAcademicWeekFromSemesterStart(input: string): number | null {
   const year = now.getFullYear();
   const candidateCurrent = new Date(year, parsed.month - 1, parsed.day);
   const candidatePrev = new Date(year - 1, parsed.month - 1, parsed.day);
-  const startDate = candidateCurrent <= now ? candidateCurrent : candidatePrev;
+  return candidateCurrent <= now ? candidateCurrent : candidatePrev;
+}
 
+function getAcademicWeekFromSemesterStart(input: string): number | null {
+  const startDate = getSemesterStartDate(input);
+  if (!startDate) return null;
+
+  const now = new Date();
   const diffDays = Math.floor((now.getTime() - startDate.getTime()) / 86400000);
   return Math.max(1, Math.floor(diffDays / 7) + 1);
 }
+
+function getWeekOffsetBetweenStarts(baseStart: Date, memberStart: Date): number {
+  const diffDays = Math.round((memberStart.getTime() - baseStart.getTime()) / 86400000);
+  return Math.round(diffDays / 7);
+}
+
 function getIsoWeek(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -105,20 +131,69 @@ function getIsoWeek(date: Date): number {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
-function getWeekDaysByWeekOffset(weekOffset: number, enableTodayHighlight: boolean) {
+function getWeekDaysByReference(
+  referenceStart: Date | null,
+  displayWeek: number,
+  currentWeek: number,
+): Array<{ label: string; dateText: string; isToday: boolean }> {
   const now = new Date();
-  const day = now.getDay();
-  const diffToMonday = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setHours(0, 0, 0, 0);
-  monday.setDate(now.getDate() + diffToMonday + weekOffset * 7);
+  let monday: Date;
+
+  if (referenceStart) {
+    monday = new Date(referenceStart);
+    monday.setHours(0, 0, 0, 0);
+    monday.setDate(referenceStart.getDate() + (displayWeek - 1) * 7);
+  } else {
+    const day = now.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    monday = new Date(now);
+    monday.setHours(0, 0, 0, 0);
+    monday.setDate(now.getDate() + diffToMonday + (displayWeek - currentWeek) * 7);
+  }
 
   return weekdays.map((label, idx) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + idx);
-    const isToday = enableTodayHighlight && d.toDateString() === now.toDateString();
-    return { label, isToday };
+    return {
+      label,
+      dateText: `${d.getMonth() + 1}/${d.getDate()}`,
+      isToday: d.toDateString() === now.toDateString(),
+    };
   });
+}
+
+function resolveMemberWeek(baseWeek: number, member: GroupMemberTimetable, referenceStart: Date | null): number {
+  if (!referenceStart || !member.semesterStart) return baseWeek;
+  const memberStart = getSemesterStartDate(member.semesterStart);
+  if (!memberStart) return baseWeek;
+  const offset = getWeekOffsetBetweenStarts(referenceStart, memberStart);
+  return baseWeek - offset;
+}
+
+function buildGrid(
+  members: GroupMemberTimetable[],
+  baseWeek: number,
+  referenceStart: Date | null,
+): GridCellItem[][][] {
+  return sections.map((section) =>
+    weekdays.map((_, idx) => {
+      const day = idx + 1;
+      return members.flatMap((member) => {
+        const memberWeek = resolveMemberWeek(baseWeek, member, referenceStart);
+        if (memberWeek < 1) return [];
+
+        return member.courses
+          .filter(
+            (c) =>
+              c.weekday === day &&
+              c.startSection <= section &&
+              c.endSection >= section &&
+              c.weeks.includes(memberWeek),
+          )
+          .map((course) => ({ member, course }));
+      });
+    }),
+  );
 }
 
 export function GroupTimetableClient() {
@@ -129,8 +204,19 @@ export function GroupTimetableClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
-  const [membersLoaded, setMembersLoaded] = useState(false);
-  const [exportMemberId, setExportMemberId] = useState("__all__");
+  const [exportMemberId, setExportMemberId] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<GroupMemberTimetable | null>(null);
+  const [cloudNicknames, setCloudNicknames] = useState<string[]>([]);
+  const [cloudNickname, setCloudNickname] = useState("");
+  const [cloudPickerOpen, setCloudPickerOpen] = useState(false);
+  const [exportPickerOpen, setExportPickerOpen] = useState(false);
+
+  const localStorageKey = "wesdau_group_members";
+
+  const selectedReferenceMember = useMemo(
+    () => members.find((m) => m.id === exportMemberId) || null,
+    [members, exportMemberId],
+  );
 
   const semesterStartForWeek = useMemo(() => {
     const input = semesterStart.trim();
@@ -139,16 +225,31 @@ export function GroupTimetableClient() {
     return fromMembers ?? "";
   }, [semesterStart, members]);
 
-  const currentWeek = useMemo(() => {
-    const academicWeek = semesterStartForWeek ? getAcademicWeekFromSemesterStart(semesterStartForWeek) : null;
-    return academicWeek ?? getIsoWeek(new Date());
-  }, [semesterStartForWeek]);
+  const referenceSemesterStart = useMemo(() => {
+    if (selectedReferenceMember?.semesterStart && parseSemesterStart(selectedReferenceMember.semesterStart)) {
+      return selectedReferenceMember.semesterStart;
+    }
+    const input = semesterStart.trim();
+    if (parseSemesterStart(input)) return input;
+    return semesterStartForWeek;
+  }, [selectedReferenceMember, semesterStart, semesterStartForWeek]);
 
+  const referenceStartDate = useMemo(
+    () => (referenceSemesterStart ? getSemesterStartDate(referenceSemesterStart) : null),
+    [referenceSemesterStart],
+  );
+
+  const currentWeek = useMemo(() => {
+    const academicWeek = referenceSemesterStart
+      ? getAcademicWeekFromSemesterStart(referenceSemesterStart)
+      : null;
+    return academicWeek ?? getIsoWeek(new Date());
+  }, [referenceSemesterStart]);
 
   async function loadStoredMembers(): Promise<GroupMemberTimetable[]> {
     const res = await fetch("/api/group-timetable/members", { cache: "no-store" });
     const json = (await res.json()) as { ok: boolean; data?: GroupMemberTimetable[]; message?: string };
-    if (!json.ok) throw new Error(json.message || "读取本地课程表失败");
+    if (!json.ok) throw new Error(json.message || "读取云端课程表失败");
     return json.data || [];
   }
 
@@ -166,18 +267,32 @@ export function GroupTimetableClient() {
   async function pullByNickname(targetNickname: string): Promise<GroupMemberTimetable | null> {
     const key = targetNickname.trim();
     if (!key) return null;
-    const res = await fetch(`/api/group-timetable/members?nickname=${encodeURIComponent(key)}`, { cache: "no-store" });
+    const res = await fetch(`/api/group-timetable/members?nickname=${encodeURIComponent(key)}`, {
+      cache: "no-store",
+    });
     const json = (await res.json()) as { ok: boolean; data?: GroupMemberTimetable };
     if (!json.ok) return null;
     return json.data ?? null;
   }
 
   useEffect(() => {
-    loadStoredMembers()
-      .then((list) => setMembers(list))
-      .catch((e) => setError(e instanceof Error ? e.message : "读取本地课程表失败"))
-      .finally(() => setMembersLoaded(true));
+    try {
+      const cached = window.localStorage.getItem(localStorageKey);
+      if (!cached) return;
+      const parsed = JSON.parse(cached) as GroupMemberTimetable[];
+      if (Array.isArray(parsed)) setMembers(parsed);
+    } catch {
+      // ignore local cache parse error
+    }
   }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(localStorageKey, JSON.stringify(members));
+    } catch {
+      // ignore local cache write error
+    }
+  }, [members]);
 
   const maxWeek = useMemo(() => {
     const all = members.flatMap((m) => m.courses.flatMap((c) => c.weeks));
@@ -185,13 +300,13 @@ export function GroupTimetableClient() {
   }, [members, currentWeek]);
 
   useEffect(() => {
-    if (!membersLoaded || selectedWeek !== null) return;
+    if (selectedWeek !== null) return;
     setSelectedWeek(Math.max(1, Math.min(maxWeek, currentWeek)));
-  }, [membersLoaded, selectedWeek, maxWeek, currentWeek]);
+  }, [selectedWeek, maxWeek, currentWeek]);
 
   useEffect(() => {
     setSelectedWeek(null);
-  }, [semesterStartForWeek]);
+  }, [referenceSemesterStart]);
 
   useEffect(() => {
     if (selectedWeek === null) return;
@@ -199,37 +314,21 @@ export function GroupTimetableClient() {
     if (selectedWeek < 1) setSelectedWeek(1);
   }, [selectedWeek, maxWeek]);
 
-
   useEffect(() => {
-    if (exportMemberId === "__all__") return;
+    if (!exportMemberId) return;
     if (!members.some((m) => m.id === exportMemberId)) {
-      setExportMemberId("__all__");
+      setExportMemberId("");
     }
   }, [members, exportMemberId]);
+
   const week = selectedWeek ?? Math.max(1, Math.min(maxWeek, currentWeek));
+
   const weekDays = useMemo(
-    () => getWeekDaysByWeekOffset(week - currentWeek, week === currentWeek),
-    [week, currentWeek],
+    () => getWeekDaysByReference(referenceStartDate, week, currentWeek),
+    [referenceStartDate, week, currentWeek],
   );
 
-  const grid = useMemo(() => {
-    return sections.map((section) => {
-      return weekdays.map((_, idx) => {
-        const day = idx + 1;
-        return members.flatMap((member) =>
-          member.courses
-            .filter(
-              (c) =>
-                c.weekday === day &&
-                c.startSection <= section &&
-                c.endSection >= section &&
-                c.weeks.includes(week),
-            )
-            .map((c) => ({ member, course: c })),
-        );
-      });
-    });
-  }, [members, week]);
+  const grid = useMemo(() => buildGrid(members, week, referenceStartDate), [members, week, referenceStartDate]);
 
   async function importWakeup() {
     const normalizedStart = semesterStart.trim();
@@ -262,62 +361,82 @@ export function GroupTimetableClient() {
     }
   }
 
-  function removeMember(id: string) {
-    const target = members.find((m) => m.id === id);
-    if (!target) return;
-    fetch(`/api/group-timetable/members?nickname=${encodeURIComponent(target.nickname)}`, { method: "DELETE" })
-      .finally(() => setMembers((prev) => prev.filter((m) => m.id !== id)));
+  function removeMemberLocal(id: string) {
+    setMembers((prev) => prev.filter((m) => m.id !== id));
   }
 
-  async function pullFromLocalByNickname() {
-    const key = nickname.trim();
-    if (!key) {
-      setError("请输入昵称");
+  async function removeMemberCloud(id: string) {
+    const target = members.find((m) => m.id === id);
+    if (!target) return;
+    try {
+      await fetch(`/api/group-timetable/members?nickname=${encodeURIComponent(target.nickname)}`, { method: "DELETE" });
+    } catch {
+      setError("删除云端失败");
+    }
+  }
+
+  async function toggleCloudPicker() {
+    setError("");
+    if (cloudPickerOpen) {
+      setCloudPickerOpen(false);
+      return;
+    }
+
+    try {
+      const list = await loadStoredMembers();
+      const names = Array.from(new Set(list.map((m) => m.nickname).filter(Boolean)));
+      setCloudNicknames(names);
+      if (!names.includes(cloudNickname)) setCloudNickname(names[0] ?? "");
+      setCloudPickerOpen(true);
+    } catch {
+      setError("获取云端昵称列表失败");
+    }
+  }
+
+  async function pullFromCloudByNickname() {
+    if (!cloudNickname) {
+      setError("请先在列表中选择昵称");
       return;
     }
     setError("");
     try {
-      const found = await pullByNickname(key);
+      const found = await pullByNickname(cloudNickname);
       if (!found) {
-        setError("本地未找到该昵称的课程表");
+        setError("云端未找到该昵称的课程表");
         return;
       }
       setMembers((prev) => [found, ...prev.filter((m) => m.nickname !== found.nickname)]);
       if (found.semesterStart) setSemesterStart(found.semesterStart);
+      setCloudPickerOpen(false);
     } catch {
-      setError("拉取本地课程表失败");
+      setError("拉取云端课程表失败");
     }
   }
 
-  function exportImage() {
-    const selectedMember = exportMemberId === "__all__" ? null : members.find((m) => m.id === exportMemberId) || null;
-    const exportMembers = selectedMember ? [selectedMember] : members;
+  function exportImage(mode: "week" | "today" = "week") {
+    const selectedMember = selectedReferenceMember;
+    if (!selectedMember) {
+      setError("请先选择参考用户，再导出课表");
+      return;
+    }
 
-    const userWeek =
-      selectedMember?.semesterStart && parseSemesterStart(selectedMember.semesterStart)
-        ? getAcademicWeekFromSemesterStart(selectedMember.semesterStart)
-        : null;
-    const exportWeek = Math.max(1, Math.min(maxWeek, userWeek ?? week));
-    const exportWeekDays = getWeekDaysByWeekOffset(exportWeek - currentWeek, exportWeek === currentWeek);
+    const exportMembers = members;
+    const selectedMemberStart = selectedMember.semesterStart
+      ? getSemesterStartDate(selectedMember.semesterStart)
+      : null;
+    const exportWeek = Math.max(1, Math.min(maxWeek, week));
+    const exportWeekDays = getWeekDaysByReference(selectedMemberStart, exportWeek, currentWeek);
+    const exportGrid = buildGrid(exportMembers, exportWeek, selectedMemberStart);
 
-    const exportGrid = sections.map((section) => {
-      return weekdays.map((_, idx) => {
-        const day = idx + 1;
-        return exportMembers.flatMap((member) =>
-          member.courses
-            .filter(
-              (c) =>
-                c.weekday === day &&
-                c.startSection <= section &&
-                c.endSection >= section &&
-                c.weeks.includes(exportWeek),
-            )
-            .map((c) => ({ member, course: c })),
-        );
-      });
-    });
+    const todayIndex = (new Date().getDay() + 6) % 7;
+    const canChooseToday = exportMembers.length >= 4;
+    const onlyToday = canChooseToday && mode === "today";
+    const dayIndices = onlyToday ? [todayIndex] : [0, 1, 2, 3, 4, 5, 6];
+    const visibleWeekDays = dayIndices.map((idx) => exportWeekDays[idx]);
+    const visibleGrid = exportGrid.map((row) => dayIndices.map((idx) => row[idx]));
+    const colCount = visibleWeekDays.length;
 
-    const width = 2200;
+    const width = onlyToday ? 960 : 2200;
     const height = 1400;
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -326,11 +445,11 @@ export function GroupTimetableClient() {
     if (!ctx) return;
 
     const padding = 44;
-    const titleH = 110;
+    const titleH = 120;
     const tableTop = padding + titleH;
     const tableH = height - tableTop - padding;
     const leftW = 150;
-    const colW = Math.floor((width - padding * 2 - leftW) / 7);
+    const colW = Math.floor((width - padding * 2 - leftW) / colCount);
     const rowH = Math.floor(tableH / 6);
 
     ctx.fillStyle = "#f4faff";
@@ -338,21 +457,22 @@ export function GroupTimetableClient() {
 
     ctx.fillStyle = "#173746";
     ctx.font = "bold 54px 'Microsoft YaHei', sans-serif";
-    const titleTarget = selectedMember ? `${selectedMember.nickname}课表` : "群友课程表总览";
-    ctx.fillText(`${titleTarget}（第${exportWeek}周）`, padding, padding + 58);
+    ctx.fillText("群友课程表总览", padding, padding + 56);
     ctx.fillStyle = "#56707d";
-    ctx.font = "28px 'Microsoft YaHei', sans-serif";
-    ctx.fillText(`成员数：${exportMembers.length}`, padding, padding + 98);
+    ctx.font = "20px 'Microsoft YaHei', sans-serif";
+    const sub = `第${exportWeek}周 | 参考：${selectedMember.nickname}`;
+    ctx.fillText(sub, padding, padding + 88);
+    ctx.fillText(`成员数：${exportMembers.length}`, padding, padding + 112);
 
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "#cfe2ec";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.roundRect(padding, tableTop, leftW + colW * 7, rowH * 6, 18);
+    ctx.roundRect(padding, tableTop, leftW + colW * colCount, rowH * 6, 18);
     ctx.fill();
     ctx.stroke();
 
-    for (let c = 0; c <= 7; c += 1) {
+    for (let c = 0; c <= colCount; c += 1) {
       const x = padding + leftW + c * colW;
       ctx.beginPath();
       ctx.moveTo(x, tableTop);
@@ -363,7 +483,7 @@ export function GroupTimetableClient() {
       const y = tableTop + r * rowH;
       ctx.beginPath();
       ctx.moveTo(padding, y);
-      ctx.lineTo(padding + leftW + colW * 7, y);
+      ctx.lineTo(padding + leftW + colW * colCount, y);
       ctx.stroke();
     }
 
@@ -372,9 +492,12 @@ export function GroupTimetableClient() {
     ctx.textBaseline = "middle";
     ctx.font = "bold 24px 'Microsoft YaHei', sans-serif";
     ctx.fillText("节次", padding + leftW / 2, tableTop + rowH / 2);
-    exportWeekDays.forEach((d, i) => {
+    visibleWeekDays.forEach((d, i) => {
       const cx = padding + leftW + i * colW + colW / 2;
-      ctx.fillText(d.label, cx, tableTop + rowH / 2);
+      ctx.fillText(d.label, cx, tableTop + rowH / 2 - 10);
+      ctx.font = "20px 'Microsoft YaHei', sans-serif";
+      ctx.fillText(d.dateText, cx, tableTop + rowH / 2 + 18);
+      ctx.font = "bold 24px 'Microsoft YaHei', sans-serif";
     });
 
     ctx.font = "bold 24px 'Microsoft YaHei', sans-serif";
@@ -383,7 +506,7 @@ export function GroupTimetableClient() {
     });
 
     ctx.textAlign = "left";
-    exportGrid.forEach((row, rowIndex) => {
+    visibleGrid.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
         if (cell.length === 0) return;
 
@@ -414,7 +537,7 @@ export function GroupTimetableClient() {
             ctx.fillText(nickLines[0], x + 6, top + 15);
           }
 
-          const timeText = sectionTimeRange(course.startSection, course.endSection);
+          const timeText = getCourseTimeRange(course);
           const courseText = `${course.name}${timeText ? `（${timeText}）` : ""}`;
           ctx.font = "12px 'Microsoft YaHei', sans-serif";
           const courseLines = wrapCanvasText(ctx, courseText, w - 12, 2);
@@ -436,12 +559,20 @@ export function GroupTimetableClient() {
     const url = canvas.toDataURL("image/png");
     const a = document.createElement("a");
     a.href = url;
-    const filenameTarget = selectedMember ? selectedMember.nickname : "群友课程表";
-    a.download = `${filenameTarget}-第${exportWeek}周.png`;
+    a.download = `群友课程表-第${exportWeek}周.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   }
+
+  function handleExportClick() {
+    if (members.length >= 4) {
+      setExportPickerOpen(true);
+      return;
+    }
+    exportImage("week");
+  }
+
   return (
     <section style={{ display: "grid", gap: 12 }}>
       <div className="glass-card" style={{ padding: 16 }}>
@@ -454,15 +585,15 @@ export function GroupTimetableClient() {
           <input
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            placeholder="群友昵称（用于本地保存/拉取）"
-            style={{ border: "1px solid #c8dce5", borderRadius: 10, padding: "10px 12px", fontSize: 14 }}
+            placeholder="群友昵称（用于本地保存）"
+            style={{ width: "100%", boxSizing: "border-box", border: "1px solid #c8dce5", borderRadius: 10, padding: "12px 12px", fontSize: 14, minHeight: 44 }}
           />
 
           <input
             value={semesterStart}
             onChange={(e) => setSemesterStart(e.target.value)}
             placeholder="学期开始日期（M/D，例如 3/2）"
-            style={{ border: "1px solid #c8dce5", borderRadius: 10, padding: "10px 12px", fontSize: 14 }}
+            style={{ width: "100%", boxSizing: "border-box", border: "1px solid #c8dce5", borderRadius: 10, padding: "12px 12px", fontSize: 14, minHeight: 44 }}
           />
 
           <textarea
@@ -470,62 +601,147 @@ export function GroupTimetableClient() {
             onChange={(e) => setShareText(e.target.value)}
             placeholder="粘贴 WakeUp 分享文案（含口令）"
             rows={4}
-            style={{ border: "1px solid #c8dce5", borderRadius: 10, padding: "10px 12px", fontSize: 13, resize: "vertical" }}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              border: "1px solid #c8dce5",
+              borderRadius: 10,
+              padding: "10px 12px",
+              fontSize: 13,
+              resize: "vertical",
+            }}
           />
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button onClick={importWakeup} disabled={loading} style={{ border: 0, borderRadius: 999, padding: "8px 14px", background: "#0d8e7f", color: "#fff" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-start" }}>
+            <button
+              onClick={importWakeup}
+              disabled={loading}
+              style={{ border: 0, borderRadius: 999, padding: "8px 12px", background: "#0d8e7f", color: "#fff", minHeight: 38,
+              flexShrink: 1, minWidth: 108 }}
+            >
               {loading ? "导入中..." : "WakeUp导入"}
             </button>
-            <button onClick={pullFromLocalByNickname} style={{ border: "1px solid #c8dce5", borderRadius: 999, padding: "8px 14px", background: "#fff", color: "#21414d" }}>
-              按昵称本地拉取
+            <button
+              onClick={toggleCloudPicker}
+              style={{
+                border: "1px solid #c8dce5",
+                borderRadius: 999,
+                padding: "8px 12px",
+                background: "#fff",
+                color: "#21414d",
+                minHeight: 38,
+              flexShrink: 1,
+                minWidth: 108,
+              }}
+            >
+              按昵称导入
             </button>
           </div>
+
+          {cloudPickerOpen ? (
+            <div
+              style={{
+                marginTop: 4,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+                border: "1px solid #d8e5ec",
+                borderRadius: 12,
+                background: "#f8fcff",
+                padding: 10,
+              }}
+            >
+              <select
+                value={cloudNickname}
+                onChange={(e) => setCloudNickname(e.target.value)}
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  border: "1px solid #c8dce5",
+                  borderRadius: 8,
+                  background: "#fff",
+                  color: "#21414d",
+                  fontSize: 13,
+                  padding: "8px 10px",
+                  minHeight: 38,
+              flexShrink: 1,
+                }}
+              >
+                {cloudNicknames.length === 0 ? <option value="">暂无可选昵称</option> : null}
+                {cloudNicknames.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={pullFromCloudByNickname}
+                disabled={!cloudNickname}
+                style={{
+                  border: 0,
+                  borderRadius: 999,
+                  padding: "8px 12px",
+                  background: cloudNickname ? "#0d8e7f" : "#9fb8c3",
+                  color: "#fff",
+                  minHeight: 38,
+              flexShrink: 1,
+                  minWidth: 92,
+                }}
+              >
+                确认导入
+              </button>
+            </div>
+          ) : null}
         </div>
 
         {error ? <p style={{ margin: "10px 0 0", color: "#c44141", fontSize: 13 }}>{error}</p> : null}
       </div>
 
       <div className="glass-card" style={{ padding: 16 }}>
-        <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 6, flexWrap: "nowrap", width: "100%", minWidth: 0 }}>
           <select
             value={exportMemberId}
             onChange={(e) => setExportMemberId(e.target.value)}
             style={{
+              width: "clamp(120px, 46vw, 180px)",
+              maxWidth: "46vw",
+              boxSizing: "border-box",
               border: "1px solid #c8dce5",
               borderRadius: 8,
               background: "#fff",
               color: "#21414d",
               fontSize: 13,
               padding: "8px 10px",
-              minWidth: 150,
+              minHeight: 38,
+              flexShrink: 1,
             }}
           >
-            <option value="__all__">导出对象：全部成员</option>
+            <option value="" disabled>
+              参考用户（必选）
+            </option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>
-                导出对象：{m.nickname}
+                参考用户：{m.nickname}
               </option>
             ))}
           </select>
 
-          <button onClick={exportImage} style={{ border: 0, borderRadius: 999, background: "#0d8e7f", color: "#fff", padding: "8px 14px" }}>
-            导出汇总图片
-          </button>
-        </div>
-
-        <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ color: "#5d7480", fontSize: 13 }}>当前展示周：</span>
           <select
             value={week}
             onChange={(e) => setSelectedWeek(Number.parseInt(e.target.value, 10))}
             style={{
+              width: "clamp(76px, 24vw, 120px)",
+              maxWidth: "24vw",
+              boxSizing: "border-box",
               border: "1px solid #c8dce5",
               borderRadius: 8,
               background: "#fff",
               color: "#21414d",
               fontSize: 13,
-              padding: "6px 10px",
+              padding: "8px 10px",
+              minHeight: 38,
+              flexShrink: 1,
             }}
           >
             {Array.from({ length: Math.max(1, maxWeek) }, (_, idx) => idx + 1).map((wk) => (
@@ -534,77 +750,176 @@ export function GroupTimetableClient() {
               </option>
             ))}
           </select>
+
           <button
-            onClick={() => setSelectedWeek(Math.max(1, Math.min(maxWeek, currentWeek)))}
-            style={{
-              border: "1px solid #c8dce5",
-              borderRadius: 999,
-              background: "#fff",
-              color: "#21414d",
-              fontSize: 12,
-              padding: "6px 10px",
-            }}
+            onClick={handleExportClick}
+            style={{ border: 0, borderRadius: 999, background: "#0d8e7f", color: "#fff", padding: "8px 10px", minHeight: 38, minWidth: 64, flexShrink: 0 }}
           >
-            回到当前周
+            导出
           </button>
         </div>
 
-        <div style={{ marginTop: 12, overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 820 }}>
-            <thead>
-              <tr>
-                <th style={thStyle}>节次</th>
-                {weekDays.map((day) => (
-                  <th key={day.label} style={{ ...thStyle, color: day.isToday ? "#0d8e7f" : "#2f5060" }}>
-                    <div>{day.label}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sections.map((section, rowIndex) => (
-                <tr key={section}>
-                  <td style={tdTitleStyle}>第{section}大节</td>
-                  {weekdays.map((_, colIndex) => {
-                    const cell = grid[rowIndex][colIndex];
-                    return (
-                      <td key={`${section}-${colIndex}`} style={tdStyle}>
-                        {cell.length === 0 ? <span style={{ color: "#9aafb8", fontSize: 12 }}>空</span> : (
-                          <div style={{ display: "grid", gap: 6 }}>
-                            {cell.map(({ member, course }, idx) => (
-                              <div key={`${member.id}-${course.id}-${idx}`} style={{ background: toColor(course.name), border: "1px solid #d2e2ea", borderRadius: 8, padding: "6px 8px" }}>
-                                <div style={{ fontSize: 12, fontWeight: 700 }}>{member.nickname}</div>
-                                <div style={{ fontSize: 12 }}>{course.name}（{sectionTimeRange(course.startSection, course.endSection)}）</div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {members.length > 0 ? (
-        <div className="glass-card" style={{ padding: 16 }}>
-          <h3 style={{ margin: 0, fontSize: 16 }}>已导入成员</h3>
-          <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {members.length > 0 ? (
+          <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+            <h3 style={{ margin: 0, fontSize: 16 }}>已导入成员</h3>
             {members.map((m) => (
-              <button key={m.id} onClick={() => removeMember(m.id)} style={{ border: "1px solid #c8dce5", borderRadius: 999, background: "#fff", padding: "6px 12px", fontSize: 12 }}>
-                {m.nickname} · {m.courses.length}门（点我删除）
-              </button>
+              <div
+                key={m.id}
+                style={{
+                  border: "1px solid #d8e5ec",
+                  borderRadius: 12,
+                  background: "#fff",
+                  padding: "8px 10px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ fontSize: 12, color: "#1f3d63" }}>{m.nickname} · {m.courses.length}门</div>
+                <button
+                  onClick={() => setDeleteTarget(m)}
+                  style={{
+                    border: "1px solid #c8dce5",
+                    borderRadius: 999,
+                    background: "#fff",
+                    padding: "8px 12px",
+                    fontSize: 13,
+                    color: "#21414d",
+                    minHeight: 38,
+                    minWidth: 96,
+                  }}
+                >
+                  删除
+                </button>
+              </div>
             ))}
+          </div>
+        ) : null}
+      </div>
+      {exportPickerOpen ? (
+        <div
+          onClick={() => setExportPickerOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.28)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            zIndex: 1190,
+            padding: "8px 8px calc(8px + env(safe-area-inset-bottom))",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 560,
+              borderRadius: "16px 16px 0 0",
+              background: "#fff",
+              border: "1px solid #d8e5ec",
+              boxShadow: "0 20px 48px rgba(13,38,59,0.16)",
+              padding: 14,
+              maxHeight: "82vh",
+              overflowY: "auto",
+              display: "grid",
+              gap: 10,
+            }}
+          >
+            <div style={{ fontSize: 14, color: "#21414d" }}>选择导出范围</div>
+            <button
+              onClick={() => {
+                exportImage("week");
+                setExportPickerOpen(false);
+              }}
+              style={{ border: "1px solid #c8dce5", borderRadius: 12, background: "#fff", minHeight: 40, fontSize: 13 }}
+            >
+              导出本周
+            </button>
+            <button
+              onClick={() => {
+                exportImage("today");
+                setExportPickerOpen(false);
+              }}
+              style={{ border: "1px solid #c8dce5", borderRadius: 12, background: "#fff", minHeight: 40, fontSize: 13 }}
+            >
+              导出当天
+            </button>
+            <button
+              onClick={() => setExportPickerOpen(false)}
+              style={{ border: "1px solid #e1e8ee", borderRadius: 12, background: "#f7fafc", minHeight: 38,
+              flexShrink: 1, fontSize: 13 }}
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {deleteTarget ? (
+        <div
+          onClick={() => setDeleteTarget(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.28)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            zIndex: 1200,
+            padding: "8px 8px calc(8px + env(safe-area-inset-bottom))",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 560,
+              borderRadius: "16px 16px 0 0",
+              background: "#fff",
+              border: "1px solid #d8e5ec",
+              boxShadow: "0 20px 48px rgba(13,38,59,0.16)",
+              padding: 14,
+              maxHeight: "82vh",
+              overflowY: "auto",
+              display: "grid",
+              gap: 10,
+            }}
+          >
+            <div style={{ fontSize: 14, color: "#21414d" }}>删除成员：{deleteTarget.nickname}</div>
+            <button
+              onClick={() => {
+                removeMemberLocal(deleteTarget.id);
+                setDeleteTarget(null);
+              }}
+              style={{ border: "1px solid #c8dce5", borderRadius: 12, background: "#fff", minHeight: 40, fontSize: 13 }}
+            >
+              删除本地
+            </button>
+            <button
+              onClick={async () => {
+                await removeMemberCloud(deleteTarget.id);
+                setDeleteTarget(null);
+              }}
+              style={{ border: "1px solid #f2c7c7", borderRadius: 12, background: "#fff6f6", color: "#b33a3a", minHeight: 40, fontSize: 13 }}
+            >
+              删除云端
+            </button>
+            <button
+              onClick={() => setDeleteTarget(null)}
+              style={{ border: "1px solid #e1e8ee", borderRadius: 12, background: "#f7fafc", minHeight: 38,
+              flexShrink: 1, fontSize: 13 }}
+            >
+              取消
+            </button>
           </div>
         </div>
       ) : null}
     </section>
   );
 }
-
 const thStyle: React.CSSProperties = {
   border: "1px solid #dbe8ef",
   background: "#f1f8fc",
@@ -626,6 +941,24 @@ const tdStyle: React.CSSProperties = {
   verticalAlign: "top",
   minWidth: 120,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

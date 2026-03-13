@@ -15,6 +15,8 @@ export interface TimetableCourse {
   weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   startSection: number;
   endSection: number;
+  startTime?: string;
+  endTime?: string;
   weeks: number[];
   term: string;
 }

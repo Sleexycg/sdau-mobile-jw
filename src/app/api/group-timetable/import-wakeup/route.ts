@@ -169,6 +169,8 @@ function normalizeCourseFromObject(input: JsonRecord, index: number, termFallbac
   const teacher = pickString(input, ["teacher", "teacherName", "js", "lecturer", "rkjs"]);
   const location = pickString(input, ["location", "classroom", "room", "place", "address", "jsmc"]);
   const term = pickString(input, ["term", "semester", "xnxq"]) || termFallback;
+  const startTime = pickString(input, ["startTime", "kssj", "beginTime"]).replace(/：/g, ":");
+  const endTime = pickString(input, ["endTime", "jssj", "finishTime"]).replace(/：/g, ":");
 
   return {
     id: `wakeup-${index}-${randomUUID().slice(0, 8)}`,
@@ -178,6 +180,8 @@ function normalizeCourseFromObject(input: JsonRecord, index: number, termFallbac
     weekday,
     startSection: sections.start,
     endSection: sections.end,
+    startTime: startTime || undefined,
+    endTime: endTime || undefined,
     weeks: weeks.length > 0 ? weeks : [1],
     term,
   };
@@ -320,8 +324,11 @@ function parseFromWakeupPartArray(expanded: unknown, termFallback: string): Time
     const location = typeof arr.room === "string" ? arr.room.trim() : "";
     const term = termFallback || "";
 
-    const slotTime = nodeToTime.get(startNode);
-    const idSeed = `${courseName}-${dayOfWeek}-${startNode}-${endNode}-${slotTime?.startTime || ""}`;
+    const slotTimeStart = nodeToTime.get(startNode);
+    const slotTimeEnd = nodeToTime.get(endNode);
+    const startTime = slotTimeStart?.startTime || "";
+    const endTime = slotTimeEnd?.endTime || slotTimeStart?.endTime || "";
+    const idSeed = `${courseName}-${dayOfWeek}-${startNode}-${endNode}-${startTime}`;
 
     courses.push({
       id: `wakeup-part-${index}-${randomUUID().slice(0, 6)}-${idSeed.length}`,
@@ -331,6 +338,8 @@ function parseFromWakeupPartArray(expanded: unknown, termFallback: string): Time
       weekday: dayOfWeek,
       startSection,
       endSection,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
       weeks,
       term,
     });
@@ -521,6 +530,11 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, code: "WAKEUP_IMPORT_FAILED", message: "WakeUp 导入失败，请稍后重试" }, { status: 503 });
   }
 }
+
+
+
+
+
 
 
 
