@@ -21,11 +21,13 @@ const sectionTimeMap: Record<number, string> = {
 
 type GridCellItem = { member: GroupMemberTimetable; course: TimetableCourse };
 
-function toColor(seed: string) {
-  const colors = ["#eaf4ff", "#ecfff4", "#fff6ea", "#f3eeff", "#ffeff3", "#eef9fb"];
-  let h = 0;
-  for (let i = 0; i < seed.length; i += 1) h = (h * 33 + seed.charCodeAt(i)) >>> 0;
-  return colors[h % colors.length];
+const memberColorPalette = ["#D7EBFF", "#D9F7E8", "#FFE6D6", "#E7DCFF", "#FFD9E8", "#D7F5FF", "#FFF2C9", "#E3F6D2"];
+
+function getMemberColorByIndex(index: number): string {
+  if (index < memberColorPalette.length) return memberColorPalette[index];
+  // Golden-angle hues to keep colors unique when members > 8.
+  const hue = Math.round((index * 137.508) % 360);
+  return `hsl(${hue} 78% 86%)`;
 }
 
 function wrapCanvasText(
@@ -209,7 +211,9 @@ export function GroupTimetableClient() {
   const [cloudNicknames, setCloudNicknames] = useState<string[]>([]);
   const [cloudNickname, setCloudNickname] = useState("");
   const [cloudPickerOpen, setCloudPickerOpen] = useState(false);
+  const [cloudMenuPos, setCloudMenuPos] = useState<{ top: number; left: number } | null>(null);
   const [exportPickerOpen, setExportPickerOpen] = useState(false);
+  const [deleteMenuPos, setDeleteMenuPos] = useState<{ top: number; left: number } | null>(null);
 
   const localStorageKey = "wesdau_group_members";
 
@@ -276,6 +280,24 @@ export function GroupTimetableClient() {
   }
 
   useEffect(() => {
+    const onDocMouseDown = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest("[data-cloud-menu]") || target.closest("[data-export-menu]") || target.closest("[data-delete-menu]")) {
+        return;
+      }
+      setCloudPickerOpen(false);
+      setCloudMenuPos(null);
+      setExportPickerOpen(false);
+      setDeleteTarget(null);
+      setDeleteMenuPos(null);
+    };
+
+    document.addEventListener("mousedown", onDocMouseDown);
+    return () => document.removeEventListener("mousedown", onDocMouseDown);
+  }, []);
+
+  useEffect(() => {
     try {
       const cached = window.localStorage.getItem(localStorageKey);
       if (!cached) return;
@@ -329,7 +351,6 @@ export function GroupTimetableClient() {
   );
 
   const grid = useMemo(() => buildGrid(members, week, referenceStartDate), [members, week, referenceStartDate]);
-
   async function importWakeup() {
     const normalizedStart = semesterStart.trim();
     if (normalizedStart && !parseSemesterStart(normalizedStart)) {
@@ -363,28 +384,42 @@ export function GroupTimetableClient() {
 
   function removeMemberLocal(id: string) {
     setMembers((prev) => prev.filter((m) => m.id !== id));
+    setDeleteTarget(null);
+    setDeleteMenuPos(null);
   }
 
   async function removeMemberCloud(id: string) {
     const target = members.find((m) => m.id === id);
     if (!target) return;
     try {
-      await fetch(`/api/group-timetable/members?nickname=${encodeURIComponent(target.nickname)}`, { method: "DELETE" });
+      const resp = await fetch(`/api/group-timetable/members?nickname=${encodeURIComponent(target.nickname)}`, { method: "DELETE" });
+      if (!resp.ok) {
+        setError("删除云端失败");
+        return;
+      }
+      setMembers((prev) => prev.filter((m) => m.id !== id));
+      setDeleteTarget(null);
+      setDeleteMenuPos(null);
     } catch {
       setError("删除云端失败");
     }
   }
 
-  async function toggleCloudPicker() {
+  async function toggleCloudPicker(anchor: HTMLButtonElement) {
     setError("");
     if (cloudPickerOpen) {
       setCloudPickerOpen(false);
+      setCloudMenuPos(null);
       return;
     }
 
     try {
       const list = await loadStoredMembers();
       const names = Array.from(new Set(list.map((m) => m.nickname).filter(Boolean)));
+      const rect = anchor.getBoundingClientRect();
+      const width = Math.min(window.innerWidth - 16, 320);
+      const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
+      setCloudMenuPos({ top: rect.bottom + 6, left });
       setCloudNicknames(names);
       if (!names.includes(cloudNickname)) setCloudNickname(names[0] ?? "");
       setCloudPickerOpen(true);
@@ -408,6 +443,7 @@ export function GroupTimetableClient() {
       setMembers((prev) => [found, ...prev.filter((m) => m.nickname !== found.nickname)]);
       if (found.semesterStart) setSemesterStart(found.semesterStart);
       setCloudPickerOpen(false);
+      setCloudMenuPos(null);
     } catch {
       setError("拉取云端课程表失败");
     }
@@ -421,6 +457,11 @@ export function GroupTimetableClient() {
     }
 
     const exportMembers = members;
+    const memberColorMap = new Map<string, string>();
+    const memberKeys = Array.from(new Set(exportMembers.map((m) => m.id || m.nickname)));
+    memberKeys.forEach((key, idx) => {
+      memberColorMap.set(key, getMemberColorByIndex(idx));
+    });
     const selectedMemberStart = selectedMember.semesterStart
       ? getSemesterStartDate(selectedMember.semesterStart)
       : null;
@@ -448,7 +489,7 @@ export function GroupTimetableClient() {
     const titleH = 120;
     const tableTop = padding + titleH;
     const tableH = height - tableTop - padding;
-    const leftW = 150;
+    const leftW = onlyToday ? 72 : 84;
     const colW = Math.floor((width - padding * 2 - leftW) / colCount);
     const rowH = Math.floor(tableH / 6);
 
@@ -517,12 +558,13 @@ export function GroupTimetableClient() {
 
         const cardGap = 6;
         const cardHeight = 54;
-        const maxCards = Math.max(1, Math.floor((h - 4 + cardGap) / (cardHeight + cardGap)));
+        const maxCards = 3;
         const show = cell.slice(0, maxCards);
 
         show.forEach(({ member, course }, idx) => {
           const top = y + 2 + idx * (cardHeight + cardGap);
-          ctx.fillStyle = toColor(course.name);
+          const colorKey = member.id || member.nickname;
+          ctx.fillStyle = memberColorMap.get(colorKey) || memberColorPalette[0];
           ctx.beginPath();
           ctx.roundRect(x, top, w, cardHeight, 8);
           ctx.fill();
@@ -549,9 +591,19 @@ export function GroupTimetableClient() {
         });
 
         if (cell.length > maxCards) {
-          ctx.fillStyle = "#6b7f89";
-          ctx.font = "14px 'Microsoft YaHei', sans-serif";
-          ctx.fillText(`+${cell.length - maxCards}项`, x + 6, y + h - 8);
+          const extraNames = Array.from(
+            new Set(cell.slice(maxCards).map((item) => item.member.nickname)),
+          ).join("、");
+          if (extraNames) {
+            ctx.fillStyle = "#6b7f89";
+            ctx.font = "11px 'Microsoft YaHei', sans-serif";
+            const extraLines = wrapCanvasText(ctx, extraNames, w - 12, 2);
+            let extraY = y + h - 8 - (extraLines.length - 1) * 12;
+            extraLines.forEach((line) => {
+              ctx.fillText(line, x + 6, extraY);
+              extraY += 12;
+            });
+          }
         }
       });
     });
@@ -559,7 +611,12 @@ export function GroupTimetableClient() {
     const url = canvas.toDataURL("image/png");
     const a = document.createElement("a");
     a.href = url;
-    a.download = `群友课程表-第${exportWeek}周.png`;
+    if (onlyToday) {
+      const now = new Date();
+      a.download = `群友课程表总揽-${now.getMonth() + 1}月${now.getDate()}日.png`;
+    } else {
+      a.download = `群友课程表-第${exportWeek}周.png`;
+    }
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -575,7 +632,7 @@ export function GroupTimetableClient() {
 
   return (
     <section style={{ display: "grid", gap: 12 }}>
-      <div className="glass-card" style={{ padding: 16 }}>
+      <div className="glass-card" style={{ padding: 16, overflow: "visible", position: "relative", zIndex: 1100 }}>
         <h2 style={{ margin: 0, fontSize: 20 }}>群友共享课程表</h2>
         <p style={{ margin: "6px 0 0", color: "var(--muted)", fontSize: 13 }}>
           支持粘贴 WakeUp 分享文案导入，并按昵称保存到本地
@@ -601,121 +658,37 @@ export function GroupTimetableClient() {
             onChange={(e) => setShareText(e.target.value)}
             placeholder="粘贴 WakeUp 分享文案（含口令）"
             rows={4}
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              border: "1px solid #c8dce5",
-              borderRadius: 10,
-              padding: "10px 12px",
-              fontSize: 13,
-              resize: "vertical",
-            }}
+            style={{ width: "100%", boxSizing: "border-box", border: "1px solid #c8dce5", borderRadius: 10, padding: "10px 12px", fontSize: 13, resize: "vertical" }}
           />
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-start" }}>
             <button
               onClick={importWakeup}
               disabled={loading}
-              style={{ border: 0, borderRadius: 999, padding: "8px 12px", background: "#0d8e7f", color: "#fff", minHeight: 38,
-              flexShrink: 1, minWidth: 108 }}
+              style={{ border: 0, borderRadius: 999, padding: "8px 12px", background: "#0d8e7f", color: "#fff", minHeight: 38, minWidth: 108 }}
             >
               {loading ? "导入中..." : "WakeUp导入"}
             </button>
-            <button
-              onClick={toggleCloudPicker}
-              style={{
-                border: "1px solid #c8dce5",
-                borderRadius: 999,
-                padding: "8px 12px",
-                background: "#fff",
-                color: "#21414d",
-                minHeight: 38,
-              flexShrink: 1,
-                minWidth: 108,
-              }}
-            >
-              按昵称导入
-            </button>
-          </div>
 
-          {cloudPickerOpen ? (
-            <div
-              style={{
-                marginTop: 4,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                flexWrap: "wrap",
-                border: "1px solid #d8e5ec",
-                borderRadius: 12,
-                background: "#f8fcff",
-                padding: 10,
-              }}
-            >
-              <select
-                value={cloudNickname}
-                onChange={(e) => setCloudNickname(e.target.value)}
-                style={{
-                  width: "100%",
-                  boxSizing: "border-box",
-                  border: "1px solid #c8dce5",
-                  borderRadius: 8,
-                  background: "#fff",
-                  color: "#21414d",
-                  fontSize: 13,
-                  padding: "8px 10px",
-                  minHeight: 38,
-              flexShrink: 1,
-                }}
-              >
-                {cloudNicknames.length === 0 ? <option value="">暂无可选昵称</option> : null}
-                {cloudNicknames.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
+            <div data-cloud-menu style={{ position: "relative", zIndex: 20000 }}>
               <button
-                onClick={pullFromCloudByNickname}
-                disabled={!cloudNickname}
-                style={{
-                  border: 0,
-                  borderRadius: 999,
-                  padding: "8px 12px",
-                  background: cloudNickname ? "#0d8e7f" : "#9fb8c3",
-                  color: "#fff",
-                  minHeight: 38,
-              flexShrink: 1,
-                  minWidth: 92,
-                }}
+                onClick={(e) => toggleCloudPicker(e.currentTarget)}
+                style={{ border: "1px solid #c8dce5", borderRadius: 999, padding: "8px 12px", background: "#fff", color: "#21414d", minHeight: 38, minWidth: 108 }}
               >
-                确认导入
-              </button>
-            </div>
-          ) : null}
+                按昵称导入
+              </button>            </div>
+          </div>
         </div>
 
         {error ? <p style={{ margin: "10px 0 0", color: "#c44141", fontSize: 13 }}>{error}</p> : null}
       </div>
 
-      <div className="glass-card" style={{ padding: 16 }}>
+      <div className="glass-card" style={{ padding: 16, overflow: "visible" }}>
         <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 6, flexWrap: "nowrap", width: "100%", minWidth: 0 }}>
           <select
             value={exportMemberId}
             onChange={(e) => setExportMemberId(e.target.value)}
-            style={{
-              width: "clamp(120px, 46vw, 180px)",
-              maxWidth: "46vw",
-              boxSizing: "border-box",
-              border: "1px solid #c8dce5",
-              borderRadius: 8,
-              background: "#fff",
-              color: "#21414d",
-              fontSize: 13,
-              padding: "8px 10px",
-              minHeight: 38,
-              flexShrink: 1,
-            }}
+            style={{ width: "clamp(120px, 46vw, 180px)", maxWidth: "46vw", boxSizing: "border-box", border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", color: "#21414d", fontSize: 13, padding: "8px 10px", minHeight: 38, flexShrink: 1 }}
           >
             <option value="" disabled>
               参考用户（必选）
@@ -730,19 +703,7 @@ export function GroupTimetableClient() {
           <select
             value={week}
             onChange={(e) => setSelectedWeek(Number.parseInt(e.target.value, 10))}
-            style={{
-              width: "clamp(76px, 24vw, 120px)",
-              maxWidth: "24vw",
-              boxSizing: "border-box",
-              border: "1px solid #c8dce5",
-              borderRadius: 8,
-              background: "#fff",
-              color: "#21414d",
-              fontSize: 13,
-              padding: "8px 10px",
-              minHeight: 38,
-              flexShrink: 1,
-            }}
+            style={{ width: "clamp(76px, 24vw, 120px)", maxWidth: "24vw", boxSizing: "border-box", border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", color: "#21414d", fontSize: 13, padding: "8px 10px", minHeight: 38, flexShrink: 1 }}
           >
             {Array.from({ length: Math.max(1, maxWeek) }, (_, idx) => idx + 1).map((wk) => (
               <option key={wk} value={wk}>
@@ -751,170 +712,141 @@ export function GroupTimetableClient() {
             ))}
           </select>
 
-          <button
-            onClick={handleExportClick}
-            style={{ border: 0, borderRadius: 999, background: "#0d8e7f", color: "#fff", padding: "8px 10px", minHeight: 38, minWidth: 64, flexShrink: 0 }}
-          >
-            导出
-          </button>
+          <div data-export-menu style={{ position: "relative", zIndex: 19000, flexShrink: 0 }}>
+            <button
+              onClick={handleExportClick}
+              style={{ border: 0, borderRadius: 999, background: "#0d8e7f", color: "#fff", padding: "8px 10px", minHeight: 38, minWidth: 64 }}
+            >
+              导出
+            </button>
+
+            {exportPickerOpen ? (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 6px)",
+                  right: 0,
+                  width: 140,
+                  border: "1px solid #d8e5ec",
+                  borderRadius: 12,
+                  background: "#fff",
+                  boxShadow: "0 12px 28px rgba(13,38,59,0.16)",
+                  padding: 8,
+                  display: "grid",
+                  gap: 6,
+                  zIndex: 20001,
+                }}
+              >
+                <button onClick={() => { exportImage("week"); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出本周</button>
+                <button onClick={() => { exportImage("today"); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出当天</button>
+              </div>
+            ) : null}
+          </div>
         </div>
 
         {members.length > 0 ? (
-          <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+          <div style={{ marginTop: 12, display: "grid", gap: 8, overflow: "visible", position: "relative", zIndex: 1000 }}>
             <h3 style={{ margin: 0, fontSize: 16 }}>已导入成员</h3>
             {members.map((m) => (
               <div
                 key={m.id}
-                style={{
-                  border: "1px solid #d8e5ec",
-                  borderRadius: 12,
-                  background: "#fff",
-                  padding: "8px 10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  gap: 10,
-                  flexWrap: "wrap",
-                }}
+                style={{ border: "1px solid #d8e5ec", borderRadius: 12, background: "#fff", padding: "8px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "nowrap", overflow: "visible", position: "relative", zIndex: 1001 }}
               >
-                <div style={{ fontSize: 12, color: "#1f3d63" }}>{m.nickname} · {m.courses.length}门</div>
-                <button
-                  onClick={() => setDeleteTarget(m)}
-                  style={{
-                    border: "1px solid #c8dce5",
-                    borderRadius: 999,
-                    background: "#fff",
-                    padding: "8px 12px",
-                    fontSize: 13,
-                    color: "#21414d",
-                    minHeight: 38,
-                    minWidth: 96,
-                  }}
-                >
-                  删除
-                </button>
+                <div style={{ fontSize: 12, color: "#1f3d63", flex: 1, minWidth: 0 }}>{m.nickname} · {m.courses.length}门</div>
+
+                <div data-delete-menu style={{ position: "relative", zIndex: 21000, marginLeft: "auto" }}>
+                  <button
+                    onClick={(e) => {
+                      if (deleteTarget?.id === m.id) {
+                        setDeleteTarget(null);
+                        setDeleteMenuPos(null);
+                        return;
+                      }
+                      const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+                      const width = 148;
+                      const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
+                      setDeleteTarget(m);
+                      setDeleteMenuPos({ top: rect.bottom + 6, left });
+                    }}
+                    style={{ border: "1px solid #c8dce5", borderRadius: 999, background: "#fff", padding: "8px 12px", fontSize: 13, color: "#21414d", minHeight: 38, minWidth: 96 }}
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         ) : null}
       </div>
-      {exportPickerOpen ? (
+      {deleteTarget && deleteMenuPos ? (
         <div
-          onClick={() => setExportPickerOpen(false)}
+          data-delete-menu
           style={{
             position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.28)",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            zIndex: 1190,
-            padding: "8px 8px calc(8px + env(safe-area-inset-bottom))",
+            top: deleteMenuPos.top,
+            left: deleteMenuPos.left,
+            width: 148,
+            border: "1px solid #d8e5ec",
+            borderRadius: 12,
+            background: "#fff",
+            boxShadow: "0 12px 28px rgba(13,38,59,0.16)",
+            padding: 8,
+            display: "grid",
+            gap: 6,
+            zIndex: 99999,
           }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: "100%",
-              maxWidth: 560,
-              borderRadius: "16px 16px 0 0",
-              background: "#fff",
-              border: "1px solid #d8e5ec",
-              boxShadow: "0 20px 48px rgba(13,38,59,0.16)",
-              padding: 14,
-              maxHeight: "82vh",
-              overflowY: "auto",
-              display: "grid",
-              gap: 10,
-            }}
-          >
-            <div style={{ fontSize: 14, color: "#21414d" }}>选择导出范围</div>
-            <button
-              onClick={() => {
-                exportImage("week");
-                setExportPickerOpen(false);
-              }}
-              style={{ border: "1px solid #c8dce5", borderRadius: 12, background: "#fff", minHeight: 40, fontSize: 13 }}
-            >
-              导出本周
-            </button>
-            <button
-              onClick={() => {
-                exportImage("today");
-                setExportPickerOpen(false);
-              }}
-              style={{ border: "1px solid #c8dce5", borderRadius: 12, background: "#fff", minHeight: 40, fontSize: 13 }}
-            >
-              导出当天
-            </button>
-            <button
-              onClick={() => setExportPickerOpen(false)}
-              style={{ border: "1px solid #e1e8ee", borderRadius: 12, background: "#f7fafc", minHeight: 38,
-              flexShrink: 1, fontSize: 13 }}
-            >
-              取消
-            </button>
-          </div>
+          <button onClick={() => removeMemberLocal(deleteTarget.id)} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>删除本地</button>
+          <button onClick={async () => { await removeMemberCloud(deleteTarget.id); }} style={{ border: "1px solid #f2c7c7", borderRadius: 8, background: "#fff6f6", color: "#b33a3a", minHeight: 34, fontSize: 12 }}>删除云端</button>
         </div>
       ) : null}
-
-      {deleteTarget ? (
+      {cloudPickerOpen && cloudMenuPos ? (
         <div
-          onClick={() => setDeleteTarget(null)}
+          data-cloud-menu
           style={{
             position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.28)",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            zIndex: 1200,
-            padding: "8px 8px calc(8px + env(safe-area-inset-bottom))",
+            top: cloudMenuPos.top,
+            left: cloudMenuPos.left,
+            width: "min(320px, calc(100vw - 16px))",
+            border: "1px solid #d8e5ec",
+            borderRadius: 12,
+            background: "#fff",
+            boxShadow: "0 12px 28px rgba(13,38,59,0.16)",
+            padding: 8,
+            display: "grid",
+            gap: 8,
+            zIndex: 99999,
           }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
+          <select
+            value={cloudNickname}
+            onChange={(e) => setCloudNickname(e.target.value)}
             style={{
               width: "100%",
-              maxWidth: 560,
-              borderRadius: "16px 16px 0 0",
+              border: "1px solid #c8dce5",
+              borderRadius: 8,
               background: "#fff",
-              border: "1px solid #d8e5ec",
-              boxShadow: "0 20px 48px rgba(13,38,59,0.16)",
-              padding: 14,
-              maxHeight: "82vh",
-              overflowY: "auto",
-              display: "grid",
-              gap: 10,
+              color: "#21414d",
+              fontSize: 13,
+              padding: "8px 10px",
+              minHeight: 38,
             }}
           >
-            <div style={{ fontSize: 14, color: "#21414d" }}>删除成员：{deleteTarget.nickname}</div>
-            <button
-              onClick={() => {
-                removeMemberLocal(deleteTarget.id);
-                setDeleteTarget(null);
-              }}
-              style={{ border: "1px solid #c8dce5", borderRadius: 12, background: "#fff", minHeight: 40, fontSize: 13 }}
-            >
-              删除本地
-            </button>
-            <button
-              onClick={async () => {
-                await removeMemberCloud(deleteTarget.id);
-                setDeleteTarget(null);
-              }}
-              style={{ border: "1px solid #f2c7c7", borderRadius: 12, background: "#fff6f6", color: "#b33a3a", minHeight: 40, fontSize: 13 }}
-            >
-              删除云端
-            </button>
-            <button
-              onClick={() => setDeleteTarget(null)}
-              style={{ border: "1px solid #e1e8ee", borderRadius: 12, background: "#f7fafc", minHeight: 38,
-              flexShrink: 1, fontSize: 13 }}
-            >
-              取消
-            </button>
-          </div>
+            <option value="" disabled>
+              请选择昵称
+            </option>
+            {cloudNicknames.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={pullFromCloudByNickname}
+            style={{ border: 0, borderRadius: 8, background: "#0d8e7f", color: "#fff", minHeight: 36, fontSize: 13 }}
+          >
+            确认导入
+          </button>
         </div>
       ) : null}
     </section>
@@ -941,6 +873,32 @@ const tdStyle: React.CSSProperties = {
   verticalAlign: "top",
   minWidth: 120,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
