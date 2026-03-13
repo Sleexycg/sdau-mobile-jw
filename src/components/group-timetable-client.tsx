@@ -211,7 +211,6 @@ export function GroupTimetableClient() {
   const [cloudNicknames, setCloudNicknames] = useState<string[]>([]);
   const [cloudNickname, setCloudNickname] = useState("");
   const [cloudPickerOpen, setCloudPickerOpen] = useState(false);
-  const [cloudMenuPos, setCloudMenuPos] = useState<{ top: number; left: number } | null>(null);
   const [exportPickerOpen, setExportPickerOpen] = useState(false);
   const [deleteMenuPos, setDeleteMenuPos] = useState<{ top: number; left: number } | null>(null);
 
@@ -287,7 +286,6 @@ export function GroupTimetableClient() {
         return;
       }
       setCloudPickerOpen(false);
-      setCloudMenuPos(null);
       setExportPickerOpen(false);
       setDeleteTarget(null);
       setDeleteMenuPos(null);
@@ -315,6 +313,10 @@ export function GroupTimetableClient() {
       // ignore local cache write error
     }
   }, [members]);
+
+  useEffect(() => {
+    void refreshCloudNicknames();
+  }, [members.length]);
 
   const maxWeek = useMemo(() => {
     const all = members.flatMap((m) => m.courses.flatMap((c) => c.weeks));
@@ -405,29 +407,32 @@ export function GroupTimetableClient() {
     }
   }
 
-  async function toggleCloudPicker(anchor: HTMLButtonElement) {
+  async function refreshCloudNicknames() {
     setError("");
-    if (cloudPickerOpen) {
-      setCloudPickerOpen(false);
-      setCloudMenuPos(null);
-      return;
-    }
-
     try {
       const list = await loadStoredMembers();
       const names = Array.from(new Set(list.map((m) => m.nickname).filter(Boolean)));
-      const rect = anchor.getBoundingClientRect();
-      const width = Math.min(window.innerWidth - 16, 320);
-      const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
-      setCloudMenuPos({ top: rect.bottom + 6, left });
       setCloudNicknames(names);
-      if (!names.includes(cloudNickname)) setCloudNickname(names[0] ?? "");
-      setCloudPickerOpen(true);
+      if (names.length > 0 && !names.includes(cloudNickname)) {
+        setCloudNickname(names[0]);
+      }
+      if (names.length === 0) {
+        setCloudNickname("");
+      }
     } catch {
       setError("获取云端昵称列表失败");
     }
   }
 
+
+  async function toggleCloudPicker() {
+    if (cloudPickerOpen) {
+      setCloudPickerOpen(false);
+      return;
+    }
+    await refreshCloudNicknames();
+    setCloudPickerOpen(true);
+  }
   async function pullFromCloudByNickname() {
     if (!cloudNickname) {
       setError("请先在列表中选择昵称");
@@ -443,7 +448,6 @@ export function GroupTimetableClient() {
       setMembers((prev) => [found, ...prev.filter((m) => m.nickname !== found.nickname)]);
       if (found.semesterStart) setSemesterStart(found.semesterStart);
       setCloudPickerOpen(false);
-      setCloudMenuPos(null);
     } catch {
       setError("拉取云端课程表失败");
     }
@@ -489,9 +493,11 @@ export function GroupTimetableClient() {
     const titleH = 120;
     const tableTop = padding + titleH;
     const tableH = height - tableTop - padding;
-    const leftW = onlyToday ? 72 : 84;
+    const leftW = onlyToday ? 92 : 104;
     const colW = Math.floor((width - padding * 2 - leftW) / colCount);
-    const rowH = Math.floor(tableH / 6);
+    const headerH = onlyToday ? 64 : 70;
+    const sectionH = Math.floor((tableH - headerH) / 5);
+    const tableBottom = tableTop + headerH + sectionH * 5;
 
     ctx.fillStyle = "#f4faff";
     ctx.fillRect(0, 0, width, height);
@@ -509,7 +515,7 @@ export function GroupTimetableClient() {
     ctx.strokeStyle = "#cfe2ec";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.roundRect(padding, tableTop, leftW + colW * colCount, rowH * 6, 18);
+    ctx.roundRect(padding, tableTop, leftW + colW * colCount, tableBottom - tableTop, 18);
     ctx.fill();
     ctx.stroke();
 
@@ -517,11 +523,11 @@ export function GroupTimetableClient() {
       const x = padding + leftW + c * colW;
       ctx.beginPath();
       ctx.moveTo(x, tableTop);
-      ctx.lineTo(x, tableTop + rowH * 6);
+      ctx.lineTo(x, tableBottom);
       ctx.stroke();
     }
-    for (let r = 1; r <= 6; r += 1) {
-      const y = tableTop + r * rowH;
+    for (let r = 0; r < 5; r += 1) {
+      const y = tableTop + headerH + r * sectionH;
       ctx.beginPath();
       ctx.moveTo(padding, y);
       ctx.lineTo(padding + leftW + colW * colCount, y);
@@ -532,18 +538,18 @@ export function GroupTimetableClient() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = "bold 24px 'Microsoft YaHei', sans-serif";
-    ctx.fillText("节次", padding + leftW / 2, tableTop + rowH / 2);
+    ctx.fillText("节次", padding + leftW / 2, tableTop + headerH / 2);
     visibleWeekDays.forEach((d, i) => {
       const cx = padding + leftW + i * colW + colW / 2;
-      ctx.fillText(d.label, cx, tableTop + rowH / 2 - 10);
+      ctx.fillText(d.label, cx, tableTop + headerH / 2 - 9);
       ctx.font = "20px 'Microsoft YaHei', sans-serif";
-      ctx.fillText(d.dateText, cx, tableTop + rowH / 2 + 18);
+      ctx.fillText(d.dateText, cx, tableTop + headerH / 2 + 16);
       ctx.font = "bold 24px 'Microsoft YaHei', sans-serif";
     });
 
     ctx.font = "bold 24px 'Microsoft YaHei', sans-serif";
     sections.forEach((s, i) => {
-      ctx.fillText(`第${s}大节`, padding + leftW / 2, tableTop + (i + 1) * rowH + rowH / 2);
+      ctx.fillText(`第${s}大节`, padding + leftW / 2, tableTop + headerH + i * sectionH + sectionH / 2);
     });
 
     ctx.textAlign = "left";
@@ -552,14 +558,20 @@ export function GroupTimetableClient() {
         if (cell.length === 0) return;
 
         const x = padding + leftW + colIndex * colW + 8;
-        const y = tableTop + (rowIndex + 1) * rowH + 8;
+        const y = tableTop + headerH + rowIndex * sectionH + 8;
         const w = colW - 16;
-        const h = rowH - 16;
+        const h = sectionH - 16;
 
-        const cardGap = 6;
-        const cardHeight = 54;
-        const maxCards = 3;
-        const show = cell.slice(0, maxCards);
+        const cardGap = 4;
+        const maxCards = 4;
+        const orderedCell = [...cell].sort((a, b) => {
+          const aLong = [...(a.course.name || "")].length >= 12 ? 1 : 0;
+          const bLong = [...(b.course.name || "")].length >= 12 ? 1 : 0;
+          return aLong - bLong;
+        });
+        const show = orderedCell.slice(0, maxCards);
+        const availableHeight = Math.max(100, h - 4);
+        const cardHeight = Math.max(40, Math.floor((availableHeight - (maxCards - 1) * cardGap) / maxCards));
 
         show.forEach(({ member, course }, idx) => {
           const top = y + 2 + idx * (cardHeight + cardGap);
@@ -582,17 +594,21 @@ export function GroupTimetableClient() {
           const timeText = getCourseTimeRange(course);
           const courseText = `${course.name}${timeText ? `（${timeText}）` : ""}`;
           ctx.font = "12px 'Microsoft YaHei', sans-serif";
-          const courseLines = wrapCanvasText(ctx, courseText, w - 12, 2);
-          let textY = top + 31;
+          const maxCourseLines = cardHeight >= 46 ? 2 : 1;
+          const courseLines = wrapCanvasText(ctx, courseText, w - 12, maxCourseLines);
+          let textY = top + 29;
+          const textMaxY = top + cardHeight - 6;
           courseLines.forEach((line) => {
-            ctx.fillText(line, x + 6, textY);
-            textY += 14;
+            if (textY <= textMaxY) {
+              ctx.fillText(line, x + 6, textY);
+            }
+            textY += 13;
           });
         });
 
-        if (cell.length > maxCards) {
+        if (orderedCell.length > maxCards) {
           const extraNames = Array.from(
-            new Set(cell.slice(maxCards).map((item) => item.member.nickname)),
+            new Set(orderedCell.slice(maxCards).map((item) => item.member.nickname)),
           ).join("、");
           if (extraNames) {
             ctx.fillStyle = "#6b7f89";
@@ -672,11 +688,37 @@ export function GroupTimetableClient() {
 
             <div data-cloud-menu style={{ position: "relative", zIndex: 20000 }}>
               <button
-                onClick={(e) => toggleCloudPicker(e.currentTarget)}
+                onClick={toggleCloudPicker}
                 style={{ border: "1px solid #c8dce5", borderRadius: 999, padding: "8px 12px", background: "#fff", color: "#21414d", minHeight: 38, minWidth: 108 }}
               >
                 按昵称导入
-              </button>            </div>
+              </button>
+              {cloudPickerOpen ? (
+                <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, width: "min(320px, calc(100vw - 32px))", border: "1px solid #d8e5ec", borderRadius: 12, background: "#fff", boxShadow: "0 12px 28px rgba(13,38,59,0.16)", padding: 8, display: "grid", gap: 8, zIndex: 99999 }}>
+                  <select
+                    value={cloudNickname}
+                    onChange={(e) => setCloudNickname(e.target.value)}
+                    style={{ width: "100%", border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", color: "#21414d", fontSize: 13, padding: "8px 10px", minHeight: 38 }}
+                  >
+                    <option value="" disabled>
+                      选择昵称
+                    </option>
+                    {cloudNicknames.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={pullFromCloudByNickname}
+                    disabled={!cloudNickname}
+                    style={{ border: 0, borderRadius: 8, background: "#0d8e7f", color: "#fff", minHeight: 36, fontSize: 13 }}
+                  >
+                    确认导入
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
 
@@ -800,55 +842,6 @@ export function GroupTimetableClient() {
           <button onClick={async () => { await removeMemberCloud(deleteTarget.id); }} style={{ border: "1px solid #f2c7c7", borderRadius: 8, background: "#fff6f6", color: "#b33a3a", minHeight: 34, fontSize: 12 }}>删除云端</button>
         </div>
       ) : null}
-      {cloudPickerOpen && cloudMenuPos ? (
-        <div
-          data-cloud-menu
-          style={{
-            position: "fixed",
-            top: cloudMenuPos.top,
-            left: cloudMenuPos.left,
-            width: "min(320px, calc(100vw - 16px))",
-            border: "1px solid #d8e5ec",
-            borderRadius: 12,
-            background: "#fff",
-            boxShadow: "0 12px 28px rgba(13,38,59,0.16)",
-            padding: 8,
-            display: "grid",
-            gap: 8,
-            zIndex: 99999,
-          }}
-        >
-          <select
-            value={cloudNickname}
-            onChange={(e) => setCloudNickname(e.target.value)}
-            style={{
-              width: "100%",
-              border: "1px solid #c8dce5",
-              borderRadius: 8,
-              background: "#fff",
-              color: "#21414d",
-              fontSize: 13,
-              padding: "8px 10px",
-              minHeight: 38,
-            }}
-          >
-            <option value="" disabled>
-              请选择昵称
-            </option>
-            {cloudNicknames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={pullFromCloudByNickname}
-            style={{ border: 0, borderRadius: 8, background: "#0d8e7f", color: "#fff", minHeight: 36, fontSize: 13 }}
-          >
-            确认导入
-          </button>
-        </div>
-      ) : null}
     </section>
   );
 }
@@ -873,6 +866,27 @@ const tdStyle: React.CSSProperties = {
   verticalAlign: "top",
   minWidth: 120,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
