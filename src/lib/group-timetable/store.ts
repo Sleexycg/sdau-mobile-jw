@@ -16,6 +16,10 @@ function normalizeNickname(nickname: string): string {
   return nickname.trim();
 }
 
+function nicknameCompareKey(nickname: string): string {
+  return normalizeNickname(nickname).toLocaleLowerCase();
+}
+
 async function ensureStore(): Promise<void> {
   await mkdir(dataDir, { recursive: true });
   try {
@@ -51,16 +55,17 @@ export async function listGroupMembers(): Promise<GroupMemberTimetable[]> {
 }
 
 export async function getGroupMemberByNickname(nickname: string): Promise<GroupMemberTimetable | null> {
-  const key = normalizeNickname(nickname);
+  const key = nicknameCompareKey(nickname);
   if (!key) return null;
   const data = await readStore();
-  const found = data.members.find((m) => normalizeNickname(m.nickname) === key);
+  const found = data.members.find((m) => nicknameCompareKey(m.nickname) === key);
   return found ?? null;
 }
 
 export async function upsertGroupMember(member: GroupMemberTimetable): Promise<GroupMemberTimetable> {
   const nickname = normalizeNickname(member.nickname);
-  if (!nickname) {
+  const compareKey = nicknameCompareKey(member.nickname);
+  if (!nickname || !compareKey) {
     throw new Error("NICKNAME_REQUIRED");
   }
 
@@ -71,7 +76,7 @@ export async function upsertGroupMember(member: GroupMemberTimetable): Promise<G
   };
 
   await queueWrite((data) => {
-    const idx = data.members.findIndex((m) => normalizeNickname(m.nickname) === nickname);
+    const idx = data.members.findIndex((m) => nicknameCompareKey(m.nickname) === compareKey);
     if (idx >= 0) {
       data.members[idx] = normalized;
     } else {
@@ -83,11 +88,11 @@ export async function upsertGroupMember(member: GroupMemberTimetable): Promise<G
 }
 
 export async function deleteGroupMemberByNickname(nickname: string): Promise<void> {
-  const key = normalizeNickname(nickname);
+  const key = nicknameCompareKey(nickname);
   if (!key) return;
 
   await queueWrite((data) => {
-    const idx = data.members.findIndex((m) => normalizeNickname(m.nickname) === key);
+    const idx = data.members.findIndex((m) => nicknameCompareKey(m.nickname) === key);
     if (idx >= 0) {
       data.members.splice(idx, 1);
     }

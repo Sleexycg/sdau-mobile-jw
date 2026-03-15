@@ -3,7 +3,7 @@
 import { GroupTimetableClient } from "@/components/group-timetable-client";
 
 export const metadata: Metadata = {
-  title: "群友共享课程表",
+  title: "课伴-ClassLoom",
 };
 
 export default function GroupTimeablePage() {

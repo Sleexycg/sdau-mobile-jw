@@ -30,6 +30,28 @@ function getMemberColorByIndex(index: number): string {
   return `hsl(${hue} 78% 86%)`;
 }
 
+function countDistinctCourseNames(courses: TimetableCourse[]): number {
+  const names = new Set(
+    courses.map((course) => (course.name || "").trim()).filter((name) => name.length > 0),
+  );
+  return names.size;
+}
+
+function getCourseDurationHours(course: TimetableCourse): number {
+  const start = (course.startTime || "").trim();
+  const end = (course.endTime || "").trim();
+  if (start && end) {
+    const [sh, sm] = start.split(":").map((v) => Number.parseInt(v, 10));
+    const [eh, em] = end.split(":").map((v) => Number.parseInt(v, 10));
+    if (!Number.isNaN(sh) && !Number.isNaN(sm) && !Number.isNaN(eh) && !Number.isNaN(em)) {
+      const mins = (eh * 60 + em) - (sh * 60 + sm);
+      if (mins > 0) return mins / 60;
+    }
+  }
+  const sectionCount = Math.max(1, (course.endSection || course.startSection) - course.startSection + 1);
+  return (sectionCount * 100) / 60;
+}
+
 function wrapCanvasText(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -504,7 +526,7 @@ export function GroupTimetableClient() {
 
     ctx.fillStyle = "#173746";
     ctx.font = "bold 54px 'Microsoft YaHei', sans-serif";
-    ctx.fillText("群友课程表总览", padding, padding + 56);
+    ctx.fillText("课伴ClassLoom-课程表", padding, padding + 56);
     ctx.fillStyle = "#56707d";
     ctx.font = "20px 'Microsoft YaHei', sans-serif";
     const sub = `第${exportWeek}周 | 参考：${selectedMember.nickname}`;
@@ -629,27 +651,246 @@ export function GroupTimetableClient() {
     a.href = url;
     if (onlyToday) {
       const now = new Date();
-      a.download = `群友课程表总揽-${now.getMonth() + 1}月${now.getDate()}日.png`;
+      a.download = `课伴ClassLoom-${now.getMonth() + 1}月${now.getDate()}日`;
     } else {
-      a.download = `群友课程表-第${exportWeek}周.png`;
+      a.download = `课伴ClassLoom-第${exportWeek}周`;
     }
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   }
 
-  function handleExportClick() {
-    if (members.length >= 4) {
-      setExportPickerOpen(true);
+  function exportFunRankingImage() {
+    const selectedMember = selectedReferenceMember;
+    if (!selectedMember) {
+      setError("请先选择参考用户，再导出趣味排行");
       return;
     }
-    exportImage("week");
+
+    const exportWeek = Math.max(1, Math.min(maxWeek, week));
+    const selectedMemberStart = selectedMember.semesterStart
+      ? getSemesterStartDate(selectedMember.semesterStart)
+      : null;
+
+    const memberStats = members.map((member, idx) => {
+      const memberWeek = resolveMemberWeek(exportWeek, member, selectedMemberStart);
+      const weekCourses =
+        memberWeek < 1
+          ? []
+          : member.courses.filter((c) => c.weeks.includes(memberWeek));
+
+      const classCount = weekCourses.length;
+      const earlyCount = weekCourses.filter((c) => c.startSection <= 1 && c.endSection >= 1).length;
+      const lateCount = weekCourses.filter((c) => c.startSection <= 5 && c.endSection >= 5).length;
+      const hours = weekCourses.reduce((sum, c) => sum + getCourseDurationHours(c), 0);
+
+      return {
+        nickname: member.nickname,
+        classCount,
+        earlyCount,
+        lateCount,
+        hours,
+        color: getMemberColorByIndex(idx),
+      };
+    });
+
+    if (memberStats.length === 0) {
+      setError("暂无成员数据，无法导出趣味排行");
+      return;
+    }
+
+    const rankClass = [...memberStats].sort((a, b) => b.classCount - a.classCount);
+    const rankEarly = [...memberStats].sort((a, b) => b.earlyCount - a.earlyCount);
+    const rankLate = [...memberStats].sort((a, b) => b.lateCount - a.lateCount);
+    const rankHours = [...memberStats].sort((a, b) => b.hours - a.hours);
+
+    const width = 2200;
+    const height = 1500;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const panelGap = 36;
+    const outer = 40;
+    const panelW = Math.floor((width - outer * 2 - panelGap) / 2);
+    const panelH = Math.floor((height - 210 - outer * 2 - panelGap) / 2);
+
+    const drawPanel = (x: number, y: number, title: string) => {
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#d4e6ef";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, panelW, panelH, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#234655";
+      ctx.font = "bold 30px 'Microsoft YaHei', sans-serif";
+      ctx.fillText(title, x + 20, y + 44);
+    };
+
+    const bg = ctx.createLinearGradient(0, 0, width, height);
+    bg.addColorStop(0, "#eef8ff");
+    bg.addColorStop(1, "#f6fbff");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "#173746";
+    ctx.font = "bold 58px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("课伴-ClassLoom", outer, 78);
+    ctx.fillStyle = "#55707c";
+    ctx.font = "24px 'Microsoft YaHei', sans-serif";
+    ctx.fillText(`第${exportWeek}周 | 参考：${selectedMember.nickname}`, outer, 118);
+
+    ctx.font = "18px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("图例：", outer, 160);
+    memberStats.forEach((item, i) => {
+      const lx = outer + 78 + (i % 8) * 250;
+      const ly = 154 + Math.floor(i / 8) * 30;
+      ctx.fillStyle = item.color;
+      ctx.fillRect(lx, ly - 12, 16, 16);
+      ctx.strokeStyle = "#b9d1dd";
+      ctx.strokeRect(lx, ly - 12, 16, 16);
+      ctx.fillStyle = "#315465";
+      ctx.fillText(item.nickname, lx + 24, ly + 2);
+    });
+
+    const p1x = outer;
+    const p1y = 210;
+    const p2x = outer + panelW + panelGap;
+    const p2y = 210;
+    const p3x = outer;
+    const p3y = 210 + panelH + panelGap;
+    const p4x = outer + panelW + panelGap;
+    const p4y = 210 + panelH + panelGap;
+
+    drawPanel(p1x, p1y, "一周上课数排行");
+    drawPanel(p2x, p2y, "一周早八数排行");
+    drawPanel(p3x, p3y, "一周晚课数排行");
+    drawPanel(p4x, p4y, "一周上课小时数排行");
+
+    {
+      const maxVal = Math.max(1, ...rankClass.map((r) => r.classCount));
+      const left = p1x + 24;
+      const top = p1y + 74;
+      const rowH = Math.max(34, Math.min(58, Math.floor((panelH - 110) / Math.max(1, rankClass.length))));
+      const barMaxW = panelW - 290;
+
+      rankClass.forEach((item, idx) => {
+        const y = top + idx * rowH;
+        const barW = Math.max(2, Math.round((item.classCount / maxVal) * barMaxW));
+
+        ctx.fillStyle = "#244759";
+        ctx.font = "20px 'Microsoft YaHei', sans-serif";
+        ctx.fillText(`${idx + 1}. ${item.nickname}`, left, y + 22);
+
+        const bx = left + 160;
+        const by = y + 7;
+        const h = 18;
+
+        ctx.fillStyle = item.color;
+        ctx.fillRect(bx, by, barW, h);
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx + 8, by - 6);
+        ctx.lineTo(bx + barW + 8, by - 6);
+        ctx.lineTo(bx + barW, by);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "rgba(36,71,89,0.22)";
+        ctx.beginPath();
+        ctx.moveTo(bx + barW, by);
+        ctx.lineTo(bx + barW + 8, by - 6);
+        ctx.lineTo(bx + barW + 8, by + h - 6);
+        ctx.lineTo(bx + barW, by + h);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#1f3d63";
+        ctx.fillText(`${item.classCount}`, bx + barW + 18, y + 22);
+      });
+    }
+
+        const drawHorizontalRanking = (
+      originX: number,
+      originY: number,
+      data: Array<{ nickname: string; color: string } & Record<string, number>>,
+      valueKey: "earlyCount" | "lateCount" | "classCount" | "hours",
+      formatter?: (n: number) => string,
+    ) => {
+      const maxVal = Math.max(1, ...data.map((d) => Number(d[valueKey] ?? 0)));
+      const left = originX + 24;
+      const top = originY + 74;
+      const rowH = Math.max(32, Math.min(52, Math.floor((panelH - 110) / Math.max(1, data.length))));
+      const barMaxW = panelW - 290;
+      ctx.font = "19px 'Microsoft YaHei', sans-serif";
+
+      data.forEach((item, idx) => {
+        const value = Number(item[valueKey] ?? 0);
+        const y = top + idx * rowH;
+        const barW = Math.max(2, Math.round((value / maxVal) * barMaxW));
+
+        ctx.fillStyle = "#244759";
+        ctx.fillText(`${idx + 1}. ${item.nickname}`, left, y + 22);
+
+        const bx = left + 160;
+        const by = y + 7;
+        const h = 16;
+        ctx.fillStyle = "#e9f3f8";
+        ctx.fillRect(bx, by, barMaxW, h);
+        ctx.fillStyle = item.color;
+        ctx.fillRect(bx, by, barW, h);
+
+        ctx.fillStyle = "#1f3d63";
+        ctx.fillText(formatter ? formatter(value) : `${value}`, bx + barW + 14, y + 22);
+      });
+    };
+
+    drawHorizontalRanking(p2x, p2y, rankEarly, "earlyCount");
+    drawHorizontalRanking(p3x, p3y, rankLate, "lateCount");
+
+    {
+      const maxVal = Math.max(1, ...rankHours.map((r) => r.hours));
+      const chartX = p4x + 50;
+      const chartY = p4y + panelH - 56;
+      const chartW = panelW - 90;
+      const chartH = panelH - 130;
+      const gap = 16;
+      const barW = Math.max(16, Math.floor((chartW - (rankHours.length + 1) * gap) / Math.max(1, rankHours.length)));
+
+      rankHours.forEach((item, idx) => {
+        const h = Math.max(2, Math.round((item.hours / maxVal) * chartH));
+        const x = chartX + gap + idx * (barW + gap);
+        const y = chartY - h;
+
+        ctx.fillStyle = item.color;
+        ctx.fillRect(x, y, barW, h);
+        ctx.fillStyle = "#244759";
+        ctx.font = "16px 'Microsoft YaHei', sans-serif";
+        ctx.fillText(item.hours.toFixed(1), x, y - 8);
+        ctx.fillText(item.nickname, x, chartY + 22);
+      });
+    }
+
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `课伴ClassLoom-趣味排行-第${exportWeek}周.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  function handleExportClick() {
+    setExportPickerOpen(true);
   }
 
   return (
     <section style={{ display: "grid", gap: 12 }}>
       <div className="glass-card" style={{ padding: 16, overflow: "visible", position: "relative", zIndex: 1100 }}>
-        <h2 style={{ margin: 0, fontSize: 20 }}>群友共享课程表</h2>
+        <h2 style={{ margin: 0, fontSize: 20 }}>课伴-ClassLoom</h2>
         <p style={{ margin: "6px 0 0", color: "var(--muted)", fontSize: 13 }}>
           支持粘贴 WakeUp 分享文案导入，并按昵称保存到本地
         </p>
@@ -781,6 +1022,7 @@ export function GroupTimetableClient() {
               >
                 <button onClick={() => { exportImage("week"); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出本周</button>
                 <button onClick={() => { exportImage("today"); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出当天</button>
+                <button onClick={() => { exportFunRankingImage(); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出趣味排行</button>
               </div>
             ) : null}
           </div>
@@ -794,7 +1036,7 @@ export function GroupTimetableClient() {
                 key={m.id}
                 style={{ border: "1px solid #d8e5ec", borderRadius: 12, background: "#fff", padding: "8px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "nowrap", overflow: "visible", position: "relative", zIndex: 1001 }}
               >
-                <div style={{ fontSize: 12, color: "#1f3d63", flex: 1, minWidth: 0 }}>{m.nickname} · {m.courses.length}门</div>
+                <div style={{ fontSize: 12, color: "#1f3d63", flex: 1, minWidth: 0 }}>{m.nickname} · {countDistinctCourseNames(m.courses)}门</div>
 
                 <div data-delete-menu style={{ position: "relative", zIndex: 21000, marginLeft: "auto" }}>
                   <button
@@ -866,6 +1108,19 @@ const tdStyle: React.CSSProperties = {
   verticalAlign: "top",
   minWidth: 120,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
