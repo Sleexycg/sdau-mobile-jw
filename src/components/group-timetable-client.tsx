@@ -25,6 +25,7 @@ const memberColorPalette = ["#D7EBFF", "#D9F7E8", "#FFE6D6", "#E7DCFF", "#FFD9E8
 
 function getMemberColorByIndex(index: number): string {
   if (index < memberColorPalette.length) return memberColorPalette[index];
+  // Golden-angle hues to keep colors unique when members > 8.
   const hue = Math.round((index * 137.508) % 360);
   return `hsl(${hue} 78% 86%)`;
 }
@@ -34,6 +35,31 @@ function countDistinctCourseNames(courses: TimetableCourse[]): number {
     courses.map((course) => (course.name || "").trim()).filter((name) => name.length > 0),
   );
   return names.size;
+}
+
+function weeksToCsvText(weeks: number[]): string {
+  if (weeks.length === 0) return "-";
+  const sorted = [...new Set(weeks)].sort((a, b) => a - b);
+  const ranges: string[] = [];
+  let start = sorted[0];
+  let end = sorted[0];
+  for (let i = 1; i < sorted.length; i += 1) {
+    const current = sorted[i];
+    if (current === end + 1) {
+      end = current;
+      continue;
+    }
+    ranges.push(start === end ? `${start}` : `${start}-${end}`);
+    start = current;
+    end = current;
+  }
+  ranges.push(start === end ? `${start}` : `${start}-${end}`);
+  return ranges.join(",");
+}
+
+function csvField(value: string | number): string {
+  const raw = String(value ?? "");
+  return `"${raw.replace(/"/g, "\"\"")}"`;
 }
 
 function getCourseDurationHours(course: TimetableCourse): number {
@@ -232,6 +258,7 @@ export function GroupTimetableClient() {
   const [cloudNicknames, setCloudNicknames] = useState<string[]>([]);
   const [cloudNickname, setCloudNickname] = useState("");
   const [cloudPickerOpen, setCloudPickerOpen] = useState(false);
+  const [cloudPickerTop, setCloudPickerTop] = useState(88);
   const [exportPickerOpen, setExportPickerOpen] = useState(false);
   const [deleteMenuPos, setDeleteMenuPos] = useState<{ top: number; left: number } | null>(null);
 
@@ -307,6 +334,7 @@ export function GroupTimetableClient() {
         return;
       }
       setCloudPickerOpen(false);
+      setCloudPickerTop(88);
       setExportPickerOpen(false);
       setDeleteTarget(null);
       setDeleteMenuPos(null);
@@ -323,6 +351,7 @@ export function GroupTimetableClient() {
       const parsed = JSON.parse(cached) as GroupMemberTimetable[];
       if (Array.isArray(parsed)) setMembers(parsed);
     } catch {
+      // ignore local cache parse error
     }
   }, []);
 
@@ -330,29 +359,13 @@ export function GroupTimetableClient() {
     try {
       window.localStorage.setItem(localStorageKey, JSON.stringify(members));
     } catch {
+      // ignore local cache write error
     }
   }, [members]);
 
-  const refreshCloudNicknames = async () => {
-    setError("");
-    try {
-      const list = await loadStoredMembers();
-      const names = Array.from(new Set(list.map((m) => m.nickname).filter(Boolean)));
-      setCloudNicknames(names);
-      if (names.length > 0 && !names.includes(cloudNickname)) {
-        setCloudNickname(names[0]);
-      }
-      if (names.length === 0) {
-        setCloudNickname("");
-      }
-    } catch {
-      setError("获取云端昵称列表失败");
-    }
-  };
-
   useEffect(() => {
     void refreshCloudNicknames();
-  }, [members.length, refreshCloudNicknames]);
+  }, [members.length]);
 
   const maxWeek = useMemo(() => {
     const all = members.flatMap((m) => m.courses.flatMap((c) => c.weeks));
@@ -383,15 +396,12 @@ export function GroupTimetableClient() {
 
   const week = selectedWeek ?? Math.max(1, Math.min(maxWeek, currentWeek));
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const weekDays = useMemo(
     () => getWeekDaysByReference(referenceStartDate, week, currentWeek),
     [referenceStartDate, week, currentWeek],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const grid = useMemo(() => buildGrid(members, week, referenceStartDate), [members, week, referenceStartDate]);
-
   async function importWakeup() {
     const normalizedStart = semesterStart.trim();
     if (normalizedStart && !parseSemesterStart(normalizedStart)) {
@@ -429,6 +439,12 @@ export function GroupTimetableClient() {
     setDeleteMenuPos(null);
   }
 
+  function removeAllMembersLocal() {
+    setMembers([]);
+    setDeleteTarget(null);
+    setDeleteMenuPos(null);
+  }
+
   async function removeMemberCloud(id: string) {
     const target = members.find((m) => m.id === id);
     if (!target) return;
@@ -446,15 +462,37 @@ export function GroupTimetableClient() {
     }
   }
 
-  async function toggleCloudPicker() {
+  async function refreshCloudNicknames() {
+    setError("");
+    try {
+      const list = await loadStoredMembers();
+      const names = Array.from(new Set(list.map((m) => m.nickname).filter(Boolean)));
+      setCloudNicknames(names);
+      if (names.length > 0 && !names.includes(cloudNickname)) {
+        setCloudNickname(names[0]);
+      }
+      if (names.length === 0) {
+        setCloudNickname("");
+      }
+    } catch {
+      setError("获取云端昵称列表失败");
+    }
+  }
+
+
+  async function toggleCloudPicker(button?: HTMLButtonElement | null) {
     if (cloudPickerOpen) {
       setCloudPickerOpen(false);
+      setCloudPickerTop(88);
       return;
     }
     await refreshCloudNicknames();
+    if (button) {
+      const rect = button.getBoundingClientRect();
+      setCloudPickerTop(Math.max(8, Math.min(rect.bottom + 6, window.innerHeight - 240)));
+    }
     setCloudPickerOpen(true);
   }
-
   async function pullFromCloudByNickname() {
     if (!cloudNickname) {
       setError("请先在列表中选择昵称");
@@ -472,6 +510,26 @@ export function GroupTimetableClient() {
       setCloudPickerOpen(false);
     } catch {
       setError("拉取云端课程表失败");
+    }
+  }
+
+  async function pullAllFromCloud() {
+    setError("");
+    try {
+      const list = await loadStoredMembers();
+      if (!list.length) {
+        setError("云端暂无可导入成员");
+        return;
+      }
+      setMembers((prev) => {
+        const map = new Map<string, GroupMemberTimetable>();
+        prev.forEach((m) => map.set(m.nickname, m));
+        list.forEach((m) => map.set(m.nickname, m));
+        return Array.from(map.values());
+      });
+      setCloudPickerOpen(false);
+    } catch {
+      setError("一键导入失败");
     }
   }
 
@@ -660,6 +718,46 @@ export function GroupTimetableClient() {
     document.body.removeChild(a);
   }
 
+  function exportCsv() {
+    const selectedMember = selectedReferenceMember;
+    if (!selectedMember) {
+      setError("请先选择参考用户，再导出CSV");
+      return;
+    }
+
+    const headers = ["课程名称", "星期", "开始节数", "结束节数", "老师", "地点", "周数"];
+    const sorted = [...selectedMember.courses].sort((a, b) => {
+      if (a.weekday !== b.weekday) return a.weekday - b.weekday;
+      if (a.startSection !== b.startSection) return a.startSection - b.startSection;
+      if (a.endSection !== b.endSection) return a.endSection - b.endSection;
+      return a.name.localeCompare(b.name, "zh-CN");
+    });
+
+    const rows = sorted.map((course) => [
+      course.name || "-",
+      course.weekday,
+      (course.startSection - 1) * 2 + 1,
+      course.endSection * 2,
+      course.teacher || "-",
+      course.location || "-",
+      weeksToCsvText(course.weeks),
+    ]);
+
+    const csvText = [
+      headers.map(csvField).join(","),
+      ...rows.map((row) => row.map(csvField).join(",")),
+    ].join("\r\n");
+
+    const blob = new Blob([`\uFEFF${csvText}`], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `课表-${selectedMember.nickname}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }
+
   function exportFunRankingImage() {
     const selectedMember = selectedReferenceMember;
     if (!selectedMember) {
@@ -817,7 +915,7 @@ export function GroupTimetableClient() {
       });
     }
 
-    const drawHorizontalRanking = (
+        const drawHorizontalRanking = (
       originX: number,
       originY: number,
       data: Array<{ nickname: string; color: string } & Record<string, number>>,
@@ -852,19 +950,8 @@ export function GroupTimetableClient() {
       });
     };
 
-    // ✅ 修复：第855行类型错误
-    drawHorizontalRanking(
-      p2x,
-      p2y,
-      rankEarly as unknown as ({ nickname: string; color: string } & Record<string, number>)[],
-      "earlyCount"
-    );
-    drawHorizontalRanking(
-      p3x,
-      p3y,
-      rankLate as unknown as ({ nickname: string; color: string } & Record<string, number>)[],
-      "lateCount"
-    );
+    drawHorizontalRanking(p2x, p2y, rankEarly, "earlyCount");
+    drawHorizontalRanking(p3x, p3y, rankLate, "lateCount");
 
     {
       const maxVal = Math.max(1, ...rankHours.map((r) => r.hours));
@@ -897,7 +984,6 @@ export function GroupTimetableClient() {
     a.click();
     document.body.removeChild(a);
   }
-
   function handleExportClick() {
     setExportPickerOpen(true);
   }
@@ -944,13 +1030,15 @@ export function GroupTimetableClient() {
 
             <div data-cloud-menu style={{ position: "relative", zIndex: 20000 }}>
               <button
-                onClick={toggleCloudPicker}
+                onClick={(e) => {
+                  void toggleCloudPicker(e.currentTarget);
+                }}
                 style={{ border: "1px solid #c8dce5", borderRadius: 999, padding: "8px 12px", background: "#fff", color: "#21414d", minHeight: 38, minWidth: 108 }}
               >
                 按昵称导入
               </button>
               {cloudPickerOpen ? (
-                <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, width: "min(320px, calc(100vw - 32px))", border: "1px solid #d8e5ec", borderRadius: 12, background: "#fff", boxShadow: "0 12px 28px rgba(13,38,59,0.16)", padding: 8, display: "grid", gap: 8, zIndex: 99999 }}>
+                <div style={{ position: "fixed", top: cloudPickerTop, left: "50%", transform: "translateX(-50%)", width: "min(420px, calc(100vw - 16px))", maxHeight: "min(60vh, 420px)", overflowY: "auto", border: "1px solid #d8e5ec", borderRadius: 12, background: "#fff", boxShadow: "0 12px 28px rgba(13,38,59,0.16)", padding: 8, display: "grid", gap: 8, zIndex: 99999 }}>
                   <select
                     value={cloudNickname}
                     onChange={(e) => setCloudNickname(e.target.value)}
@@ -972,9 +1060,22 @@ export function GroupTimetableClient() {
                   >
                     确认导入
                   </button>
+                  <button
+                    onClick={pullAllFromCloud}
+                    style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", color: "#21414d", minHeight: 36, fontSize: 13 }}
+                  >
+                    全部导入
+                  </button>
                 </div>
               ) : null}
             </div>
+
+            <button
+              onClick={removeAllMembersLocal}
+              style={{ border: "1px solid #f2c7c7", borderRadius: 999, padding: "8px 12px", background: "#fff6f6", color: "#b33a3a", minHeight: 38, minWidth: 96 }}
+            >
+              全部删除
+            </button>
           </div>
         </div>
 
@@ -1037,6 +1138,7 @@ export function GroupTimetableClient() {
               >
                 <button onClick={() => { exportImage("week"); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出本周</button>
                 <button onClick={() => { exportImage("today"); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出当天</button>
+                <button onClick={() => { exportCsv(); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出CSV</button>
                 <button onClick={() => { exportFunRankingImage(); setExportPickerOpen(false); }} style={{ border: "1px solid #c8dce5", borderRadius: 8, background: "#fff", minHeight: 34, fontSize: 12 }}>导出趣味排行</button>
               </div>
             ) : null}
@@ -1102,8 +1204,6 @@ export function GroupTimetableClient() {
     </section>
   );
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const thStyle: React.CSSProperties = {
   border: "1px solid #dbe8ef",
   background: "#f1f8fc",
@@ -1111,7 +1211,6 @@ const thStyle: React.CSSProperties = {
   fontSize: 13,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const tdTitleStyle: React.CSSProperties = {
   border: "1px solid #dbe8ef",
   textAlign: "center",
@@ -1120,10 +1219,122 @@ const tdTitleStyle: React.CSSProperties = {
   width: 88,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const tdStyle: React.CSSProperties = {
   border: "1px solid #dbe8ef",
   padding: 6,
   verticalAlign: "top",
   minWidth: 120,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

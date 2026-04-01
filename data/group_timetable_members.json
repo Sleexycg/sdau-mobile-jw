@@ -1,612 +1,6 @@
 {
   "members": [
     {
-      "id": "member-1bccdb10-3e3",
-      "nickname": "SMK",
-      "source": "wakeup",
-      "importedAt": "2026-03-13T05:43:50.118Z",
-      "semesterStart": "3/9",
-      "courses": [
-        {
-          "id": "wakeup-part-0-aaeeea-36",
-          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
-          "teacher": "齐峰",
-          "location": "南岭-(一)-322",
-          "weekday": 1,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-1-543d2c-36",
-          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
-          "teacher": "齐峰",
-          "location": "南岭-(一)-322",
-          "weekday": 1,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            10
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-2-db6c69-36",
-          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
-          "teacher": "齐峰",
-          "location": "线上教学-南岭",
-          "weekday": 1,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            9
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-3-df7dac-20",
-          "name": "汽车构造[01]",
-          "teacher": "孙文财",
-          "location": "南岭-(一)-222",
-          "weekday": 2,
-          "startSection": 1,
-          "endSection": 2,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-4-d5d279-20",
-          "name": "汽车构造[01]",
-          "teacher": "郭梦竹",
-          "location": "南岭-(一)-222",
-          "weekday": 2,
-          "startSection": 1,
-          "endSection": 2,
-          "weeks": [
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-5-87cf8b-25",
-          "name": "微机原理与接口技术[04]",
-          "teacher": "赵永华",
-          "location": "南岭-(一)-101",
-          "weekday": 3,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-6-bdaa22-19",
-          "name": "运筹学[01]",
-          "teacher": "郑黎黎",
-          "location": "南岭-逸夫楼-B416",
-          "weekday": 4,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-7-d4cece-20",
-          "name": "体育Ⅳ[261]",
-          "teacher": "",
-          "location": "",
-          "weekday": 1,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-8-3ed6a5-36",
-          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
-          "teacher": "齐峰",
-          "location": "线上教学-南岭",
-          "weekday": 3,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            9
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-9-d487b9-36",
-          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
-          "teacher": "齐峰",
-          "location": "南岭-(一)-322",
-          "weekday": 3,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-10-dc5052-36",
-          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
-          "teacher": "齐峰",
-          "location": "南岭-(一)-322",
-          "weekday": 3,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            10
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-11-a5d0ef-19",
-          "name": "运筹学[01]",
-          "teacher": "郑黎黎",
-          "location": "南岭-逸夫楼-B416",
-          "weekday": 1,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-12-32f3bf-22",
-          "name": "电工电子技术[04]",
-          "teacher": "徐卓君",
-          "location": "南岭-(一)-322",
-          "weekday": 2,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            1,
-            2,
-            3
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-13-c78ecb-22",
-          "name": "电工电子技术[04]",
-          "teacher": "徐卓君",
-          "location": "南岭-(一)-322",
-          "weekday": 2,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-14-07c84c-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "线上教学-南岭",
-          "weekday": 3,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            3,
-            4,
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-15-8de992-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "南岭-(一)-223",
-          "weekday": 3,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            2
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-16-fdde71-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "南岭-(一)-223",
-          "weekday": 3,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            9
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-17-4d6e7c-21",
-          "name": "机械原理A[08]",
-          "teacher": "熊健",
-          "location": "南岭-逸夫楼-B313",
-          "weekday": 4,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-18-3f0efb-21",
-          "name": "机械原理A[08]",
-          "teacher": "熊健",
-          "location": "南岭-逸夫楼-B313",
-          "weekday": 4,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            9,
-            10,
-            11
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-19-97d6c8-22",
-          "name": "电工电子技术[04]",
-          "teacher": "徐卓君",
-          "location": "南岭-(一)-322",
-          "weekday": 5,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            1,
-            2,
-            3,
-            4
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-20-6e0bea-22",
-          "name": "电工电子技术[04]",
-          "teacher": "徐卓君",
-          "location": "南岭-(一)-322",
-          "weekday": 5,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-21-4dc5f3-21",
-          "name": "机械原理A[08]",
-          "teacher": "熊健",
-          "location": "南岭-逸夫楼-B313",
-          "weekday": 1,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-22-475d17-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "南岭-(一)-223",
-          "weekday": 2,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            2
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-23-70dbaf-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "南岭-(一)-223",
-          "weekday": 2,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            9
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-24-81c19f-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "线上教学-南岭",
-          "weekday": 2,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            3
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-25-4f198d-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "线上教学-南岭",
-          "weekday": 2,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-26-6b193b-27",
-          "name": "思想政治理论课实践教学[48]",
-          "teacher": "刘薇",
-          "location": "线上教学-南岭",
-          "weekday": 2,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            10
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-27-1e0ff8-26",
-          "name": "微机原理与接口技术[04]",
-          "teacher": "赵永华",
-          "location": "公共计算机教学实验中心101",
-          "weekday": 5,
-          "startSection": 5,
-          "endSection": 5,
-          "weeks": [
-            7
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-28-546a28-26",
-          "name": "微机原理与接口技术[04]",
-          "teacher": "赵永华",
-          "location": "公共计算机教学实验中心101",
-          "weekday": 5,
-          "startSection": 5,
-          "endSection": 5,
-          "weeks": [
-            9,
-            10,
-            11
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-29-1b429e-26",
-          "name": "微机原理与接口技术[04]",
-          "teacher": "赵永华",
-          "location": "南岭-(一)-101",
-          "weekday": 5,
-          "startSection": 5,
-          "endSection": 5,
-          "weeks": [
-            2,
-            3,
-            4,
-            5,
-            6
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-30-a95d3d-26",
-          "name": "微机原理与接口技术[04]",
-          "teacher": "赵永华",
-          "location": "南岭-(一)-101",
-          "weekday": 5,
-          "startSection": 5,
-          "endSection": 5,
-          "weeks": [
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-31-8179d8-15",
-          "name": "干涉仪",
-          "teacher": "",
-          "location": "306",
-          "weekday": 4,
-          "startSection": 1,
-          "endSection": 2,
-          "weeks": [
-            2
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-32-4015cd-17",
-          "name": "弗兰克赫兹",
-          "teacher": "",
-          "location": "317",
-          "weekday": 5,
-          "startSection": 1,
-          "endSection": 2,
-          "weeks": [
-            3
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-33-238176-16",
-          "name": "空气热机",
-          "teacher": "",
-          "location": "410",
-          "weekday": 7,
-          "startSection": 3,
-          "endSection": 4,
-          "weeks": [
-            3
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-34-5ff23f-17",
-          "name": "燃料电池",
-          "teacher": "",
-          "location": "414",
-          "weekday": 2,
-          "startSection": 5,
-          "endSection": 5,
-          "weeks": [
-            4
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-35-cb1a1d-16",
-          "name": "微波光学",
-          "teacher": "",
-          "location": "420",
-          "weekday": 5,
-          "startSection": 3,
-          "endSection": 4,
-          "weeks": [
-            5
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-36-13a069-16",
-          "name": "波尔共振",
-          "teacher": "",
-          "location": "409",
-          "weekday": 7,
-          "startSection": 1,
-          "endSection": 2,
-          "weeks": [
-            5
-          ],
-          "term": ""
-        }
-      ]
-    },
-    {
       "id": "member-806118c5-fc3",
       "nickname": "HAX_chixin",
       "source": "wakeup",
@@ -3547,6 +2941,746 @@
             10,
             11,
             12
+          ],
+          "term": ""
+        }
+      ]
+    },
+    {
+      "id": "member-06489301-069",
+      "nickname": "SMK",
+      "source": "wakeup",
+      "importedAt": "2026-04-01T08:13:45.909Z",
+      "semesterStart": "3/9",
+      "courses": [
+        {
+          "id": "wakeup-part-0-c77386-36",
+          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
+          "teacher": "齐峰",
+          "location": "南岭-(一)-322",
+          "weekday": 1,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-1-bd4563-36",
+          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
+          "teacher": "齐峰",
+          "location": "南岭-(一)-322",
+          "weekday": 1,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            10
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-2-854e80-36",
+          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
+          "teacher": "齐峰",
+          "location": "线上教学-南岭",
+          "weekday": 1,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            9
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-3-c8cab4-20",
+          "name": "汽车构造[01]",
+          "teacher": "孙文财",
+          "location": "南岭-(一)-222",
+          "weekday": 2,
+          "startSection": 1,
+          "endSection": 2,
+          "startTime": "08:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-4-598486-20",
+          "name": "汽车构造[01]",
+          "teacher": "郭梦竹",
+          "location": "南岭-(一)-222",
+          "weekday": 2,
+          "startSection": 1,
+          "endSection": 2,
+          "startTime": "08:00",
+          "endTime": "11:40",
+          "weeks": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-5-1b45cb-25",
+          "name": "微机原理与接口技术[04]",
+          "teacher": "赵永华",
+          "location": "南岭-(一)-101",
+          "weekday": 3,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-6-f998b9-19",
+          "name": "运筹学[01]",
+          "teacher": "郑黎黎",
+          "location": "南岭-逸夫楼-B416",
+          "weekday": 4,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-7-1a23bd-20",
+          "name": "体育Ⅳ[261]",
+          "teacher": "",
+          "location": "",
+          "weekday": 1,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-8-28fbfc-36",
+          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
+          "teacher": "齐峰",
+          "location": "线上教学-南岭",
+          "weekday": 3,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            9
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-9-90119a-36",
+          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
+          "teacher": "齐峰",
+          "location": "南岭-(一)-322",
+          "weekday": 3,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-10-89a565-36",
+          "name": "毛泽东思想和中国特色社会主义理论体系概论[46]",
+          "teacher": "齐峰",
+          "location": "南岭-(一)-322",
+          "weekday": 3,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            10
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-11-4c5bb5-19",
+          "name": "运筹学[01]",
+          "teacher": "郑黎黎",
+          "location": "南岭-逸夫楼-B416",
+          "weekday": 1,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-12-c38af0-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "线上教学-南岭",
+          "weekday": 3,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-13-7965ad-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "南岭-(一)-223",
+          "weekday": 3,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            2
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-14-82fe98-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "南岭-(一)-223",
+          "weekday": 3,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            9
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-15-5ab35d-21",
+          "name": "机械原理A[08]",
+          "teacher": "熊健",
+          "location": "南岭-逸夫楼-B313",
+          "weekday": 4,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-16-db2c64-21",
+          "name": "机械原理A[08]",
+          "teacher": "熊健",
+          "location": "南岭-逸夫楼-B313",
+          "weekday": 4,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            9,
+            10,
+            11
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-17-065fd4-21",
+          "name": "机械原理A[08]",
+          "teacher": "熊健",
+          "location": "南岭-逸夫楼-B313",
+          "weekday": 1,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:10",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-18-8206bb-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "南岭-(一)-223",
+          "weekday": 2,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:10",
+          "weeks": [
+            2
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-19-3c31bc-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "南岭-(一)-223",
+          "weekday": 2,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:10",
+          "weeks": [
+            9
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-20-30dae8-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "线上教学-南岭",
+          "weekday": 2,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:10",
+          "weeks": [
+            3
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-21-731346-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "线上教学-南岭",
+          "weekday": 2,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:10",
+          "weeks": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-22-4c03dc-27",
+          "name": "思想政治理论课实践教学[48]",
+          "teacher": "刘薇",
+          "location": "线上教学-南岭",
+          "weekday": 2,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:10",
+          "weeks": [
+            10
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-23-e3a78e-26",
+          "name": "微机原理与接口技术[04]",
+          "teacher": "赵永华",
+          "location": "公共计算机教学实验中心101",
+          "weekday": 5,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:20",
+          "endTime": "20:45",
+          "weeks": [
+            7
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-24-b99bd7-26",
+          "name": "微机原理与接口技术[04]",
+          "teacher": "赵永华",
+          "location": "公共计算机教学实验中心101",
+          "weekday": 5,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:20",
+          "endTime": "20:45",
+          "weeks": [
+            9,
+            10,
+            11
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-25-3ba9a2-26",
+          "name": "微机原理与接口技术[04]",
+          "teacher": "赵永华",
+          "location": "南岭-(一)-101",
+          "weekday": 5,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:20",
+          "endTime": "20:45",
+          "weeks": [
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-26-5c2ba6-26",
+          "name": "微机原理与接口技术[04]",
+          "teacher": "赵永华",
+          "location": "南岭-(一)-101",
+          "weekday": 5,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:20",
+          "endTime": "20:45",
+          "weeks": [
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-27-cc116a-15",
+          "name": "干涉仪",
+          "teacher": "",
+          "location": "306",
+          "weekday": 4,
+          "startSection": 1,
+          "endSection": 2,
+          "startTime": "08:00",
+          "endTime": "11:40",
+          "weeks": [
+            2
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-28-45d354-17",
+          "name": "弗兰克赫兹",
+          "teacher": "",
+          "location": "317",
+          "weekday": 5,
+          "startSection": 1,
+          "endSection": 2,
+          "startTime": "08:00",
+          "endTime": "11:40",
+          "weeks": [
+            3
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-29-909946-16",
+          "name": "空气热机",
+          "teacher": "",
+          "location": "410",
+          "weekday": 7,
+          "startSection": 3,
+          "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "17:10",
+          "weeks": [
+            3
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-30-c90b99-17",
+          "name": "燃料电池",
+          "teacher": "",
+          "location": "414",
+          "weekday": 2,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:20",
+          "endTime": "20:45",
+          "weeks": [
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-31-bdc353-16",
+          "name": "微波光学",
+          "teacher": "",
+          "location": "420",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "17:10",
+          "weeks": [
+            5
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-32-0ecdc5-16",
+          "name": "波尔共振",
+          "teacher": "",
+          "location": "409",
+          "weekday": 7,
+          "startSection": 1,
+          "endSection": 2,
+          "startTime": "08:00",
+          "endTime": "11:40",
+          "weeks": [
+            5
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-33-8cd509-22",
+          "name": "电工电子技术[04]",
+          "teacher": "徐卓君",
+          "location": "南岭-(一)-302",
+          "weekday": 2,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            1,
+            2,
+            3
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-34-c426f7-22",
+          "name": "电工电子技术[04]",
+          "teacher": "徐卓君",
+          "location": "南岭-(一)-302",
+          "weekday": 2,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-35-22f6b7-22",
+          "name": "电工电子技术[04]",
+          "teacher": "徐卓君",
+          "location": "南岭-(一)-302",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-36-9be70f-22",
+          "name": "电工电子技术[04]",
+          "teacher": "徐卓君",
+          "location": "南岭-(一)-302",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:10",
+          "weeks": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-37-aa549b-18",
+          "name": "机械基础实验",
+          "teacher": "",
+          "location": "三教A101",
+          "weekday": 2,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "14:15",
+          "weeks": [
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-38-6b089a-18",
+          "name": "机械基础实验",
+          "teacher": "",
+          "location": "三教A110",
+          "weekday": 2,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "14:25",
+          "endTime": "15:10",
+          "weeks": [
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-39-3a2b68-18",
+          "name": "机械基础实验",
+          "teacher": "",
+          "location": "三教A110",
+          "weekday": 5,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "16:15",
+          "weeks": [
+            6
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-40-389d25-18",
+          "name": "机械基础实验",
+          "teacher": "",
+          "location": "三教A102",
+          "weekday": 5,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "16:25",
+          "endTime": "17:10",
+          "weeks": [
+            7
           ],
           "term": ""
         }
