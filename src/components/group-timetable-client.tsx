@@ -671,6 +671,8 @@ export function GroupTimetableClient() {
     const selectedMemberStart = selectedMember.semesterStart
       ? getSemesterStartDate(selectedMember.semesterStart)
       : null;
+    const funWeekDays = getWeekDaysByReference(selectedMemberStart, exportWeek, currentWeek);
+    const weekDateRange = `${funWeekDays[0]?.dateText || ""}-${funWeekDays[6]?.dateText || ""}`;
 
     const memberStats = members.map((member, idx) => {
       const memberWeek = resolveMemberWeek(exportWeek, member, selectedMemberStart);
@@ -679,7 +681,8 @@ export function GroupTimetableClient() {
           ? []
           : member.courses.filter((c) => c.weeks.includes(memberWeek));
 
-      const classCount = weekCourses.length;
+      const memberGrid = buildGrid([member], exportWeek, selectedMemberStart);
+      const classCount = memberGrid.reduce((sum, row) => sum + row.reduce((cellSum, cell) => cellSum + cell.length, 0), 0);
       const earlyCount = weekCourses.filter((c) => c.startSection <= 1 && c.endSection >= 1).length;
       const lateCount = weekCourses.filter((c) => c.startSection <= 5 && c.endSection >= 5).length;
       const hours = weekCourses.reduce((sum, c) => sum + getCourseDurationHours(c), 0);
@@ -742,7 +745,7 @@ export function GroupTimetableClient() {
     ctx.fillText("课伴-ClassLoom", outer, 78);
     ctx.fillStyle = "#55707c";
     ctx.font = "24px 'Microsoft YaHei', sans-serif";
-    ctx.fillText(`第${exportWeek}周 | 参考：${selectedMember.nickname}`, outer, 118);
+    ctx.fillText(`第${exportWeek}周 | ${weekDateRange} | 参考：${selectedMember.nickname}`, outer, 118);
 
     ctx.font = "18px 'Microsoft YaHei', sans-serif";
     ctx.fillText("图例：", outer, 160);
@@ -1108,6 +1111,12 @@ const tdStyle: React.CSSProperties = {
   verticalAlign: "top",
   minWidth: 120,
 };
+
+
+
+
+
+
 
 
 
