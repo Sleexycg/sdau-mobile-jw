@@ -1,357 +1,6 @@
 {
   "members": [
     {
-      "id": "member-895c2f51-bc5",
-      "nickname": "Sleexy",
-      "source": "wakeup",
-      "importedAt": "2026-03-12T16:13:35.392Z",
-      "semesterStart": "3/2",
-      "courses": [
-        {
-          "id": "wakeup-part-0-5bff90-20",
-          "name": "数据库原理与应用",
-          "teacher": "岳训",
-          "location": "南校区主楼(S111)",
-          "weekday": 1,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-1-fd03ea-19",
-          "name": "大学英语进阶2",
-          "teacher": "高珊",
-          "location": "南校区主楼(S513)",
-          "weekday": 1,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-2-0ffc90-22",
-          "name": "计算机组成与结构实验",
-          "teacher": "苏平",
-          "location": "南校图信楼(图信楼大厅A区)",
-          "weekday": 1,
-          "startSection": 3,
-          "endSection": 4,
-          "weeks": [
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-3-c7c0e5-22",
-          "name": "大学生创新创业教育",
-          "teacher": "刘源",
-          "location": "南校区主楼(N204)",
-          "weekday": 1,
-          "startSection": 5,
-          "endSection": 5,
-          "weeks": [
-            3,
-            4,
-            5,
-            6
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-4-777bf4-22",
-          "name": "数据库原理与应用实验",
-          "teacher": "岳训",
-          "location": "南校图信楼(图信楼大厅A区)",
-          "weekday": 2,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-5-eb976f-20",
-          "name": "计算机组成与结构",
-          "teacher": "苏平",
-          "location": "南校区主楼(S514)",
-          "weekday": 2,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-6-a5c83f-20",
-          "name": "数据库原理与应用",
-          "teacher": "岳训",
-          "location": "南校区主楼(S311)",
-          "weekday": 3,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-7-0705ba-21",
-          "name": "物联网工程体系结构",
-          "teacher": "柳平增",
-          "location": "南校区主楼(S514)",
-          "weekday": 3,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-8-0f325b-14",
-          "name": "散手",
-          "teacher": "王亚文",
-          "location": "南校区体育(南校区体育体育场19)",
-          "weekday": 3,
-          "startSection": 3,
-          "endSection": 3,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-9-4bd8ec-20",
-          "name": "传感器原理与技术",
-          "teacher": "李光忠",
-          "location": "南校区主楼(S223)",
-          "weekday": 4,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-10-cc26c7-22",
-          "name": "体育健康与标准测试1",
-          "teacher": "李宇",
-          "location": "南校区体育(南校区体育体育场12)",
-          "weekday": 4,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            3,
-            4,
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-11-f8cb71-22",
-          "name": "大学生创新创业教育",
-          "teacher": "刘源",
-          "location": "南校区主楼(N201)",
-          "weekday": 4,
-          "startSection": 5,
-          "endSection": 5,
-          "weeks": [
-            3,
-            4,
-            5,
-            6
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-12-5ac10a-21",
-          "name": "物联网工程体系结构",
-          "teacher": "柳平增",
-          "location": "南校区主楼(S414)",
-          "weekday": 5,
-          "startSection": 1,
-          "endSection": 1,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-13-4304ac-20",
-          "name": "计算机组成与结构",
-          "teacher": "苏平",
-          "location": "南校区主楼(S425)",
-          "weekday": 5,
-          "startSection": 2,
-          "endSection": 2,
-          "weeks": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-14-b56f7c-22",
-          "name": "传感器原理与技术实验",
-          "teacher": "李光忠",
-          "location": "南校图信楼(图信楼404)",
-          "weekday": 1,
-          "startSection": 4,
-          "endSection": 4,
-          "weeks": [
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        }
-      ]
-    },
-    {
       "id": "member-1bccdb10-3e3",
       "nickname": "SMK",
       "source": "wakeup",
@@ -958,46 +607,52 @@
       ]
     },
     {
-      "id": "member-8d47b32a-f05",
+      "id": "member-806118c5-fc3",
       "nickname": "HAX_chixin",
       "source": "wakeup",
-      "importedAt": "2026-03-13T06:04:32.355Z",
+      "importedAt": "2026-03-18T16:16:04.111Z",
       "semesterStart": "3/9",
       "courses": [
         {
-          "id": "wakeup-part-0-6df1e1-30",
+          "id": "wakeup-part-0-e43b6c-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             9
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-1-d7c51f-32",
+          "id": "wakeup-part-1-b42834-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             15
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-2-07a74e-18",
+          "id": "wakeup-part-2-0abe55-18",
           "name": "机器人学导论",
           "teacher": "梁馨月",
           "location": "()",
           "weekday": 6,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             3,
             4,
@@ -1007,39 +662,45 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-3-c5ce8e-30",
+          "id": "wakeup-part-3-65f24a-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             7
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-4-06d3bb-32",
+          "id": "wakeup-part-4-1688bd-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             13
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-5-027b1d-17",
+          "id": "wakeup-part-5-3bfd2d-17",
           "name": "学术英语Ⅳ",
           "teacher": "外聘（计算机）",
           "location": "综合体南楼(南424/423)",
           "weekday": 1,
           "startSection": 1,
           "endSection": 1,
+          "startTime": "08:30",
+          "endTime": "10:15",
           "weeks": [
             3,
             4,
@@ -1060,39 +721,45 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-6-2e0722-32",
+          "id": "wakeup-part-6-afc2e0-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             1
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-7-8e164c-30",
+          "id": "wakeup-part-7-4f173e-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             17
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-8-eb0b37-16",
+          "id": "wakeup-part-8-e1b8ed-16",
           "name": "概率统计",
           "teacher": "刘玉涛",
           "location": "综合体南楼(南304/303)",
           "weekday": 4,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             1,
             2,
@@ -1115,13 +782,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-9-c0bd6f-20",
+          "id": "wakeup-part-9-3ff0c2-20",
           "name": "机器人学导论",
           "teacher": "梁馨月",
           "location": "综合体南楼(南206/205)",
           "weekday": 1,
           "startSection": 5,
           "endSection": 5,
+          "startTime": "18:30",
+          "endTime": "20:20",
           "weeks": [
             3,
             4,
@@ -1131,26 +800,30 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-10-17d0e8-30",
+          "id": "wakeup-part-10-db6359-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             12
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-11-8fce3b-18",
+          "id": "wakeup-part-11-902bb6-18",
           "name": "机器人学导论",
           "teacher": "",
           "location": "()",
           "weekday": 6,
           "startSection": 4,
           "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:20",
           "weeks": [
             3,
             4,
@@ -1160,26 +833,30 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-12-2d935e-32",
+          "id": "wakeup-part-12-1b8758-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             7
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-13-6056f8-23",
+          "id": "wakeup-part-13-49fc4d-23",
           "name": "机器人学小组项目2",
           "teacher": "李海涛",
           "location": "计算机科学与技术学院(计算机学院C108)",
           "weekday": 3,
           "startSection": 5,
           "endSection": 5,
+          "startTime": "18:30",
+          "endTime": "21:20",
           "weeks": [
             1,
             2,
@@ -1202,52 +879,60 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-14-0c1dc1-30",
+          "id": "wakeup-part-14-648177-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             8
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-15-2767e8-32",
+          "id": "wakeup-part-15-1433ee-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             5
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-16-268c76-32",
+          "id": "wakeup-part-16-bf9842-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             8
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-17-0a6995-18",
+          "id": "wakeup-part-17-2e0e5e-18",
           "name": "体育(长拳)",
           "teacher": "高宇池",
           "location": "()",
           "weekday": 1,
           "startSection": 2,
           "endSection": 2,
+          "startTime": "10:30",
+          "endTime": "12:15",
           "weeks": [
             1,
             2,
@@ -1270,143 +955,165 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-18-67ce40-32",
+          "id": "wakeup-part-18-d5218d-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             9
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-19-316225-32",
+          "id": "wakeup-part-19-b1a62d-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             11
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-20-c19df6-32",
+          "id": "wakeup-part-20-5898a4-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             16
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-21-75c3e8-30",
+          "id": "wakeup-part-21-e43d9f-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             10
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-22-9377a8-30",
+          "id": "wakeup-part-22-8bd653-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             16
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-23-b3619b-30",
+          "id": "wakeup-part-23-57dcc3-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             6
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-24-84184f-30",
+          "id": "wakeup-part-24-75b11f-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             13
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-25-eec24c-32",
+          "id": "wakeup-part-25-76a859-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             10
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-26-978652-30",
+          "id": "wakeup-part-26-3888c4-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             3
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-27-5c0679-32",
+          "id": "wakeup-part-27-e29daa-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             14
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-28-cc9e54-19",
+          "id": "wakeup-part-28-1d6dca-19",
           "name": "数据结构与算法",
           "teacher": "郭楷文,刘超",
           "location": "计算机科学与技术学院(计算机学院C108)",
           "weekday": 2,
           "startSection": 1,
           "endSection": 2,
+          "startTime": "08:30",
+          "endTime": "12:15",
           "weeks": [
             1,
             2,
@@ -1429,13 +1136,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-29-bf8ac5-18",
+          "id": "wakeup-part-29-571520-18",
           "name": "机器人学导论",
           "teacher": "",
           "location": "综合体南楼(南206/205)",
           "weekday": 5,
           "startSection": 4,
           "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:20",
           "weeks": [
             3,
             4,
@@ -1445,26 +1154,30 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-30-a2d3ee-30",
+          "id": "wakeup-part-30-596eba-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             15
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-31-21676d-21",
+          "id": "wakeup-part-31-25286a-21",
           "name": "机器人学小组项目2",
           "teacher": "李海涛",
           "location": "计算机科学与技术学院(计算机学院C108)",
           "weekday": 4,
           "startSection": 4,
           "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:20",
           "weeks": [
             1,
             2,
@@ -1487,13 +1200,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-32-4001cb-20",
+          "id": "wakeup-part-32-1ecb1c-20",
           "name": "机器人学导论",
           "teacher": "梁馨月",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 5,
           "endSection": 5,
+          "startTime": "19:30",
+          "endTime": "21:20",
           "weeks": [
             3,
             4,
@@ -1503,65 +1218,75 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-33-8a2cab-32",
+          "id": "wakeup-part-33-534237-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             3
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-34-c3d038-30",
+          "id": "wakeup-part-34-ecdf9b-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             1
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-35-5190dc-30",
+          "id": "wakeup-part-35-4e3981-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             5
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-36-0fbfe0-30",
+          "id": "wakeup-part-36-7cfa72-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             14
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-37-2e40a1-17",
+          "id": "wakeup-part-37-9d0af8-17",
           "name": "学术英语Ⅳ",
           "teacher": "外聘（计算机）",
           "location": "综合体南楼(南424/423)",
           "weekday": 3,
           "startSection": 4,
           "endSection": 4,
+          "startTime": "15:30",
+          "endTime": "17:20",
           "weeks": [
             3,
             4,
@@ -1582,13 +1307,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-38-a59d0d-16",
+          "id": "wakeup-part-38-bcce02-16",
           "name": "概率统计",
           "teacher": "刘玉涛",
           "location": "综合体南楼(南304/303)",
           "weekday": 3,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             1,
             2,
@@ -1611,13 +1338,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-39-a986fb-18",
+          "id": "wakeup-part-39-158982-18",
           "name": "机器人学导论",
           "teacher": "梁馨月",
           "location": "综合体南楼(南206/205)",
           "weekday": 3,
           "startSection": 2,
           "endSection": 2,
+          "startTime": "10:30",
+          "endTime": "12:15",
           "weeks": [
             3,
             4,
@@ -1627,13 +1356,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-40-968658-19",
+          "id": "wakeup-part-40-3582d5-19",
           "name": "学术英语Ⅳ",
           "teacher": "外聘（计算机）",
           "location": "综合体南楼(南424/423)",
           "weekday": 1,
           "startSection": 5,
           "endSection": 5,
+          "startTime": "18:30",
+          "endTime": "20:20",
           "weeks": [
             10,
             11
@@ -1641,26 +1372,30 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-41-3308d8-30",
+          "id": "wakeup-part-41-14f3ea-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             4
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-42-cbd273-23",
+          "id": "wakeup-part-42-c36876-23",
           "name": "形势与政策-2026春",
           "teacher": "黄鹏",
           "location": "综合体南楼(南206/205)",
           "weekday": 6,
           "startSection": 2,
           "endSection": 2,
+          "startTime": "10:30",
+          "endTime": "12:15",
           "weeks": [
             3,
             4,
@@ -1670,39 +1405,45 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-43-193fab-30",
+          "id": "wakeup-part-43-0fa1ba-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 4,
+          "startTime": "13:30",
+          "endTime": "16:20",
           "weeks": [
             11
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-44-bddf18-32",
+          "id": "wakeup-part-44-5bd6cb-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             4
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-45-19fbd4-18",
+          "id": "wakeup-part-45-a9e285-18",
           "name": "机器人学导论",
           "teacher": "梁馨月",
           "location": "综合体南楼(南105/104)",
           "weekday": 4,
           "startSection": 1,
           "endSection": 1,
+          "startTime": "08:30",
+          "endTime": "10:15",
           "weeks": [
             3,
             4,
@@ -1712,13 +1453,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-46-a44ac8-17",
+          "id": "wakeup-part-46-df6eed-17",
           "name": "学术英语Ⅳ",
           "teacher": "外聘（计算机）",
           "location": "综合体南楼(南424/423)",
           "weekday": 4,
           "startSection": 1,
           "endSection": 1,
+          "startTime": "08:30",
+          "endTime": "10:15",
           "weeks": [
             10,
             11
@@ -1726,26 +1469,30 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-47-b7c52f-32",
+          "id": "wakeup-part-47-0c649a-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "16:30",
+          "endTime": "18:20",
           "weeks": [
             17
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-48-d97d23-20",
+          "id": "wakeup-part-48-df58a0-20",
           "name": "机器人学导论",
           "teacher": "梁馨月",
           "location": "综合体南楼(南206/205)",
           "weekday": 5,
           "startSection": 5,
           "endSection": 5,
+          "startTime": "18:30",
+          "endTime": "20:20",
           "weeks": [
             3,
             4,
@@ -1755,52 +1502,60 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-49-2c3084-32",
+          "id": "wakeup-part-49-c94a9c-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             12
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-50-f6e47b-32",
+          "id": "wakeup-part-50-323300-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             6
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-51-2fa91e-32",
+          "id": "wakeup-part-51-e46839-32",
           "name": "毛泽东思想和中国特色社会主义理论体系概论",
           "teacher": "隋筱童",
           "location": "综合体南楼(南206/205)",
           "weekday": 2,
           "startSection": 4,
           "endSection": 5,
+          "startTime": "15:30",
+          "endTime": "18:20",
           "weeks": [
             2
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-52-38ce5f-30",
+          "id": "wakeup-part-52-78ca7e-30",
           "name": "习近平新时代中国特色社会主义思想概论",
           "teacher": "武姝含",
           "location": "综合体南楼(南506/505)",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
           "weeks": [
             2
           ],
@@ -1809,17 +1564,299 @@
       ]
     },
     {
-      "id": "member-2207b79e-361",
-      "nickname": "KD_Rin",
+      "id": "member-ac999f9b-2c7",
+      "nickname": "woaijiaying123",
       "source": "wakeup",
-      "importedAt": "2026-03-13T06:31:12.268Z",
+      "importedAt": "2026-03-17T08:10:53.034Z",
       "semesterStart": "3/9",
       "courses": [
         {
-          "id": "wakeup-part-0-88b3a8-20",
-          "name": "数字电子技术A★",
+          "id": "wakeup-part-0-bd0ffb-17",
+          "name": "传感器技术",
+          "teacher": "李增恩*",
+          "location": "主校区8教8#304",
+          "weekday": 3,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-1-ce1e57-17",
+          "name": "传感器技术",
+          "teacher": "李增恩*",
+          "location": "主校区8教8#304",
+          "weekday": 5,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-2-aa0cb2-20",
+          "name": "思想道德与法治B",
+          "teacher": "霍述艳*",
+          "location": "主校区8教8#113",
+          "weekday": 2,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "16:00",
+          "endTime": "17:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-3-67fb3c-18",
+          "name": "大学英语B4",
+          "teacher": "崔珊*",
+          "location": "主校区8教8#208",
+          "weekday": 4,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-4-16dab5-20",
+          "name": "大学生就业指导B",
+          "teacher": "王浩帆*",
+          "location": "主校区6教6#207",
+          "weekday": 4,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "16:00",
+          "endTime": "17:40",
+          "weeks": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-5-6e216b-20",
+          "name": "Java程序设计",
+          "teacher": "",
+          "location": "主校区信息楼＃301",
+          "weekday": 4,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-6-be88b7-20",
+          "name": "四旋翼无人机理论",
+          "teacher": "",
+          "location": "主校区8教8#112",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "14:00",
+          "endTime": "15:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-7-87b1d7-24",
+          "name": "多旋翼无人机教员教育培训",
+          "teacher": "",
+          "location": "主校区8教8#112",
+          "weekday": 2,
+          "startSection": 1,
+          "endSection": 2,
+          "startTime": "08:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-8-e314d2-22",
+          "name": "多旋翼无人机维修基础",
+          "teacher": "",
+          "location": "主校区实训楼＃101",
+          "weekday": 3,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "16:00",
+          "endTime": "17:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "term": ""
+        }
+      ]
+    },
+    {
+      "id": "member-00f7e947-8b2",
+      "nickname": "KD_Rin",
+      "source": "wakeup",
+      "importedAt": "2026-03-30T01:47:12.080Z",
+      "semesterStart": "3/9",
+      "courses": [
+        {
+          "id": "wakeup-part-0-aac916-19",
+          "name": "数字电子技术A",
           "teacher": "冯宇平",
-          "location": "崂山校区 明-204",
+          "location": "崂山校区明-204",
           "weekday": 1,
           "startSection": 1,
           "endSection": 1,
@@ -1834,10 +1871,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-1-d000cd-20",
-          "name": "数字电子技术A★",
+          "id": "wakeup-part-1-10e62b-19",
+          "name": "数字电子技术A",
           "teacher": "冯宇平",
-          "location": "崂山校区 明-204",
+          "location": "崂山校区明-204",
           "weekday": 1,
           "startSection": 1,
           "endSection": 1,
@@ -1856,10 +1893,50 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-2-20e4b0-22",
-          "name": "单片机原理及应用A★",
+          "id": "wakeup-part-2-42a0c8-19",
+          "name": "数字电子技术A",
+          "teacher": "冯宇平",
+          "location": "崂山校区明-204",
+          "weekday": 4,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:10",
+          "endTime": "12:00",
+          "weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-3-5896d4-19",
+          "name": "数字电子技术A",
+          "teacher": "冯宇平",
+          "location": "崂山校区明-204",
+          "weekday": 4,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:10",
+          "endTime": "12:00",
+          "weeks": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-4-ae6993-21",
+          "name": "单片机原理及应用A",
           "teacher": "庄克玉",
-          "location": "崂山校区 明-204",
+          "location": "崂山校区明-204",
           "weekday": 2,
           "startSection": 1,
           "endSection": 1,
@@ -1874,10 +1951,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-3-1acd2d-22",
-          "name": "单片机原理及应用A★",
+          "id": "wakeup-part-5-3e9d3d-21",
+          "name": "单片机原理及应用A",
           "teacher": "庄克玉",
-          "location": "崂山校区 明-204",
+          "location": "崂山校区明-204",
           "weekday": 2,
           "startSection": 1,
           "endSection": 1,
@@ -1896,11 +1973,11 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-4-333c0e-18",
-          "name": "化工原理C★",
-          "teacher": "耿赛",
-          "location": "崂山校区 明-236",
-          "weekday": 3,
+          "id": "wakeup-part-6-3d3f3d-21",
+          "name": "单片机原理及应用A",
+          "teacher": "庄克玉",
+          "location": "崂山校区明-327",
+          "weekday": 4,
           "startSection": 1,
           "endSection": 1,
           "startTime": "08:00",
@@ -1914,17 +1991,72 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-5-9c0242-18",
-          "name": "化工原理C★",
-          "teacher": "耿赛",
-          "location": "崂山校区 明-236",
-          "weekday": 3,
+          "id": "wakeup-part-7-f41983-21",
+          "name": "单片机原理及应用A",
+          "teacher": "庄克玉",
+          "location": "崂山校区明-327",
+          "weekday": 4,
           "startSection": 1,
           "endSection": 1,
           "startTime": "08:00",
           "endTime": "09:50",
           "weeks": [
             6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-8-0c6c79-20",
+          "name": "【调】化工原理C",
+          "teacher": "耿赛",
+          "location": "崂山校区明-236",
+          "weekday": 3,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:50",
+          "weeks": [
+            1,
+            2,
+            3
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-9-5e2963-20",
+          "name": "【调】化工原理C",
+          "teacher": "耿赛",
+          "location": "崂山校区明-236",
+          "weekday": 3,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:50",
+          "weeks": [
+            4,
+            5,
+            6
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-10-6319ed-20",
+          "name": "【调】化工原理C",
+          "teacher": "耿赛",
+          "location": "崂山校区明-236",
+          "weekday": 3,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:50",
+          "weeks": [
             7,
             8,
             9,
@@ -1940,34 +2072,33 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-6-3ae47a-22",
-          "name": "单片机原理及应用A★",
-          "teacher": "庄克玉",
-          "location": "崂山校区 明-327",
-          "weekday": 4,
+          "id": "wakeup-part-11-e68757-20",
+          "name": "【调】化工原理C",
+          "teacher": "耿赛",
+          "location": "崂山校区明-236",
+          "weekday": 5,
           "startSection": 1,
           "endSection": 1,
           "startTime": "08:00",
           "endTime": "09:50",
           "weeks": [
-            1,
-            2,
-            3,
-            4
+            16
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-7-d4b029-22",
-          "name": "单片机原理及应用A★",
-          "teacher": "庄克玉",
-          "location": "崂山校区 明-327",
-          "weekday": 4,
-          "startSection": 1,
-          "endSection": 1,
-          "startTime": "08:00",
-          "endTime": "09:50",
+          "id": "wakeup-part-12-71455c-20",
+          "name": "【调】化工原理C",
+          "teacher": "耿赛",
+          "location": "崂山校区明-328",
+          "weekday": 5,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:10",
+          "endTime": "12:00",
           "weeks": [
+            4,
+            5,
             6,
             7,
             8,
@@ -1975,15 +2106,33 @@
             10,
             11,
             12,
-            13
+            13,
+            14,
+            15,
+            16
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-8-22ddce-18",
-          "name": "形势与政策★",
-          "teacher": "赵赪赪,董一凡,李卓林,丁雅琼",
-          "location": "崂山校区 弘B202",
+          "id": "wakeup-part-13-230b79-20",
+          "name": "【调】化工原理C",
+          "teacher": "耿赛",
+          "location": "崂山校区明-230",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
+          "weeks": [
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-14-5e70b9-20",
+          "name": "【调】形势与政策",
+          "teacher": "丁雅琼,李卓林,董一凡",
+          "location": "崂山校区弘B202",
           "weekday": 4,
           "startSection": 1,
           "endSection": 1,
@@ -1998,10 +2147,102 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-9-e56a8d-20",
-          "name": "自动控制原理A★",
+          "id": "wakeup-part-15-6dde77-20",
+          "name": "【调】形势与政策",
+          "teacher": "赵赪赪",
+          "location": "崂山校区弘B202",
+          "weekday": 4,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:50",
+          "weeks": [
+            17
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-16-ae896a-19",
+          "name": "自动控制原理A",
           "teacher": "于镭",
-          "location": "崂山校区 明-442",
+          "location": "崂山校区明-414",
+          "weekday": 1,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:40",
+          "endTime": "17:30",
+          "weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-17-6e3749-19",
+          "name": "自动控制原理A",
+          "teacher": "于镭",
+          "location": "崂山校区明-414",
+          "weekday": 1,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "15:40",
+          "endTime": "17:30",
+          "weeks": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-18-ba4c23-20",
+          "name": "自动控制原理A",
+          "teacher": "于镭",
+          "location": "崂山校区明-204",
+          "weekday": 3,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:30",
+          "endTime": "20:20",
+          "weeks": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-19-e72484-20",
+          "name": "自动控制原理A",
+          "teacher": "于镭",
+          "location": "崂山校区明-204",
+          "weekday": 3,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:30",
+          "endTime": "20:20",
+          "weeks": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-20-619266-19",
+          "name": "自动控制原理A",
+          "teacher": "于镭",
+          "location": "崂山校区明-442",
           "weekday": 5,
           "startSection": 1,
           "endSection": 1,
@@ -2016,10 +2257,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-10-fb3cd3-20",
-          "name": "自动控制原理A★",
+          "id": "wakeup-part-21-0389f5-19",
+          "name": "自动控制原理A",
           "teacher": "于镭",
-          "location": "崂山校区 明-442",
+          "location": "崂山校区明-442",
           "weekday": 5,
           "startSection": 1,
           "endSection": 1,
@@ -2037,10 +2278,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-11-b57e15-22",
+          "id": "wakeup-part-22-45fa22-22",
           "name": "单片机原理及应用A○",
           "teacher": "庄克玉",
-          "location": "崂山校区 D1-520",
+          "location": "崂山校区D1-520",
           "weekday": 7,
           "startSection": 1,
           "endSection": 2,
@@ -2058,10 +2299,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-12-94926b-21",
-          "name": "概率论与数理统计★",
+          "id": "wakeup-part-23-35e041-20",
+          "name": "概率论与数理统计",
           "teacher": "周红燕",
-          "location": "崂山校区 弘E104",
+          "location": "崂山校区弘E104",
           "weekday": 1,
           "startSection": 2,
           "endSection": 2,
@@ -2076,10 +2317,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-13-9d93c2-21",
-          "name": "概率论与数理统计★",
+          "id": "wakeup-part-24-4e02f8-20",
+          "name": "概率论与数理统计",
           "teacher": "周红燕",
-          "location": "崂山校区 弘E104",
+          "location": "崂山校区弘E104",
           "weekday": 1,
           "startSection": 2,
           "endSection": 2,
@@ -2102,47 +2343,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-14-9e680d-20",
-          "name": "自动控制原理A○",
-          "teacher": "于镭",
-          "location": "崂山校区 D1-201",
-          "weekday": 2,
-          "startSection": 2,
-          "endSection": 2,
-          "startTime": "10:10",
-          "endTime": "12:00",
-          "weeks": [
-            4,
-            5,
-            6
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-15-81f116-20",
-          "name": "自动控制原理A○",
-          "teacher": "于镭",
-          "location": "崂山校区 D1-201",
-          "weekday": 2,
-          "startSection": 2,
-          "endSection": 2,
-          "startTime": "10:10",
-          "endTime": "12:00",
-          "weeks": [
-            7,
-            8,
-            9,
-            10,
-            11,
-            12
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-16-fbc642-21",
-          "name": "概率论与数理统计★",
+          "id": "wakeup-part-25-2d6061-20",
+          "name": "概率论与数理统计",
           "teacher": "周红燕",
-          "location": "崂山校区 弘E104",
+          "location": "崂山校区弘E104",
           "weekday": 3,
           "startSection": 2,
           "endSection": 2,
@@ -2168,79 +2372,47 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-17-2d51c0-20",
-          "name": "数字电子技术A★",
-          "teacher": "冯宇平",
-          "location": "崂山校区 明-204",
-          "weekday": 4,
+          "id": "wakeup-part-26-ffc990-20",
+          "name": "自动控制原理A○",
+          "teacher": "于镭",
+          "location": "崂山校区D1-201",
+          "weekday": 2,
           "startSection": 2,
           "endSection": 2,
           "startTime": "10:10",
           "endTime": "12:00",
           "weeks": [
-            1,
-            2,
-            3,
-            4
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-18-248192-20",
-          "name": "数字电子技术A★",
-          "teacher": "冯宇平",
-          "location": "崂山校区 明-204",
-          "weekday": 4,
-          "startSection": 2,
-          "endSection": 2,
-          "startTime": "10:10",
-          "endTime": "12:00",
-          "weeks": [
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-19-7778b6-18",
-          "name": "化工原理C★",
-          "teacher": "耿赛",
-          "location": "崂山校区 明-328",
-          "weekday": 5,
-          "startSection": 2,
-          "endSection": 2,
-          "startTime": "10:10",
-          "endTime": "12:00",
-          "weeks": [
-            2,
-            3,
             4,
             5,
-            6,
+            6
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-27-c00ac5-20",
+          "name": "自动控制原理A○",
+          "teacher": "于镭",
+          "location": "崂山校区D1-201",
+          "weekday": 2,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:10",
+          "endTime": "12:00",
+          "weeks": [
             7,
             8,
             9,
             10,
             11,
-            12,
-            13,
-            14,
-            15,
-            16
+            12
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-20-e50c5b-18",
-          "name": "足球(男)★",
+          "id": "wakeup-part-28-19fbb6-17",
+          "name": "足球(男)",
           "teacher": "宗可豪",
-          "location": "崂山校区 未排地点",
+          "location": "崂山校区未排地点",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
@@ -2269,28 +2441,26 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-21-3925c7-20",
-          "name": "电机及拖动基础★",
+          "id": "wakeup-part-29-714088-22",
+          "name": "【调】电机及拖动基础",
           "teacher": "刘喜梅",
-          "location": "崂山校区 弘B408",
+          "location": "崂山校区弘B301",
           "weekday": 3,
           "startSection": 3,
           "endSection": 3,
           "startTime": "13:30",
           "endTime": "15:20",
           "weeks": [
-            1,
-            2,
             3,
             4
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-22-d4101c-20",
-          "name": "电机及拖动基础★",
+          "id": "wakeup-part-30-f41725-22",
+          "name": "【调】电机及拖动基础",
           "teacher": "刘喜梅",
-          "location": "崂山校区 弘B408",
+          "location": "崂山校区弘B301",
           "weekday": 3,
           "startSection": 3,
           "endSection": 3,
@@ -2308,10 +2478,93 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-23-019e71-20",
+          "id": "wakeup-part-31-71cff8-22",
+          "name": "【调】电机及拖动基础",
+          "teacher": "刘喜梅",
+          "location": "崂山校区弘B408",
+          "weekday": 3,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
+          "weeks": [
+            1,
+            2
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-32-4db5bb-22",
+          "name": "【调】电机及拖动基础",
+          "teacher": "刘喜梅",
+          "location": "崂山校区明-320",
+          "weekday": 4,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
+          "weeks": [
+            4
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-33-e3af6e-22",
+          "name": "【调】电机及拖动基础",
+          "teacher": "刘喜梅",
+          "location": "崂山校区弘B202",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
+          "weeks": [
+            3
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-34-6e44cd-22",
+          "name": "【调】电机及拖动基础",
+          "teacher": "刘喜梅",
+          "location": "崂山校区弘B202",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
+          "weeks": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-35-6542ed-22",
+          "name": "【调】电机及拖动基础",
+          "teacher": "刘喜梅",
+          "location": "崂山校区弘B411",
+          "weekday": 5,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "13:30",
+          "endTime": "15:20",
+          "weeks": [
+            1,
+            2
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-36-efb189-20",
           "name": "电机及拖动基础○",
           "teacher": "于大川",
-          "location": "崂山校区 D1-303",
+          "location": "崂山校区D1-303",
           "weekday": 4,
           "startSection": 3,
           "endSection": 3,
@@ -2326,88 +2579,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-24-702731-20",
-          "name": "电机及拖动基础★",
-          "teacher": "刘喜梅",
-          "location": "崂山校区 弘B411",
-          "weekday": 5,
-          "startSection": 3,
-          "endSection": 3,
-          "startTime": "13:30",
-          "endTime": "15:20",
-          "weeks": [
-            1,
-            2,
-            3,
-            4
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-25-51e447-20",
-          "name": "电机及拖动基础★",
-          "teacher": "刘喜梅",
-          "location": "崂山校区 弘B411",
-          "weekday": 5,
-          "startSection": 3,
-          "endSection": 3,
-          "startTime": "13:30",
-          "endTime": "15:20",
-          "weeks": [
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-26-a367f3-20",
-          "name": "自动控制原理A★",
-          "teacher": "于镭",
-          "location": "崂山校区 明-414",
-          "weekday": 1,
-          "startSection": 4,
-          "endSection": 4,
-          "startTime": "15:40",
-          "endTime": "17:30",
-          "weeks": [
-            1,
-            2,
-            3,
-            4
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-27-179bcf-20",
-          "name": "自动控制原理A★",
-          "teacher": "于镭",
-          "location": "崂山校区 明-414",
-          "weekday": 1,
-          "startSection": 4,
-          "endSection": 4,
-          "startTime": "15:40",
-          "endTime": "17:30",
-          "weeks": [
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-28-2e31b1-25",
-          "name": "【调】马克思主义基本原理★",
+          "id": "wakeup-part-37-aebc06-24",
+          "name": "【调】马克思主义基本原理",
           "teacher": "赵青霞",
-          "location": "崂山校区 弘E104",
+          "location": "崂山校区弘E104",
           "weekday": 3,
           "startSection": 4,
           "endSection": 4,
@@ -2422,10 +2597,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-29-9e4847-25",
-          "name": "【调】马克思主义基本原理★",
+          "id": "wakeup-part-38-4ec98e-24",
+          "name": "【调】马克思主义基本原理",
           "teacher": "赵青霞",
-          "location": "崂山校区 弘E104",
+          "location": "崂山校区弘E104",
           "weekday": 3,
           "startSection": 4,
           "endSection": 4,
@@ -2447,10 +2622,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-30-fb6529-25",
-          "name": "【调】马克思主义基本原理★",
+          "id": "wakeup-part-39-9522f7-24",
+          "name": "【调】马克思主义基本原理",
           "teacher": "赵青霞",
-          "location": "崂山校区 线上教室8",
+          "location": "崂山校区线上教室8",
           "weekday": 3,
           "startSection": 4,
           "endSection": 4,
@@ -2462,32 +2637,25 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-31-849b6b-20",
-          "name": "数字电子技术A○",
-          "teacher": "冯宇平",
-          "location": "崂山校区 D1-419",
-          "weekday": 4,
+          "id": "wakeup-part-40-bc45dc-24",
+          "name": "【调】马克思主义基本原理",
+          "teacher": "赵青霞",
+          "location": "崂山校区弘E102",
+          "weekday": 5,
           "startSection": 4,
           "endSection": 4,
           "startTime": "15:40",
           "endTime": "17:30",
           "weeks": [
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14
+            17
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-32-4f5c78-25",
-          "name": "【调】马克思主义基本原理★",
+          "id": "wakeup-part-41-a306a4-24",
+          "name": "【调】马克思主义基本原理",
           "teacher": "赵青霞",
-          "location": "崂山校区 线上教室8",
+          "location": "崂山校区线上教室8",
           "weekday": 5,
           "startSection": 4,
           "endSection": 4,
@@ -2501,10 +2669,10 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-33-d4442a-25",
-          "name": "【调】马克思主义基本原理★",
+          "id": "wakeup-part-42-f3ce90-24",
+          "name": "【调】马克思主义基本原理",
           "teacher": "赵青霞",
-          "location": "崂山校区 线上教室8",
+          "location": "崂山校区线上教室8",
           "weekday": 5,
           "startSection": 4,
           "endSection": 4,
@@ -2524,80 +2692,63 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-34-7160ba-25",
-          "name": "【调】马克思主义基本原理★",
-          "teacher": "赵青霞",
-          "location": "崂山校区 弘E102",
-          "weekday": 5,
+          "id": "wakeup-part-43-acf641-20",
+          "name": "数字电子技术A○",
+          "teacher": "冯宇平",
+          "location": "崂山校区D1-419",
+          "weekday": 4,
           "startSection": 4,
           "endSection": 4,
           "startTime": "15:40",
           "endTime": "17:30",
           "weeks": [
-            17
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-35-3aeabc-21",
-          "name": "自动控制原理A★",
-          "teacher": "于镭",
-          "location": "崂山校区 明-204",
-          "weekday": 3,
-          "startSection": 5,
-          "endSection": 5,
-          "startTime": "18:30",
-          "endTime": "20:20",
-          "weeks": [
-            1,
-            2,
-            3,
-            4
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-36-04409c-21",
-          "name": "自动控制原理A★",
-          "teacher": "于镭",
-          "location": "崂山校区 明-204",
-          "weekday": 3,
-          "startSection": 5,
-          "endSection": 5,
-          "startTime": "18:30",
-          "endTime": "20:20",
-          "weeks": [
-            6,
             7,
             8,
             9,
             10,
-            11
+            11,
+            12,
+            13,
+            14
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-37-279b5c-25",
+          "id": "wakeup-part-44-bd829f-25",
           "name": "【调】思想政治理论实践●",
           "teacher": "闫鑫淇",
-          "location": "崂山校区 弘B403",
+          "location": "崂山校区弘B403",
           "weekday": 5,
           "startSection": 5,
           "endSection": 5,
           "startTime": "18:30",
           "endTime": "20:20",
           "weeks": [
-            1,
+            1
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-45-8e17bc-25",
+          "name": "【调】思想政治理论实践●",
+          "teacher": "闫鑫淇",
+          "location": "崂山校区明-306",
+          "weekday": 5,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "18:30",
+          "endTime": "20:20",
+          "weeks": [
             2,
             3
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-38-bcd6f2-25",
+          "id": "wakeup-part-46-2141b1-25",
           "name": "【调】思想政治理论实践●",
           "teacher": "闫鑫淇",
-          "location": "崂山校区 弘B403",
+          "location": "崂山校区明-306",
           "weekday": 5,
           "startSection": 5,
           "endSection": 5,
@@ -2613,44 +2764,22 @@
       ]
     },
     {
-      "id": "member-6c0e9d72-963",
-      "nickname": "Santam",
+      "id": "member-d8d021e4-459",
+      "nickname": "Sleexy",
       "source": "wakeup",
-      "importedAt": "2026-03-13T07:50:54.923Z",
+      "importedAt": "2026-03-31T15:03:55.488Z",
       "semesterStart": "3/2",
       "courses": [
         {
-          "id": "wakeup-part-0-3e84de-15",
-          "name": "经济法",
-          "teacher": "鲁迪,李升朝",
-          "location": "*b303（本科）",
-          "weekday": 3,
-          "startSection": 3,
-          "endSection": 3,
-          "startTime": "13:30",
-          "endTime": "15:20",
-          "weeks": [
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-1-06e951-30",
-          "name": "习近平新时代中国特色社会主义思想概论",
-          "teacher": "陈怀平",
-          "location": "*b201（本科）",
-          "weekday": 4,
-          "startSection": 2,
-          "endSection": 2,
-          "startTime": "10:10",
-          "endTime": "12:00",
+          "id": "wakeup-part-0-195f66-20",
+          "name": "数据库原理与应用",
+          "teacher": "岳训",
+          "location": "南校区主楼(S111)",
+          "weekday": 1,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
           "weeks": [
             1,
             2,
@@ -2672,48 +2801,94 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-2-f14566-30",
-          "name": "习近平新时代中国特色社会主义思想概论",
-          "teacher": "陈怀平",
-          "location": "*b201（本科）",
-          "weekday": 6,
+          "id": "wakeup-part-1-f4f99a-19",
+          "name": "大学英语进阶2",
+          "teacher": "高珊",
+          "location": "南校区主楼(S513)",
+          "weekday": 1,
           "startSection": 2,
           "endSection": 2,
-          "startTime": "10:10",
-          "endTime": "12:00",
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-2-bf28cc-22",
+          "name": "大学生创新创业教育",
+          "teacher": "刘源",
+          "location": "南校区主楼(N204)",
+          "weekday": 1,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "19:00",
+          "endTime": "20:40",
+          "weeks": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-3-85eec7-22",
+          "name": "数据库原理与应用实验",
+          "teacher": "岳训",
+          "location": "南校图信楼(图信楼大厅A区)",
+          "weekday": 2,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
           "weeks": [
             7,
-            8
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-3-a12350-17",
-          "name": "统计学导论",
-          "teacher": "何浩楠",
-          "location": "*b103（本科）",
-          "weekday": 6,
-          "startSection": 3,
-          "endSection": 4,
-          "startTime": "13:30",
-          "endTime": "16:30",
+          "id": "wakeup-part-4-b1dc63-20",
+          "name": "数据库原理与应用",
+          "teacher": "岳训",
+          "location": "南校区主楼(S311)",
+          "weekday": 3,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
           "weeks": [
             1,
-            2
-          ],
-          "term": ""
-        },
-        {
-          "id": "wakeup-part-4-51d6d4-17",
-          "name": "计量经济学",
-          "teacher": "权飞过",
-          "location": "*b102（本科）",
-          "weekday": 2,
-          "startSection": 2,
-          "endSection": 2,
-          "startTime": "10:10",
-          "endTime": "12:00",
-          "weeks": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
             9,
             10,
             11,
@@ -2726,15 +2901,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-5-2dfaa0-21",
-          "name": "博弈论与信息经济学",
-          "teacher": "孙铭",
-          "location": "*b103（本科）",
-          "weekday": 1,
-          "startSection": 4,
-          "endSection": 4,
-          "startTime": "15:40",
-          "endTime": "17:30",
+          "id": "wakeup-part-5-e871f5-21",
+          "name": "物联网工程体系结构",
+          "teacher": "柳平增",
+          "location": "南校区主楼(S514)",
+          "weekday": 3,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
           "weeks": [
             1,
             2,
@@ -2748,7 +2923,359 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-6-20ded1-18",
+          "id": "wakeup-part-6-8eaedf-14",
+          "name": "散手",
+          "teacher": "王亚文",
+          "location": "南校区体育(南校区体育体育场19)",
+          "weekday": 3,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "14:00",
+          "endTime": "15:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-7-fa1ea4-20",
+          "name": "传感器原理与技术",
+          "teacher": "李光忠",
+          "location": "南校区主楼(S223)",
+          "weekday": 4,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-8-e72df2-22",
+          "name": "大学生创新创业教育",
+          "teacher": "刘源",
+          "location": "南校区主楼(N201)",
+          "weekday": 4,
+          "startSection": 5,
+          "endSection": 5,
+          "startTime": "19:00",
+          "endTime": "20:40",
+          "weeks": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-9-937655-21",
+          "name": "物联网工程体系结构",
+          "teacher": "柳平增",
+          "location": "南校区主楼(S414)",
+          "weekday": 5,
+          "startSection": 1,
+          "endSection": 1,
+          "startTime": "08:00",
+          "endTime": "09:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-10-84588b-22",
+          "name": "传感器原理与技术实验",
+          "teacher": "李光忠",
+          "location": "南校图信楼(图信楼404)",
+          "weekday": 1,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "16:00",
+          "endTime": "17:40",
+          "weeks": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-11-7a3908-20",
+          "name": "计算机组成原理★",
+          "teacher": "苏平",
+          "location": "南校区主楼(S514)",
+          "weekday": 2,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-12-6cc370-20",
+          "name": "计算机组成原理★",
+          "teacher": "苏平",
+          "location": "南校区主楼(S425)",
+          "weekday": 5,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:00",
+          "endTime": "11:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-13-7eadbf-21",
+          "name": "计算机组成原理实验",
+          "teacher": "苏平",
+          "location": "南校图信楼(图信楼大厅A区)",
+          "weekday": 1,
+          "startSection": 3,
+          "endSection": 4,
+          "startTime": "14:00",
+          "endTime": "17:40",
+          "weeks": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-14-da39df-22",
+          "name": "体育健康与标准测试1",
+          "teacher": "李宇",
+          "location": "南校区体育(南校区体育体育场12)",
+          "weekday": 4,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "16:00",
+          "endTime": "17:40",
+          "weeks": [
+            4
+          ],
+          "term": ""
+        }
+      ]
+    },
+    {
+      "id": "member-036ba15a-bca",
+      "nickname": "Santam",
+      "source": "wakeup",
+      "importedAt": "2026-03-31T15:41:35.250Z",
+      "semesterStart": "3/2",
+      "courses": [
+        {
+          "id": "wakeup-part-0-beaaff-15",
+          "name": "经济法",
+          "teacher": "鲁迪,李升朝",
+          "location": "*b303（本科）",
+          "weekday": 3,
+          "startSection": 3,
+          "endSection": 3,
+          "startTime": "14:00",
+          "endTime": "15:40",
+          "weeks": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-1-4c4ccd-30",
+          "name": "习近平新时代中国特色社会主义思想概论",
+          "teacher": "陈怀平",
+          "location": "*b201（本科）",
+          "weekday": 4,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:10",
+          "endTime": "11:45",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-2-fc0d33-30",
+          "name": "习近平新时代中国特色社会主义思想概论",
+          "teacher": "陈怀平",
+          "location": "*b201（本科）",
+          "weekday": 6,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:10",
+          "endTime": "11:45",
+          "weeks": [
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-3-e2be6e-17",
+          "name": "统计学导论",
+          "teacher": "何浩楠",
+          "location": "*b103（本科）",
+          "weekday": 6,
+          "startSection": 3,
+          "endSection": 4,
+          "startTime": "14:00",
+          "endTime": "16:45",
+          "weeks": [
+            1,
+            2
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-4-614ccf-17",
+          "name": "计量经济学",
+          "teacher": "权飞过",
+          "location": "*b102（本科）",
+          "weekday": 2,
+          "startSection": 2,
+          "endSection": 2,
+          "startTime": "10:10",
+          "endTime": "11:45",
+          "weeks": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-5-1648fa-21",
+          "name": "博弈论与信息经济学",
+          "teacher": "孙铭",
+          "location": "*b103（本科）",
+          "weekday": 1,
+          "startSection": 4,
+          "endSection": 4,
+          "startTime": "16:00",
+          "endTime": "17:40",
+          "weeks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "term": ""
+        },
+        {
+          "id": "wakeup-part-6-f9e127-18",
           "name": "大学英语四级",
           "teacher": "王杰义",
           "location": "*b143（本科）",
@@ -2756,7 +3283,7 @@
           "startSection": 1,
           "endSection": 1,
           "startTime": "08:00",
-          "endTime": "09:50",
+          "endTime": "09:40",
           "weeks": [
             1,
             2,
@@ -2771,15 +3298,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-7-af2a36-17",
+          "id": "wakeup-part-7-21cb91-17",
           "name": "国际贸易学",
           "teacher": "孙铭",
           "location": "*b203（本科）",
           "weekday": 5,
           "startSection": 3,
           "endSection": 3,
-          "startTime": "13:30",
-          "endTime": "15:20",
+          "startTime": "14:00",
+          "endTime": "15:40",
           "weeks": [
             1,
             2,
@@ -2797,15 +3324,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-8-95cd7e-21",
+          "id": "wakeup-part-8-5d1625-21",
           "name": "博弈论与信息经济学",
           "teacher": "孙铭",
           "location": "*b103（本科）",
           "weekday": 5,
           "startSection": 4,
           "endSection": 4,
-          "startTime": "15:40",
-          "endTime": "17:30",
+          "startTime": "16:00",
+          "endTime": "17:40",
           "weeks": [
             1,
             2,
@@ -2819,7 +3346,7 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-9-f8bd05-17",
+          "id": "wakeup-part-9-a3ddf8-17",
           "name": "计量经济学",
           "teacher": "权飞过",
           "location": "*b102（本科）",
@@ -2827,7 +3354,7 @@
           "startSection": 1,
           "endSection": 1,
           "startTime": "08:00",
-          "endTime": "09:50",
+          "endTime": "09:40",
           "weeks": [
             9,
             10,
@@ -2841,15 +3368,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-10-8a2fb9-15",
+          "id": "wakeup-part-10-299caf-15",
           "name": "经济法",
           "teacher": "鲁迪,李升朝",
           "location": "*b303（本科）",
           "weekday": 1,
           "startSection": 4,
           "endSection": 4,
-          "startTime": "15:40",
-          "endTime": "17:30",
+          "startTime": "16:00",
+          "endTime": "17:40",
           "weeks": [
             9,
             10,
@@ -2863,7 +3390,7 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-11-042e64-18",
+          "id": "wakeup-part-11-4e3416-18",
           "name": "大学英语四级",
           "teacher": "王杰义",
           "location": "*b143（本科）",
@@ -2871,7 +3398,7 @@
           "startSection": 2,
           "endSection": 2,
           "startTime": "10:10",
-          "endTime": "12:00",
+          "endTime": "11:45",
           "weeks": [
             1,
             2,
@@ -2886,15 +3413,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-12-6765e0-17",
+          "id": "wakeup-part-12-55f30b-17",
           "name": "统计学导论",
           "teacher": "何浩楠",
           "location": "*b103（本科）",
           "weekday": 6,
           "startSection": 3,
           "endSection": 4,
-          "startTime": "13:30",
-          "endTime": "16:30",
+          "startTime": "14:00",
+          "endTime": "16:45",
           "weeks": [
             4,
             5,
@@ -2907,15 +3434,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-13-87c644-17",
+          "id": "wakeup-part-13-8366b4-17",
           "name": "计量经济学",
           "teacher": "权飞过",
           "location": "*b102（本科）",
           "weekday": 5,
           "startSection": 4,
           "endSection": 4,
-          "startTime": "15:40",
-          "endTime": "17:30",
+          "startTime": "16:00",
+          "endTime": "17:40",
           "weeks": [
             9,
             10,
@@ -2929,15 +3456,15 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-14-8a64d5-17",
+          "id": "wakeup-part-14-9d789d-17",
           "name": "体育（四）",
           "teacher": "",
           "location": "操场（本部）",
           "weekday": 2,
           "startSection": 4,
           "endSection": 4,
-          "startTime": "15:40",
-          "endTime": "17:30",
+          "startTime": "16:00",
+          "endTime": "17:40",
           "weeks": [
             1,
             2,
@@ -2959,7 +3486,7 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-15-a5198d-17",
+          "id": "wakeup-part-15-405b33-17",
           "name": "统计学导论",
           "teacher": "何浩楠",
           "location": "*b103（本科）",
@@ -2967,7 +3494,7 @@
           "startSection": 1,
           "endSection": 1,
           "startTime": "08:00",
-          "endTime": "09:50",
+          "endTime": "09:40",
           "weeks": [
             1,
             2,
@@ -2983,30 +3510,30 @@
           "term": ""
         },
         {
-          "id": "wakeup-part-16-fb21b5-18",
+          "id": "wakeup-part-16-c650c3-18",
           "name": "统计学导论",
           "teacher": "何浩楠",
           "location": "*b201（本科）",
           "weekday": 3,
           "startSection": 5,
           "endSection": 5,
-          "startTime": "18:30",
-          "endTime": "21:20",
+          "startTime": "19:00",
+          "endTime": "21:30",
           "weeks": [
             9
           ],
           "term": ""
         },
         {
-          "id": "wakeup-part-17-0fb12e-17",
+          "id": "wakeup-part-17-8a6dd2-17",
           "name": "国际贸易学",
           "teacher": "孙铭",
           "location": "*b203（本科）",
           "weekday": 1,
           "startSection": 3,
           "endSection": 3,
-          "startTime": "13:30",
-          "endTime": "15:20",
+          "startTime": "14:00",
+          "endTime": "15:40",
           "weeks": [
             1,
             2,
